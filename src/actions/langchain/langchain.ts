@@ -168,7 +168,7 @@ const generateLangChainCompletion = async (docId: string, question: string) => {
     ['user', '{input}'],
     [
       'user',
-      'Given the above conversation, generate a search query to lookup in order to get information relevant to the conversation',
+      'Based on the conversation history and the current question, generate a focused search query that will retrieve the most relevant information. Consider key terms, technical details, and specific context mentioned. The query should be specific enough to find precise information but broad enough to capture relevant context. If the current question references previous topics, include those key elements in the query.',
     ],
   ]);
 
@@ -183,7 +183,10 @@ const generateLangChainCompletion = async (docId: string, question: string) => {
   //Define a prompt template for answering questions based on retrieved context
   //console.log(    '--- Defining a prompt template for answering questions based on retrieved context... ---'  );
   const historyAwareRetrievalPrompt = ChatPromptTemplate.fromMessages([
-    ['system', "Answer the user's question based on the below context:\n\n{context}"],
+    [
+      'system',
+      "You are a precise document analysis assistant. Using only the provided context below, answer the user's question thoroughly and accurately. If the information in the context is insufficient or ambiguous, acknowledge this explicitly. Focus on facts directly stated in the context rather than making assumptions. Connect information across different parts of the context when relevant. If the question asks about numerical data, double-check calculations and cite specific figures from the context. If the answer requires referring to previous conversation points, explicitly connect them to the current context.\n\nContext:\n{context}",
+    ],
 
     ...chatHistory, // Insert the actual chat History here
 

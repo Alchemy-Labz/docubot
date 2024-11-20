@@ -114,7 +114,7 @@ function ChatWindow({ id }: { id: string }) {
       </div>
       <form
         onSubmit={handleSubmit}
-        className='border-accent-200 dark:border-accent-700 border-t p-4'
+        className='border-accent-200 dark:border-accent-700 border-t bg-dark-600/40 p-4'
       >
         <div className='flex space-x-2'>
           <Input
@@ -123,11 +123,15 @@ function ChatWindow({ id }: { id: string }) {
             placeholder='Type your message...'
             className='flex-1 bg-dark-700/40'
           />
-          <Button type='submit' disabled={!input.trim() || isPending}>
+          <Button
+            type='submit'
+            disabled={!input.trim() || isPending}
+            className='flex items-center justify-center bg-light-500'
+          >
             {isPending ? (
               <Loader2 className='h-4 w-4 animate-spin' />
             ) : (
-              <Send className='h-4 w-4' />
+              <Send className='h-5 w-5' />
             )}
           </Button>
         </div>
