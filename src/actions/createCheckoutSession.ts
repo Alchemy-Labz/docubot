@@ -5,7 +5,7 @@ import { adminDb } from '#/firebaseAdmin';
 import { UserDetails } from '@/app/dashboard/upgrade/page';
 import { stripe } from '@/lib/stripe';
 import { auth } from '@clerk/nextjs/server';
-import { getBaseURL } from '@/lib/util/getBaseURL';
+import { getBaseURL } from '@/util/getBaseURL';
 export async function createCheckoutSession(userDetails: UserDetails) {
   const { userId } = await auth();
 

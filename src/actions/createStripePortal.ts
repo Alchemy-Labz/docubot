@@ -3,7 +3,7 @@
 
 import { adminDb } from '#/firebaseAdmin';
 import { stripe } from '@/lib/stripe';
-import { getBaseURL } from '@/lib/util/getBaseURL';
+import { getBaseURL } from '@/util/getBaseURL';
 import { auth } from '@clerk/nextjs/server';
 
 export async function createStripePortal() {
