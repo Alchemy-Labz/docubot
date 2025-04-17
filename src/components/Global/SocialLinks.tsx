@@ -1,7 +1,7 @@
 import React from 'react';
 import { FaTwitter, FaFacebookF, FaTiktok, FaYoutube } from 'react-icons/fa';
 import Link from 'next/link';
-function SocialLinks() {
+const SocialLinks = () => {
   return (
     <div className='flex w-full items-center justify-start space-x-4 py-4 sm:w-1/2 md:w-1/4 lg:w-1/6'>
       <Link
@@ -38,6 +38,6 @@ function SocialLinks() {
       </Link>
     </div>
   );
-}
+};
 
 export default SocialLinks;

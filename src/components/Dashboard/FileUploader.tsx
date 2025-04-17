@@ -11,7 +11,7 @@ import useUpload, { UploadStatusText } from '@/hooks/useUpload';
 import useSubscription from '@/hooks/useSubscription';
 import { MdError } from 'react-icons/md';
 
-function FileUploader() {
+const FileUploader = () => {
   const { progress, status, docId, handleUploadDocument } = useUpload();
   const { isOverFileLimit, docsLoading } = useSubscription();
   const router = useRouter();
@@ -147,6 +147,6 @@ function FileUploader() {
       )}
     </div>
   );
-}
+};
 
 export default FileUploader;

@@ -25,7 +25,7 @@ export type Message = {
   message: string;
   createdAt: Date;
 };
-function ChatWindow({ id }: { id: string }) {
+const ChatWindow = ({ id }: { id: string }) => {
   const { user } = useUser();
 
   const [messages, setMessages] = useState<Message[]>([]);
@@ -138,6 +138,6 @@ function ChatWindow({ id }: { id: string }) {
       </form>
     </div>
   );
-}
+};
 
 export default ChatWindow;

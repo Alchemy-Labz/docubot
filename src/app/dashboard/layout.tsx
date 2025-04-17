@@ -3,7 +3,7 @@
 import { ClerkLoaded } from '@clerk/nextjs';
 import Header from '@/components/Global/Header';
 
-function DashboardLayout({ children }: { children: React.ReactNode }) {
+const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
   return (
     <ClerkLoaded>
       <div className='flex min-h-screen flex-col'>
@@ -14,6 +14,6 @@ function DashboardLayout({ children }: { children: React.ReactNode }) {
       </div>
     </ClerkLoaded>
   );
-}
+};
 
 export default DashboardLayout;

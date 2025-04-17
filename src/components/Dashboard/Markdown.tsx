@@ -16,7 +16,7 @@ type MarkdownRendererProps = {
   children: string;
 };
 
-export function MarkdownRenderer({ children: markdown }: MarkdownRendererProps) {
+export const MarkdownRenderer = ({ children: markdown }: MarkdownRendererProps) => {
   return (
     <Markdown
       remarkPlugins={[remarkGfm]}
@@ -89,4 +89,4 @@ export function MarkdownRenderer({ children: markdown }: MarkdownRendererProps) 
       {markdown}
     </Markdown>
   );
-}
+};

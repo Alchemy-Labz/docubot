@@ -15,7 +15,7 @@ interface DocumentProps {
   downloadURL: string;
 }
 
-function Document({ id, name, size, downloadURL }: DocumentProps) {
+const Document = ({ id, name, size, downloadURL }: DocumentProps) => {
   // const router = useRouter();
   const [isDeleting, startTransaction] = useTransition();
   const { hasActiveMembership } = useSubscription();
@@ -68,6 +68,6 @@ function Document({ id, name, size, downloadURL }: DocumentProps) {
       </div>
     </div>
   );
-}
+};
 
 export default Document;

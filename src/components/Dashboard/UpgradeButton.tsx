@@ -8,7 +8,7 @@ import { createStripePortal } from '@/actions/createStripePortal';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
-function UpgradeButton() {
+const UpgradeButton = () => {
   const { hasActiveMembership, loading } = useSubscription();
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
@@ -57,6 +57,6 @@ function UpgradeButton() {
       )}
     </Button>
   );
-}
+};
 
 export default UpgradeButton;

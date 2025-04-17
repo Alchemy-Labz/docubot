@@ -3,7 +3,7 @@ import PlaceholderDocument from './PlaceholderDocument';
 import { adminDb } from '#/firebaseAdmin';
 import Document from './Document';
 
-async function Documents() {
+const Documents = async () => {
   auth().protect();
 
   const { userId } = await auth();
@@ -32,6 +32,6 @@ async function Documents() {
       <PlaceholderDocument />
     </div>
   );
-}
+};
 
 export default Documents;

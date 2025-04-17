@@ -4,9 +4,8 @@ import Footer from '@/components/Global/Footer';
 
 import HeroSection from '@/components/Home/HeroSection';
 import FeatureCards from '@/components/Cards/FeatureCards';
-import { SignIn } from '@clerk/nextjs';
 
-export default function Home() {
+const Home = () => {
   return (
     <>
       <main className='flex flex-col items-center overflow-scroll overflow-x-hidden bg-gradient-to-br from-accent2/40 to-accent/40 dark:from-accent3/30 dark:to-accent4/30'>
@@ -37,4 +36,6 @@ export default function Home() {
       </main>
     </>
   );
-}
+};
+
+export default Home;

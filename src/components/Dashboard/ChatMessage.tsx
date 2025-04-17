@@ -5,7 +5,7 @@ import Image from 'next/image';
 import { BotMessageSquare } from 'lucide-react';
 import { MarkdownRenderer } from './Markdown';
 
-function ChatMessage({ message }: { message: Message }) {
+const ChatMessage = ({ message }: { message: Message }) => {
   const isHuman = message.role === 'human';
   const { user } = useUser();
 
@@ -49,6 +49,6 @@ function ChatMessage({ message }: { message: Message }) {
       </div>
     </div>
   );
-}
+};
 
 export default ChatMessage;

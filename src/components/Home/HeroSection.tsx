@@ -2,7 +2,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 
-function HeroSection() {
+const HeroSection = () => {
   return (
     <div className='mx-auto flex max-w-7xl flex-col items-center justify-center rounded-xl border border-accent2/60 bg-light-500/70 px-6 py-16 shadow-xl shadow-dark-800/30 drop-shadow-xl dark:border-accent/40 dark:bg-dark-700/85 sm:py-8 lg:px-8'>
       <div className='mx-auto flex max-w-2xl flex-col items-center justify-center sm:text-center'>
@@ -40,6 +40,6 @@ function HeroSection() {
       </div>
     </div>
   );
-}
+};
 
 export default HeroSection;

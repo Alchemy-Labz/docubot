@@ -22,12 +22,13 @@ import { useSearchParams } from 'next/navigation';
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
 
-function PDFViewer({ url }: { url: string }) {
+const PDFViewer = ({ url }: { url: string }) => {
   const [numPages, setNumPages] = useState<number>(0);
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [file, setFile] = useState<Blob | null>(null);
   const [rotation, setRotation] = useState<number>(0);
   const [scale, setScale] = useState<number>(0.9);
+
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -169,6 +170,6 @@ function PDFViewer({ url }: { url: string }) {
       )}
     </div>
   );
-}
+};
 
 export default PDFViewer;

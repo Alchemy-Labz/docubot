@@ -4,13 +4,13 @@ import PDFViewer from '@/components/Dashboard/PDFViewer';
 import { auth } from '@clerk/nextjs/server';
 import React from 'react';
 
-async function ChatWithDocumentPage({
+const ChatWithDocumentPage = async ({
   params: { id },
   searchParams,
 }: {
   params: { id: string };
   searchParams: { [key: string]: string | string[] | undefined };
-}) {
+}) => {
   auth().protect();
   const { userId } = await auth();
 
@@ -35,6 +35,6 @@ async function ChatWithDocumentPage({
       </div>
     </div>
   );
-}
+};
 
 export default ChatWithDocumentPage;
