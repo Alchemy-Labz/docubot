@@ -17,7 +17,7 @@ import { auth } from '@clerk/nextjs/server';
 //Initialize the OpenAI model with LangChain using your API key
 const model = new ChatOpenAI({
   apiKey: process.env.OPENAI_API_KEY,
-  modelName: 'gpt-4o',
+  modelName: 'gpt-4.1-mini',
 });
 
 export const indexName = 'docubot';
