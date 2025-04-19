@@ -12,17 +12,23 @@ const FREE_DOC_LIMIT = 2;
 const PRO_DOC_LIMIT = 52;
 
 function useSubscription() {
+  console.log('=== DEBUG: useSubscription hook starting ===');
   const [hasActiveMembership, setHasActiveMembership] = useState<boolean | null>(null);
   const [isOverFileLimit, setIsOverFileLimit] = useState(false);
   const { user } = useUser();
 
+  console.log('=== DEBUG: Creating Firebase references in useSubscription ===');
   const userDocRef = user ? doc(db, 'users', user.id) : null;
   const userFilesCollectionRef = user ? collection(db, 'users', user.id, 'files') : null;
 
   const [snapshot, loading, error] = useDocument(userDocRef, {
     snapshotListenOptions: { includeMetadataChanges: true },
   });
-
+  console.log(
+    '=== DEBUG: Setting up Firebase hooks with refs:',
+    userDocRef,
+    userFilesCollectionRef
+  );
   const [docsSnapshot, docsLoading, docsError] = useCollection(userFilesCollectionRef);
 
   useEffect(() => {

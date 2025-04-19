@@ -1,17 +1,15 @@
 // app/about/pricing/page.tsx
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useTransition } from 'react';
 import Link from 'next/link';
 import { useUser } from '@clerk/nextjs';
 import { useRouter } from 'next/navigation';
-import { useTransition } from 'react';
 import { motion } from 'framer-motion';
 import { Check, X, Info, ArrowRight, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Switch } from '@/components/ui/switch';
-import { Label } from '@/components/ui/label';
 import { createCheckoutSession } from '@/actions/createCheckoutSession';
 import { createStripePortal } from '@/actions/createStripePortal';
 import getStripe from '@/lib/stripeConfig';
@@ -30,7 +28,7 @@ const PricingPage = () => {
   const [isPending, startTransition] = useTransition();
   const [annualBilling, setAnnualBilling] = useState(true);
 
-  const handleUpgrade = (planId: string) => {
+  const handleUpgrade = (_planId: string) => {
     if (!user || !user.primaryEmailAddress) return;
 
     const userDetails: UserDetails = {
@@ -191,7 +189,7 @@ const PricingPage = () => {
               variants={fadeIn}
               className={`flex flex-col overflow-hidden rounded-2xl border ${
                 plan.popular
-                  ? 'z-10 scale-105 border-accent2 shadow-lg shadow-accent2/20 dark:border-accent dark:shadow-accent/20'
+                  ? 'scale-105 border-accent2 shadow-lg shadow-accent2/20 dark:border-accent dark:shadow-accent/20'
                   : 'border-accent2/20 dark:border-accent/20'
               } bg-light-100/80 transition-all hover:shadow-xl dark:bg-dark-700/80`}
             >

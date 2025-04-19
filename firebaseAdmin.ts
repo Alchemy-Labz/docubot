@@ -4,7 +4,15 @@ import { initializeApp, getApps, App, getApp, cert } from 'firebase-admin/app';
 import { getFirestore } from 'firebase-admin/firestore';
 import { getAuth } from 'firebase-admin/auth';
 
-const serviceKey = JSON.parse(process.env.FIREBASE_SERVICE_KEY as string);
+// const serviceKey = JSON.parse(process.env.FIREBASE_SERVICE_KEY as string);
+
+let serviceKey;
+try {
+  serviceKey = JSON.parse(process.env.FIREBASE_SERVICE_KEY as string);
+} catch (error) {
+  console.error('Error parsing Firebase service key:', error);
+  throw new Error('Invalid Firebase service key format');
+}
 
 if (!serviceKey) {
   throw new Error('Firebase service key is not defined');
