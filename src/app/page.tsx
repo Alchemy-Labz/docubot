@@ -1,187 +1,310 @@
-// app/page.tsx
-import Image from 'next/image';
-import Link from 'next/link';
-import { Button } from '@/components/ui/button';
-import Footer from '@/components/Global/Footer';
+// Enhanced landing page component
 import FeatureCards from '@/components/Cards/FeatureCards';
+import Footer from '@/components/Global/Footer';
+import { Button } from '@/components/ui/button';
 import {
-  ArrowRight,
-  BookOpen,
+  ChevronRightIcon,
+  RocketIcon,
+  StarIcon,
+  PuzzleIcon,
+  BoltIcon,
   Brain,
   MessageSquareText,
   FileText,
-  Clock,
+  BookOpen,
   Search,
+  Clock,
 } from 'lucide-react';
+import Image from 'next/image';
+import Link from 'next/link';
 
-const Home = () => {
+const LandingPage = () => {
   return (
-    <main className='flex flex-col overflow-x-hidden'>
-      {/* Hero Section with gradient background */}
-      <section className='relative w-full overflow-hidden bg-gradient-to-br from-accent2/40 to-accent/40 dark:from-accent3/30 dark:to-accent4/30'>
-        <div className='mx-auto max-w-7xl px-4 sm:px-6 lg:px-8'>
-          <div className='grid items-center gap-12 py-16 md:grid-cols-2 md:py-24'>
-            {/* Left column with text content */}
-            <div className='flex flex-col space-y-8'>
-              <div>
-                <h1 className='text-4xl font-extrabold tracking-tight text-dark-800 dark:text-light-300 sm:text-5xl md:text-6xl'>
-                  <span className='block text-accent2 dark:text-accent'>Transform</span>
-                  <span className='block'>Documents into Conversations</span>
+    <div className='flex flex-col items-center overflow-x-hidden bg-gradient-to-br from-accent2/40 to-accent/40 dark:from-accent3/30 dark:to-accent4/30'>
+      {/* Hero Section */}
+      <section className='relative w-full py-12 md:py-24 lg:py-32'>
+        <div className='container max-w-7xl px-4 md:px-6'>
+          <div className='grid gap-6 lg:grid-cols-2 lg:gap-12 xl:gap-16'>
+            <div className='flex flex-col justify-center space-y-4'>
+              <div className='space-y-2'>
+                <h1 className='text-4xl font-bold tracking-tighter text-gradient-lime-violet sm:text-5xl md:text-6xl'>
+                  Transform Your PDFs Into Interactive Conversations
                 </h1>
-                <p className='mt-6 max-w-3xl text-lg text-dark-600 dark:text-light-400'>
-                  DocuBot uses advanced AI to let you chat with your PDFs. Upload documents and get
-                  instant answers to your questions, extract insights, and save hours of reading
-                  time.
+                <p className='max-w-[600px] text-gray-500 dark:text-gray-400 md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed'>
+                  Upload your documents and let DocuBot answer all your questions using advanced
+                  AI. Get instant insights without reading hundreds of pages.
                 </p>
               </div>
-
-              <div className='flex flex-col space-y-4 sm:flex-row sm:space-x-4 sm:space-y-0'>
-                <Button
-                  asChild
-                  size='lg'
-                  className='bg-accent2 px-8 py-6 text-lg hover:bg-accent2/90 dark:bg-accent dark:hover:bg-accent/90'
-                >
-                  <Link href='/sign-up'>
-                    Try Free <ArrowRight className='ml-2 h-5 w-5' />
+              <div className='flex flex-col gap-2 min-[400px]:flex-row'>
+                <Button asChild size='lg' className='bg-accent text-white hover:bg-accent2'>
+                  <Link href='/dashboard'>
+                    Try DocuBot for Free <ChevronRightIcon className='ml-2 h-4 w-4' />
                   </Link>
                 </Button>
-                <Button
-                  asChild
-                  variant='outline'
-                  size='lg'
-                  className='border-accent2 px-8 py-6 text-lg dark:border-accent'
-                >
-                  <Link href='#demo'>See Demo</Link>
+                <Button asChild variant='outline' size='lg'>
+                  <Link href='#how-it-works'>See How It Works</Link>
                 </Button>
               </div>
-
-              <div className='flex items-center space-x-2 text-dark-600 dark:text-light-400'>
-                <div className='flex -space-x-2'>
-                  {[1, 2, 3, 4].map((i) => (
-                    <div
-                      key={i}
-                      className='inline-block h-8 w-8 rounded-full bg-accent/80 ring-2 ring-white dark:bg-accent2/80'
-                    >
-                      <span className='sr-only'>User avatar</span>
-                    </div>
-                  ))}
+              <div className='flex items-center gap-4 text-sm'>
+                <div className='flex items-center gap-1'>
+                  <StarIcon className='h-4 w-4 fill-accent' />
+                  <StarIcon className='h-4 w-4 fill-accent' />
+                  <StarIcon className='h-4 w-4 fill-accent' />
+                  <StarIcon className='h-4 w-4 fill-accent' />
+                  <StarIcon className='h-4 w-4 fill-accent' />
                 </div>
-                <span className='text-sm font-medium'>
-                  Join 2,000+ users already using DocuBot
-                </span>
+                <div className='text-gray-500 dark:text-gray-400'>
+                  Trusted by thousands of users worldwide
+                </div>
               </div>
             </div>
-
-            {/* Right column with image */}
-            <div className='relative mt-8 md:mt-0'>
-              <div className='relative overflow-hidden rounded-xl shadow-2xl ring-1 ring-accent2/30 dark:ring-accent/20'>
+            <div className='flex items-center justify-center'>
+              <div className='relative flex h-[425px] w-[425px] items-center justify-center rounded-full bg-gradient-to-b from-accent/20 to-accent2/20 p-4'>
                 <Image
-                  src='/screencap.webp'
-                  alt='DocuBot interface showing document chat'
-                  width={900}
-                  height={600}
-                  className='w-full object-cover'
+                  src='/logo.png'
+                  alt='DocuBot'
+                  width={350}
+                  height={350}
+                  className='rounded-full'
                 />
-                <div className='absolute inset-0 bg-gradient-to-t from-dark-900/40 to-transparent' />
               </div>
-
-              {/* Floating feature badges */}
-              <div className='absolute -right-4 -top-4 rounded-lg bg-accent2/90 p-3 shadow-lg dark:bg-accent/90'>
-                <Brain className='h-6 w-6 text-light-100' />
-                <span className='sr-only'>AI-Powered</span>
-              </div>
-              <div className='absolute -left-4 bottom-1/3 rounded-lg bg-white/90 p-3 shadow-lg dark:bg-dark-700/90'>
-                <MessageSquareText className='h-6 w-6 text-accent2 dark:text-accent' />
-                <span className='sr-only'>Chat Interface</span>
-              </div>
-            </div>
+            </div>{' '}
           </div>
         </div>
-
         {/* Curved separator */}
-        <div className='absolute bottom-0 left-0 right-0'>
+        <div className='absolute bottom-0 left-0 right-0 w-full overflow-hidden'>
           <svg
             xmlns='http://www.w3.org/2000/svg'
             viewBox='0 0 1440 64'
-            className='h-16 w-full fill-light-400/30 dark:fill-dark-700/30'
+            className='h-16 w-screen fill-light-400/30 dark:fill-dark-700/30'
+            preserveAspectRatio='none'
           >
             <path d='M0,32L60,37.3C120,43,240,53,360,53.3C480,53,600,43,720,37.3C840,32,960,32,1080,37.3C1200,43,1320,53,1380,58.7L1440,64L1440,64L1380,64C1320,64,1200,64,1080,64C960,64,840,64,720,64C600,64,480,64,360,64C240,64,120,64,60,64L0,64Z' />
           </svg>
         </div>
       </section>
 
-      {/* Social proof section */}
-      <section className='bg-light-400/30 py-12 dark:bg-dark-700/30'>
-        <div className='mx-auto max-w-7xl px-4 sm:px-6 lg:px-8'>
-          <div className='text-center'>
-            <p className='text-base font-semibold uppercase tracking-wide text-accent2 dark:text-accent'>
-              Trusted by professionals
-            </p>
-            <div className='mt-6 flex flex-wrap justify-center gap-x-8 gap-y-4'>
-              {['Company 1', 'Company 2', 'Company 3', 'Company 4', 'Company 5'].map((company) => (
-                <div key={company} className='flex items-center justify-center'>
-                  <span className='text-lg font-bold text-dark-600/70 dark:text-light-400/70'>
-                    {company}
-                  </span>
+      {/* Feature Highlights */}
+      <section
+        id='how-it-works'
+        className='w-full bg-light-500/70 py-12 dark:bg-dark-700/50 md:py-24 lg:py-32'
+      >
+        <div className='container px-4 md:px-6'>
+          <div className='flex flex-col items-center justify-center space-y-4 text-center'>
+            <div className='space-y-2'>
+              <div className='inline-block rounded-lg bg-accent px-3 py-1 text-sm text-white'>
+                AI-Powered Document Analysis
+              </div>
+              <h2 className='text-3xl font-bold tracking-tighter sm:text-5xl'>
+                How DocuBot Works
+              </h2>
+              <p className='max-w-[900px] text-gray-500 dark:text-gray-400 md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed'>
+                Our advanced AI technology transforms static documents into interactive knowledge
+                bases you can chat with
+              </p>
+            </div>
+          </div>
+          <div className='mx-auto grid max-w-5xl grid-cols-1 gap-6 py-12 md:grid-cols-3 lg:gap-12'>
+            <div className='flex flex-col items-center space-y-2 rounded-lg border border-accent2/60 bg-light-500/70 p-4 shadow-xl dark:border-accent/40 dark:bg-dark-700/85'>
+              <RocketIcon className='h-12 w-12 text-accent' />
+              <h3 className='text-xl font-bold'>1. Upload</h3>
+              <p className='text-center text-gray-500 dark:text-gray-400'>
+                Securely upload your PDF documents to DocuBot&apos;s platform
+              </p>
+            </div>
+            <div className='flex flex-col items-center space-y-2 rounded-lg border border-accent2/60 bg-light-500/70 p-4 shadow-xl dark:border-accent/40 dark:bg-dark-700/85'>
+              <PuzzleIcon className='h-12 w-12 text-accent2' />
+              <h3 className='text-xl font-bold'>2. AI Analysis</h3>
+              <p className='text-center text-gray-500 dark:text-gray-400'>
+                Our AI analyzes and understands your document content using vector embeddings
+              </p>
+            </div>
+            <div className='flex flex-col items-center space-y-2 rounded-lg border border-accent2/60 bg-light-500/70 p-4 shadow-xl dark:border-accent/40 dark:bg-dark-700/85'>
+              <BoltIcon className='h-12 w-12 text-accent' />
+              <h3 className='text-xl font-bold'>3. Chat & Extract</h3>
+              <p className='text-center text-gray-500 dark:text-gray-400'>
+                Ask questions and get accurate answers directly from your document content
+              </p>
+            </div>
+          </div>
+          <div className='flex justify-center'>
+            <Button asChild size='lg' className='bg-accent2 text-white hover:bg-accent'>
+              <Link href='/dashboard'>Start Using DocuBot Now</Link>
+            </Button>
+          </div>
+        </div>
+      </section>
+
+      {/* Product Showcase */}
+      <section className='w-full py-12 md:py-24 lg:py-32'>
+        <div className='container px-4 md:px-6'>
+          <div className='grid gap-6 lg:grid-cols-2 lg:gap-12'>
+            <div className='flex flex-col justify-center space-y-4'>
+              <div className='space-y-2'>
+                <h2 className='text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl'>
+                  See DocuBot in Action
+                </h2>
+                <p className='max-w-[600px] text-gray-500 dark:text-gray-400 md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed'>
+                  Upload your PDFs and start asking questions. DocuBot will analyze your documents
+                  and provide accurate, context-aware answers instantly.
+                </p>
+              </div>
+              <ul className='grid gap-2'>
+                <li className='flex items-center gap-2'>
+                  <CheckIcon className='h-5 w-5 text-accent' />
+                  <span>Advanced document analysis with vector embeddings</span>
+                </li>
+                <li className='flex items-center gap-2'>
+                  <CheckIcon className='h-5 w-5 text-accent' />
+                  <span>Natural language conversation with your documents</span>
+                </li>
+                <li className='flex items-center gap-2'>
+                  <CheckIcon className='h-5 w-5 text-accent' />
+                  <span>Extract insights without reading hundreds of pages</span>
+                </li>
+                <li className='flex items-center gap-2'>
+                  <CheckIcon className='h-5 w-5 text-accent' />
+                  <span>Compatible with any PDF document type</span>
+                </li>
+              </ul>
+            </div>
+            <div className='relative rounded-xl border border-accent2/60 bg-light-500/70 p-2 shadow-xl dark:border-accent/40 dark:bg-dark-700/85'>
+              <Image
+                src='/screencap.webp'
+                alt='DocuBot interface screenshot'
+                width={900}
+                height={506}
+                className='rounded-lg shadow-lg'
+              />
+              {/* Play button overlay */}
+              <div className='absolute inset-0 flex items-center justify-center'>
+                <div className='cursor-pointer rounded-full bg-accent2/90 p-4 shadow-lg dark:bg-accent/90'>
+                  <svg
+                    xmlns='http://www.w3.org/2000/svg'
+                    width='48'
+                    height='48'
+                    fill='none'
+                    viewBox='0 0 24 24'
+                    stroke='currentColor'
+                    className='text-light-100'
+                  >
+                    <path
+                      strokeLinecap='round'
+                      strokeLinejoin='round'
+                      strokeWidth={2}
+                      d='M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z'
+                    />
+                    <path
+                      strokeLinecap='round'
+                      strokeLinejoin='round'
+                      strokeWidth={2}
+                      d='M21 12a9 9 0 11-18 0 9 9 0 0118 0z'
+                    />
+                  </svg>
                 </div>
-              ))}
+              </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* How it works section */}
-      <section id='how-it-works' className='bg-light-500/70 py-20 dark:bg-dark-800/70'>
+      {/* Feature card section */}
+      <section className='w-full bg-light-500/70 py-20 dark:bg-dark-800/70'>
         <div className='mx-auto max-w-7xl px-4 sm:px-6 lg:px-8'>
-          <div className='mb-16 text-center'>
+          <div className='mb-12 text-center'>
             <h2 className='text-3xl font-bold tracking-tight text-dark-800 dark:text-light-300 sm:text-4xl'>
-              How DocuBot Works
+              Powerful Features
             </h2>
             <p className='mx-auto mt-4 max-w-2xl text-lg text-dark-600 dark:text-light-400'>
-              Three simple steps to start chatting with your documents
+              Everything you need to extract knowledge from your documents
             </p>
           </div>
 
-          <div className='grid gap-8 md:grid-cols-3'>
-            {[
-              {
-                icon: <FileText className='h-10 w-10 text-accent2 dark:text-accent' />,
-                title: 'Upload Your Document',
-                description: "Upload any PDF document to DocuBot's secure platform.",
-              },
-              {
-                icon: <Brain className='h-10 w-10 text-accent2 dark:text-accent' />,
-                title: 'AI Processes Content',
-                description:
-                  'Our advanced AI analyzes and indexes your document for instant retrieval.',
-              },
-              {
-                icon: <MessageSquareText className='h-10 w-10 text-accent2 dark:text-accent' />,
-                title: 'Chat & Extract Insights',
-                description:
-                  'Ask questions in natural language and get accurate answers instantly.',
-              },
-            ].map((step, index) => (
-              <div
-                key={index}
-                className='relative flex flex-col rounded-lg border border-accent2/20 bg-light-100/50 p-6 shadow-lg transition-all hover:shadow-xl dark:border-accent/20 dark:bg-dark-700/50'
-              >
-                <div className='mb-4'>{step.icon}</div>
-                <span className='absolute right-4 top-4 flex h-8 w-8 items-center justify-center rounded-full bg-accent2/10 font-bold text-accent2 dark:bg-accent/10 dark:text-accent'>
-                  {index + 1}
-                </span>
-                <h3 className='text-xl font-bold text-dark-800 dark:text-light-300'>
-                  {step.title}
-                </h3>
-                <p className='mt-2 text-dark-600 dark:text-light-400'>{step.description}</p>
+          <FeatureCards />
+        </div>
+      </section>
+
+      {/* Pricing Section Teaser */}
+      <section className='w-full py-12 md:py-24 lg:py-32'>
+        <div className='container px-4 md:px-6'>
+          <div className='flex flex-col items-center justify-center space-y-4 text-center'>
+            <div className='space-y-2'>
+              <h2 className='text-3xl font-bold tracking-tighter sm:text-5xl'>
+                Simple, Transparent Pricing
+              </h2>
+              <p className='max-w-[900px] text-gray-500 dark:text-gray-400 md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed'>
+                Start for free, upgrade when you need more power
+              </p>
+            </div>
+          </div>
+          <div className='mx-auto flex max-w-5xl flex-col gap-6 py-12 md:flex-row md:gap-12'>
+            <div className='flex flex-1 flex-col rounded-xl border border-accent2/60 bg-light-500/70 p-6 shadow-xl dark:border-accent/40 dark:bg-dark-700/85'>
+              <div className='mb-4 flex items-center gap-2'>
+                <div className='rounded-full bg-accent/10 p-2 text-accent'>
+                  <PackageIcon className='h-6 w-6' />
+                </div>
+                <h3 className='text-xl font-bold'>Free</h3>
               </div>
-            ))}
+              <div className='mb-4'>
+                <span className='text-3xl font-bold'>$0</span>
+                <span className='text-gray-500 dark:text-gray-400'>/month</span>
+              </div>
+              <ul className='mb-6 flex flex-col gap-2'>
+                <li className='flex items-center gap-2'>
+                  <CheckIcon className='h-5 w-5 text-accent' />
+                  <span>Up to 5 documents</span>
+                </li>
+                <li className='flex items-center gap-2'>
+                  <CheckIcon className='h-5 w-5 text-accent' />
+                  <span>3 messages per document</span>
+                </li>
+              </ul>
+              <Button asChild className='mt-auto'>
+                <Link href='/dashboard'>Get Started</Link>
+              </Button>
+            </div>
+            <div className='relative flex flex-1 flex-col rounded-xl border-2 border-accent bg-light-500/70 p-6 shadow-xl dark:border-accent dark:bg-dark-700/85'>
+              <div className='absolute -top-4 right-4 rounded-full bg-accent px-3 py-1 text-xs font-bold text-white'>
+                MOST POPULAR
+              </div>
+              <div className='mb-4 flex items-center gap-2'>
+                <div className='rounded-full bg-accent2/10 p-2 text-accent2'>
+                  <StarIcon className='h-6 w-6' />
+                </div>
+                <h3 className='text-xl font-bold'>Pro</h3>
+              </div>
+              <div className='mb-4'>
+                <span className='text-3xl font-bold'>$7.99</span>
+                <span className='text-gray-500 dark:text-gray-400'>/month</span>
+              </div>
+              <ul className='mb-6 flex flex-col gap-2'>
+                <li className='flex items-center gap-2'>
+                  <CheckIcon className='h-5 w-5 text-accent2' />
+                  <span>Up to 12 documents</span>
+                </li>
+                <li className='flex items-center gap-2'>
+                  <CheckIcon className='h-5 w-5 text-accent2' />
+                  <span>15 messages per document</span>
+                </li>
+                <li className='flex items-center gap-2'>
+                  <CheckIcon className='h-5 w-5 text-accent2' />
+                  <span>Document deletion</span>
+                </li>
+                <li className='flex items-center gap-2'>
+                  <CheckIcon className='h-5 w-5 text-accent2' />
+                  <span>Priority support</span>
+                </li>
+              </ul>
+              <Button asChild className='mt-auto bg-accent2 text-white hover:bg-accent'>
+                <Link href='/dashboard/upgrade'>Upgrade to Pro</Link>
+              </Button>
+            </div>
           </div>
         </div>
       </section>
 
       {/* Key benefits section */}
-      <section className='bg-light-200/30 py-20 dark:bg-dark-900/30'>
+      <section className='w-full bg-light-200/30 py-20 dark:bg-dark-900/30'>
         <div className='mx-auto max-w-7xl px-4 sm:px-6 lg:px-8'>
           <div className='mb-16 text-center'>
             <h2 className='text-3xl font-bold tracking-tight text-dark-800 dark:text-light-300 sm:text-4xl'>
@@ -239,94 +362,18 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Feature card section */}
-      <section className='bg-light-500/70 py-20 dark:bg-dark-800/70'>
-        <div className='mx-auto max-w-7xl px-4 sm:px-6 lg:px-8'>
-          <div className='mb-12 text-center'>
-            <h2 className='text-3xl font-bold tracking-tight text-dark-800 dark:text-light-300 sm:text-4xl'>
-              Powerful Features
-            </h2>
-            <p className='mx-auto mt-4 max-w-2xl text-lg text-dark-600 dark:text-light-400'>
-              Everything you need to extract knowledge from your documents
-            </p>
-          </div>
-
-          <FeatureCards />
-        </div>
-      </section>
-
-      {/* Demo section */}
-      <section id='demo' className='bg-light-200/30 py-20 dark:bg-dark-900/30'>
-        <div className='mx-auto max-w-7xl px-4 sm:px-6 lg:px-8'>
-          <div className='flex flex-col items-center gap-12 md:flex-row'>
-            <div className='flex-1'>
-              <h2 className='text-3xl font-bold tracking-tight text-dark-800 dark:text-light-300 sm:text-4xl'>
-                See DocuBot in Action
-              </h2>
-              <p className='mt-4 text-lg text-dark-600 dark:text-light-400'>
-                Watch how DocuBot transforms the way you interact with your documents. Instantly
-                extract insights, find answers, and save hours of reading time.
-              </p>
-              <div className='mt-8'>
-                <Button
-                  asChild
-                  size='lg'
-                  className='bg-accent2 hover:bg-accent2/90 dark:bg-accent dark:hover:bg-accent/90'
-                >
-                  <Link href='/sign-up'>Try for Free</Link>
-                </Button>
-              </div>
-            </div>
-
-            <div className='relative flex-1 overflow-hidden rounded-xl shadow-2xl'>
-              <div className='aspect-w-16 aspect-h-9 w-full'>
-                <Image
-                  src='/screencap.webp'
-                  alt='DocuBot demo'
-                  width={900}
-                  height={500}
-                  className='object-cover'
-                />
-                {/* Play button overlay */}
-                <div className='absolute inset-0 flex items-center justify-center'>
-                  <div className='cursor-pointer rounded-full bg-accent2/90 p-4 shadow-lg dark:bg-accent/90'>
-                    <svg
-                      xmlns='http://www.w3.org/2000/svg'
-                      width='48'
-                      height='48'
-                      fill='none'
-                      viewBox='0 0 24 24'
-                      stroke='currentColor'
-                      className='text-light-100'
-                    >
-                      <path
-                        strokeLinecap='round'
-                        strokeLinejoin='round'
-                        strokeWidth={2}
-                        d='M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z'
-                      />
-                      <path
-                        strokeLinecap='round'
-                        strokeLinejoin='round'
-                        strokeWidth={2}
-                        d='M21 12a9 9 0 11-18 0 9 9 0 0118 0z'
-                      />
-                    </svg>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
       {/* Testimonials */}
-      <section className='bg-light-500/70 py-20 dark:bg-dark-800/70'>
+      <section className='w-full bg-light-500/70 py-12 dark:bg-dark-700/50 md:py-24 lg:py-32'>
         <div className='mx-auto max-w-7xl px-4 sm:px-6 lg:px-8'>
-          <div className='mb-16 text-center'>
-            <h2 className='text-3xl font-bold tracking-tight text-dark-800 dark:text-light-300 sm:text-4xl'>
-              What Our Users Say
-            </h2>
+          <div className='mb-14 flex flex-col items-center justify-center space-y-4 text-center'>
+            <div className='space-y-2'>
+              <h2 className='text-3xl font-bold tracking-tighter sm:text-5xl'>
+                What Our Users Say
+              </h2>
+              <p className='max-w-[900px] text-gray-500 dark:text-gray-400 md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed'>
+                DocuBot is helping professionals across industries save time and gain insights
+              </p>
+            </div>
           </div>
 
           <div className='grid gap-8 md:grid-cols-3'>
@@ -349,7 +396,7 @@ const Home = () => {
             ].map((testimonial, index) => (
               <div
                 key={index}
-                className='flex flex-col rounded-lg border border-accent2/20 bg-light-100/50 p-6 shadow-lg dark:border-accent/20 dark:bg-dark-700/50'
+                className='flex flex-col rounded-lg border border-l-2 border-accent2/60 bg-light-500/70 p-6 shadow-xl dark:border-accent/40 dark:bg-dark-700/85'
               >
                 <div className='flex-1'>
                   <svg
@@ -375,41 +422,98 @@ const Home = () => {
         </div>
       </section>
 
-      {/* CTA section */}
-      <section className='bg-gradient-to-br from-accent2/40 to-accent/40 py-20 dark:from-accent3/30 dark:to-accent4/30'>
-        <div className='mx-auto max-w-7xl px-4 sm:px-6 lg:px-8'>
-          <div className='mx-auto max-w-2xl text-center'>
-            <h2 className='text-3xl font-bold tracking-tight text-dark-800 dark:text-light-300 sm:text-4xl'>
-              Ready to transform how you work with documents?
-            </h2>
-            <p className='mt-4 text-lg text-dark-600 dark:text-light-400'>
-              Join thousands of professionals using DocuBot to save time and extract valuable
-              insights from their documents.
-            </p>
-            <div className='mt-8 flex flex-col space-y-4 sm:flex-row sm:justify-center sm:space-x-4 sm:space-y-0'>
-              <Button
-                asChild
-                size='lg'
-                className='bg-accent2 px-8 py-6 text-lg hover:bg-accent2/90 dark:bg-accent dark:hover:bg-accent/90'
-              >
-                <Link href='/sign-up'>Start Free Trial</Link>
+      {/* Final CTA */}
+      <section className='w-full bg-gradient-to-r from-accent/20 to-accent2/20 py-12 md:py-24 lg:py-32'>
+        <div className='container px-4 md:px-6'>
+          <div className='flex flex-col items-center justify-center space-y-4 text-center'>
+            <div className='space-y-2'>
+              <h2 className='text-3xl font-bold tracking-tighter sm:text-5xl'>
+                Ready to Transform Your Document Experience?
+              </h2>
+              <p className='max-w-[900px] text-gray-500 dark:text-gray-400 md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed'>
+                Join thousands of professionals who are saving time and gaining insights with
+                DocuBot
+              </p>
+            </div>
+            <div className='flex items-center justify-center space-x-4'>
+              <Button asChild size='lg' className='bg-accent text-white hover:bg-accent2'>
+                <Link href='/dashboard'>Try DocuBot for Free</Link>
               </Button>
-              <Button
-                asChild
-                variant='outline'
-                size='lg'
-                className='border-accent2 px-8 py-6 text-lg dark:border-accent'
-              >
+              <Button variant='outline' size='lg' className='border-accent2 dark:border-accent'>
                 <Link href='/about/pricing'>View Pricing</Link>
               </Button>
             </div>
+            <p className='text-sm text-gray-500 dark:text-gray-400'>
+              No credit card required. Start with our free plan today.
+            </p>
           </div>
         </div>
       </section>
-
       <Footer />
-    </main>
+    </div>
   );
 };
 
-export default Home;
+// Helper components
+const CheckIcon = ({ className }: { className: string }) => (
+  <svg
+    xmlns='http://www.w3.org/2000/svg'
+    className={className}
+    viewBox='0 0 24 24'
+    fill='none'
+    stroke='currentColor'
+    strokeWidth='2'
+    strokeLinecap='round'
+    strokeLinejoin='round'
+  >
+    <polyline points='20 6 9 17 4 12' />
+  </svg>
+);
+const PackageIcon = ({ className }: { className: string }) => (
+  <svg
+    xmlns='http://www.w3.org/2000/svg'
+    className={className}
+    viewBox='0 0 24 24'
+    fill='none'
+    stroke='currentColor'
+    strokeWidth='2'
+    strokeLinecap='round'
+    strokeLinejoin='round'
+  >
+    <path d='M16.5 9.4l-9-5.19' />
+    <path d='M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z' />
+    <polyline points='3.27 6.96 12 12.01 20.73 6.96' />
+    <line x1='12' y1='22.08' x2='12' y2='12' />
+  </svg>
+);
+
+const TestimonialCard = ({
+  quote,
+  author,
+  role,
+}: {
+  quote: string;
+  author: string;
+  role: string;
+}) => (
+  <div className='flex flex-col items-center space-y-2 rounded-lg border border-accent2/60 bg-light-500/70 p-6 text-center shadow-xl dark:border-accent/40 dark:bg-dark-700/85'>
+    <div className='mb-2 text-accent2 dark:text-accent'>
+      <svg
+        xmlns='http://www.w3.org/2000/svg'
+        width='24'
+        height='24'
+        viewBox='0 0 24 24'
+        fill='currentColor'
+        stroke='none'
+      >
+        <path d='M11.8 5c-1.4 0-2.7.3-3.9.8C6.4 6.6 5.1 7.7 4 9.2 3 10.7 2.4 12.3 2.4 14c0 2.5.8 4.3 2.4 5.6 1.4 1.1 3 1.7 4.8 1.7 1.7 0 3.1-.5 4.3-1.6 1.2-1.1 1.8-2.6 1.8-4.3 0-1.7-.6-3.1-1.8-4.2-1.2-1.1-2.6-1.7-4.3-1.7-.5 0-.9.1-1.4.2-.5.1-.8.2-1 .3.3-1.1.8-1.9 1.6-2.6.8-.7 1.7-1 2.8-1h.6c.1 0 .3-.1.3-.3V5.3c0-.2-.1-.3-.3-.3zm7.5 0c-1.4 0-2.7.3-3.9.8-1.5.8-2.8 1.9-3.9 3.4-1 1.5-1.6 3.1-1.6 4.8 0 2.5.8 4.3 2.4 5.6 1.4 1.1 3 1.7 4.8 1.7 1.7 0 3.1-.5 4.3-1.6 1.2-1.1 1.8-2.6 1.8-4.3 0-1.7-.6-3.1-1.8-4.2-1.2-1.1-2.6-1.7-4.3-1.7-.5 0-.9.1-1.4.2-.5.1-.8.2-1 .3.3-1.1.8-1.9 1.6-2.6.8-.7 1.7-1 2.8-1h.6c.1 0 .3-.1.3-.3V5.3c0-.2-.1-.3-.3-.3h-.4z' />
+      </svg>
+    </div>
+    <p className='text-gray-500 dark:text-gray-400'>{quote}</p>
+    <div className='mt-4'>
+      <p className='font-semibold'>{author}</p>
+      <p className='text-sm text-gray-500 dark:text-gray-400'>{role}</p>
+    </div>
+  </div>
+);
+export default LandingPage;
