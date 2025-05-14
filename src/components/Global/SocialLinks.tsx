@@ -27,15 +27,15 @@ const SocialLinks = () => {
         aria-label='TikTok'
       >
         <FaTiktok className='text-xl text-light-700' />
-      </Link>
+      </Link> */}
       <Link
-        href='https://youtube.com'
+        href='https://www.youtube.com/@DocuBot'
         target='_blank'
         rel='noopener noreferrer'
         aria-label='YouTube'
       >
         <FaYoutube className='text-xl text-light-700' />
-      </Link> */}
+      </Link>
     </div>
   );
 };
