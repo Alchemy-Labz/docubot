@@ -5,7 +5,7 @@ const SocialLinks = () => {
   return (
     <div className='flex w-full items-center justify-start space-x-4 py-4 sm:w-1/2 md:w-1/4 lg:w-1/6'>
       <Link
-        href='https://twitter.com'
+        href='https://x.com/DocuBotAI'
         target='_blank'
         rel='noopener noreferrer'
         aria-label='Twitter'
@@ -13,14 +13,14 @@ const SocialLinks = () => {
         <FaTwitter className='text-xl text-light-700' />
       </Link>
       <Link
-        href='https://facebook.com'
+        href='https://www.facebook.com/DocuBotAI/'
         target='_blank'
         rel='noopener noreferrer'
         aria-label='Facebook'
       >
         <FaFacebookF className='text-xl text-light-700' />
       </Link>
-      <Link
+      {/* <Link
         href='https://tiktok.com'
         target='_blank'
         rel='noopener noreferrer'
@@ -35,7 +35,7 @@ const SocialLinks = () => {
         aria-label='YouTube'
       >
         <FaYoutube className='text-xl text-light-700' />
-      </Link>
+      </Link> */}
     </div>
   );
 };

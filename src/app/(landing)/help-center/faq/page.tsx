@@ -298,7 +298,7 @@ const FAQPage: React.FC = () => {
               size='lg'
               className='bg-accent2 hover:bg-accent2/90 dark:bg-accent dark:hover:bg-accent/90'
             >
-              <Link href='/about/support'>Contact Support</Link>
+              <Link href='/help-center/support/'>Contact Support</Link>
             </Button>
             <Button
               asChild
@@ -306,7 +306,7 @@ const FAQPage: React.FC = () => {
               size='lg'
               className='border-accent2 dark:border-accent'
             >
-              <Link href='/about/help-center'>Browse Help Center</Link>
+              <Link href='/help-center'>Browse Help Center</Link>
             </Button>
           </div>
         </motion.div>

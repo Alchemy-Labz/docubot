@@ -291,7 +291,7 @@ const AboutPage: React.FC = () => {
               </p>
               <div className='mt-4 flex justify-center space-x-3'>
                 <a
-                  href='#'
+                  href='https://twitter.com/DigitlAlchemyst'
                   className='text-dark-500 hover:text-accent2 dark:text-light-500 dark:hover:text-accent'
                 >
                   <span className='sr-only'>Twitter</span>
@@ -305,7 +305,7 @@ const AboutPage: React.FC = () => {
                   </svg>
                 </a>
                 <a
-                  href='#'
+                  href='https://github.com/Digitl-Alchemyst'
                   className='text-dark-500 hover:text-accent2 dark:text-light-500 dark:hover:text-accent'
                 >
                   <span className='sr-only'>GitHub</span>
@@ -323,7 +323,7 @@ const AboutPage: React.FC = () => {
                   </svg>
                 </a>
                 <a
-                  href='#'
+                  href='https://www.linkedin.com/in/steven-watkins-02105b155/'
                   className='text-dark-500 hover:text-accent2 dark:text-light-500 dark:hover:text-accent'
                 >
                   <span className='sr-only'>LinkedIn</span>
@@ -340,6 +340,24 @@ const AboutPage: React.FC = () => {
                     />
                   </svg>
                 </a>
+                <a
+                  href='https://www.youtube.com/@digitalalchemyst'
+                  className='text-dark-500 hover:text-accent2 dark:text-light-500 dark:hover:text-accent'
+                >
+                  <span className='sr-only'>YouTube</span>
+                  <svg
+                    className='h-6 w-6'
+                    fill='currentColor'
+                    viewBox='0 0 24 24'
+                    aria-hidden='true'
+                  >
+                    <path
+                      fillRule='evenodd'
+                      d='M19.812 5.418c.861.23 1.538.907 1.768 1.768C21.998 8.746 22 12 22 12s0 3.255-.418 4.814a2.504 2.504 0 0 1-1.768 1.768c-1.56.419-7.814.419-7.814.419s-6.255 0-7.814-.419a2.505 2.505 0 0 1-1.768-1.768C2 15.255 2 12 2 12s0-3.255.417-4.814a2.507 2.507 0 0 1 1.768-1.768C5.744 5 11.998 5 11.998 5s6.255 0 7.814.418ZM15.194 12 10 15V9l5.194 3Z'
+                      clipRule='evenodd'
+                    />
+                  </svg>
+                </a>{' '}
               </div>
             </motion.div>
 
@@ -482,7 +500,7 @@ const AboutPage: React.FC = () => {
                 size='lg'
                 className='border-accent2 px-8 dark:border-accent'
               >
-                <Link href='/about/pricing'>View Pricing Plans</Link>
+                <Link href='/pricing'>View Pricing Plans</Link>
               </Button>
             </div>
           </motion.div>

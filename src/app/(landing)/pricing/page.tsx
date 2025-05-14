@@ -322,7 +322,7 @@ const PricingPage = () => {
             size='lg'
             className='mt-8 bg-dark-800 text-light-300 hover:bg-dark-700 dark:bg-light-300 dark:text-dark-800 dark:hover:bg-light-400'
           >
-            <Link href='/about/contact'>Contact Sales</Link>
+            <Link href='/contact'>Contact Sales</Link>
           </Button>
         </motion.div>
 

@@ -442,17 +442,17 @@ const LandingPage = () => {
             {[
               {
                 text: 'DocuBot has been a game-changer for my research. I can now process academic papers in minutes instead of hours.',
-                author: 'Sarah K.',
+                author: 'Sarah Kincaid',
                 role: 'PhD Researcher',
               },
               {
                 text: 'As a lawyer, I deal with lengthy documents daily. DocuBot helps me extract the exact clauses I need instantly.',
-                author: 'Michael T.',
+                author: 'Michael Thackery',
                 role: 'Corporate Attorney',
               },
               {
                 text: 'The ability to ask questions about my technical documentation has saved my team countless hours of reading time.',
-                author: 'James L.',
+                author: 'James Lockridge',
                 role: 'Technical Lead',
               },
             ].map((testimonial, index) => (
@@ -512,7 +512,7 @@ const LandingPage = () => {
                 size='lg'
                 className='w-full border-accent2 text-dark-700 dark:border-accent dark:text-light-300 sm:w-auto'
               >
-                <Link href='/about/pricing'>View Pricing</Link>
+                <Link href='/pricing'>View Pricing</Link>
               </Button>
             </div>
             <p className='text-sm text-dark-600 dark:text-light-400'>
