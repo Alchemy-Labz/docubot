@@ -1,86 +1,108 @@
 // useSubscription.ts
 'use client';
 
-import { db, auth } from '#/firebase';
+import { db, auth } from '#/firebase'; // Client SDK
 import { useUser } from '@clerk/nextjs';
-import { collection, doc } from '@firebase/firestore';
+import { collection, doc, onSnapshot } from '@firebase/firestore';
 import { useEffect, useState } from 'react';
-import { useCollection, useDocument } from 'react-firebase-hooks/firestore';
 import { signInWithCustomToken } from '@firebase/auth';
 
 const FREE_DOC_LIMIT = 2;
 const PRO_DOC_LIMIT = 52;
 
 function useSubscription() {
-  console.log('=== DEBUG: useSubscription hook starting ===');
   const [hasActiveMembership, setHasActiveMembership] = useState<boolean | null>(null);
   const [isOverFileLimit, setIsOverFileLimit] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
+  const [docsLoading, setDocsLoading] = useState(true);
+  const [docsError, setDocsError] = useState<Error | null>(null);
+  const [docsCount, setDocsCount] = useState(0);
+
   const { user } = useUser();
 
-  console.log('=== DEBUG: Creating Firebase references in useSubscription ===');
-  const userDocRef = user ? doc(db, 'users', user.id) : null;
-  const userFilesCollectionRef = user ? collection(db, 'users', user.id, 'files') : null;
-
-  const [snapshot, loading, error] = useDocument(userDocRef, {
-    snapshotListenOptions: { includeMetadataChanges: true },
-  });
-  console.log(
-    '=== DEBUG: Setting up Firebase hooks with refs:',
-    userDocRef,
-    userFilesCollectionRef
-  );
-  const [docsSnapshot, docsLoading, docsError] = useCollection(userFilesCollectionRef);
-
+  // Use direct subscriptions rather than hooks
   useEffect(() => {
-    const fetchFirebaseToken = async () => {
-      if (!user) return;
+    if (!user) {
+      setLoading(false);
+      setDocsLoading(false);
+      return;
+    }
 
+    // Firebase authentication
+    const authenticateWithFirebase = async () => {
       try {
         const response = await fetch('/api/firebase-token', {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ userId: user.id }),
         });
 
         if (!response.ok) {
-          throw new Error(
-            `Failed to fetch Firebase token: ${response.status} ${response.statusText}`
-          );
+          throw new Error(`Failed to fetch Firebase token: ${response.status}`);
         }
 
         const data = await response.json();
         if (!data.firebaseToken) {
-          throw new Error('No Firebase token received from the server');
+          throw new Error('No Firebase token received');
         }
 
         await signInWithCustomToken(auth, data.firebaseToken);
-        console.log('Signed in to Firebase successfully');
-      } catch (error) {
-        console.error('Error fetching Firebase token:', error);
+        console.log('🔥 Firebase authentication successful');
+      } catch (err) {
+        console.error('🔥 Firebase authentication error:', err);
+        setError(err instanceof Error ? err : new Error(String(err)));
       }
     };
 
-    fetchFirebaseToken();
-  }, [user]);
+    authenticateWithFirebase();
 
-  useEffect(() => {
-    if (snapshot && snapshot.exists()) {
-      const data = snapshot.data();
-      setHasActiveMembership(data?.hasActiveMembership ?? false);
-    } else {
-      setHasActiveMembership(false);
-    }
-  }, [snapshot]);
+    // Set up user document subscription
+    const userDocRef = doc(db, 'users', user.id);
+    const unsubscribeUserDoc = onSnapshot(
+      userDocRef,
+      (docSnapshot) => {
+        if (docSnapshot.exists()) {
+          const userData = docSnapshot.data();
+          setHasActiveMembership(userData?.hasActiveMembership ?? false);
+        } else {
+          setHasActiveMembership(false);
+        }
+        setLoading(false);
+      },
+      (err) => {
+        console.error('🔥 Error fetching user document:', err);
+        setError(err);
+        setLoading(false);
+      }
+    );
 
-  useEffect(() => {
-    if (!docsSnapshot || hasActiveMembership === null) return;
+    // Set up files collection subscription
+    const filesCollectionRef = collection(db, 'users', user.id, 'files');
+    const unsubscribeFiles = onSnapshot(
+      filesCollectionRef,
+      (querySnapshot) => {
+        const count = querySnapshot.size;
+        setDocsCount(count);
 
-    const docs = docsSnapshot.docs;
-    const usersLimit = hasActiveMembership ? PRO_DOC_LIMIT : FREE_DOC_LIMIT;
-    setIsOverFileLimit(docs.length >= usersLimit);
-  }, [docsSnapshot, hasActiveMembership]);
+        const userLimit = hasActiveMembership ? PRO_DOC_LIMIT : FREE_DOC_LIMIT;
+        setIsOverFileLimit(count >= userLimit);
+
+        setDocsLoading(false);
+      },
+      (err) => {
+        console.error('🔥 Error fetching files collection:', err);
+        setDocsError(err);
+        setDocsLoading(false);
+      }
+    );
+
+    // Clean up subscriptions
+    return () => {
+      unsubscribeUserDoc();
+      unsubscribeFiles();
+    };
+  }, [user, hasActiveMembership]);
 
   return {
     hasActiveMembership,
@@ -89,6 +111,7 @@ function useSubscription() {
     error,
     docsLoading,
     docsError,
+    docsCount,
   };
 }
 

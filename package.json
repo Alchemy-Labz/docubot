@@ -14,8 +14,8 @@
     "test": "jest --passWithNoTests",
     "test:watch": "jest --watch",
     "prepare": "husky install",
-    "deploy": "vercel",
-    "prod": "vercel --prod"
+    "deploy": "npx vercel",
+    "prod": "npx vercel --prod"
   },
   "dependencies": {
     "@clerk/elements": "^0.11.0",

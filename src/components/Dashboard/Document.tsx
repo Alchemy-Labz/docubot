@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useTransition, useEffect } from 'react';
+import React, { useTransition } from 'react';
 import { FileText, Download, Trash2 } from 'lucide-react';
 import Link from 'next/link';
 import useSubscription from '@/hooks/useSubscription';
@@ -17,37 +17,17 @@ interface DocumentProps {
 const Document = ({ id, name, size, downloadURL }: DocumentProps) => {
   const [isDeleting, startTransaction] = useTransition();
 
-  console.log('🔍 Document component rendering for:', id);
-  console.log('📄 Document props:', { id, name, size, downloadURL });
+  // Use the hook safely
+  const { hasActiveMembership, loading: membershipLoading } = useSubscription();
 
-  // Debug useSubscription hook
-  console.log('🔄 Before calling useSubscription hook');
-  const subscriptionResult = useSubscription();
-  console.log('✅ useSubscription returned:', subscriptionResult);
+  // Only enable deletion when we know membership status for sure
+  const canDelete = hasActiveMembership && !membershipLoading;
 
-  const { hasActiveMembership } = subscriptionResult;
-  console.log('🔑 Has active membership:', hasActiveMembership);
-
-  // Add effect to track component lifecycle
-  useEffect(() => {
-    console.log('🚀 Document component mounted for:', id);
-    return () => {
-      console.log('💤 Document component unmounted for:', id);
-    };
-  }, [id]);
-
-  // Debug delete functionality
   const handleDelete = () => {
-    console.log('🗑️ Delete button clicked for document:', id);
     const prompt = window.confirm(`Are you sure you want to delete document ${name}?`);
-    console.log('🤔 User confirmed delete?', prompt);
-
     if (prompt) {
-      console.log('🔄 Starting delete transaction');
       startTransaction(async () => {
-        console.log('📤 Calling deleteDocument with id:', id);
         await deleteDocument(id);
-        console.log('✓ Delete operation completed');
       });
     }
   };
@@ -79,7 +59,7 @@ const Document = ({ id, name, size, downloadURL }: DocumentProps) => {
           </a>
           <Button
             variant='default'
-            disabled={isDeleting || !hasActiveMembership}
+            disabled={isDeleting || !canDelete}
             onClick={handleDelete}
             className='flex w-full items-center justify-center rounded-md bg-red-500 px-4 py-2 text-sm font-medium text-white transition duration-300 ease-in-out hover:bg-red-600'
           >
