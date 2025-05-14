@@ -18,7 +18,7 @@ export type UserDetails = {
   name: string;
 };
 
-function PricingPage() {
+const PricingPage = () => {
   const { user } = useUser();
   const router = useRouter();
   const { hasActiveMembership, loading } = useSubscription();
@@ -123,6 +123,6 @@ function PricingPage() {
       </div>
     </div>
   );
-}
+};
 
 export default PricingPage;

@@ -8,7 +8,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 
-function UserMenu() {
+const UserMenu = () => {
   // Get Session Data
 
   return (
@@ -24,6 +24,6 @@ function UserMenu() {
       </DropdownMenuContent>
     </DropdownMenu>
   );
-}
+};
 
 export default UserMenu;

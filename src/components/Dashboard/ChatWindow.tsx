@@ -5,7 +5,7 @@
 import { FormEvent, useEffect, useRef, useState, useTransition } from 'react';
 import { Button } from '@/c/ui/button';
 import { Input } from '@/c/ui/input';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Send } from 'lucide-react';
 import { useCollection } from 'react-firebase-hooks/firestore';
 import { useUser } from '@clerk/nextjs';
 import { useRouter } from 'next/router';
@@ -25,7 +25,7 @@ export type Message = {
   message: string;
   createdAt: Date;
 };
-function ChatWindow({ id }: { id: string }) {
+const ChatWindow = ({ id }: { id: string }) => {
   const { user } = useUser();
 
   const [messages, setMessages] = useState<Message[]>([]);
@@ -97,47 +97,47 @@ function ChatWindow({ id }: { id: string }) {
     });
   };
   return (
-    <div className='flex h-full flex-col overflow-scroll'>
-      {/* Chat Contents  */}
-      <div className='w-full flex-1'>
-        {/* Chat Messages  */}
-
+    <div className='bg-accent-50 dark:bg-accent-900 flex h-full flex-col'>
+      <div className='mx-auto max-w-7xl flex-1 items-center space-y-4 overflow-y-auto p-4'>
         {loading ? (
-          <div className='flex items-center justify-center'>
-            <Loader2 className='animate-spin' />
+          <div className='flex h-full items-center justify-center'>
+            <Loader2 className='h-8 w-8 animate-spin text-accent' />
           </div>
         ) : (
-          <div className='p-5'>
-            {messages.length === 0 && (
-              <ChatMessage
-                key='placeholder'
-                message={{
-                  role: 'ai',
-                  message: 'No messages yet',
-                  createdAt: new Date(),
-                }}
-              />
-            )}
-
+          <>
             {messages.map((message, index) => (
-              <ChatMessage key={index} message={message} />
+              <ChatMessage key={message.id || index} message={message} />
             ))}
             <div ref={bottomofChatRef} />
-          </div>
+          </>
         )}
       </div>
       <form
-        action=''
         onSubmit={handleSubmit}
-        className='sticky bottom-0 flex space-x-2 bg-accent2/75 p-5'
+        className='border-accent-200 dark:border-accent-700 border-t bg-dark-600/40 p-4'
       >
-        <Input placeholder='' value={input} onChange={(e) => setInput(e.target.value)} />
-        <Button type='submit' disabled={!input || isPending}>
-          {isPending ? <Loader2 className='animate-spin-slow text-accent' /> : 'Ask'}
-        </Button>
+        <div className='flex space-x-2'>
+          <Input
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            placeholder='Type your message...'
+            className='flex-1 bg-dark-700/40'
+          />
+          <Button
+            type='submit'
+            disabled={!input.trim() || isPending}
+            className='flex items-center justify-center bg-light-500'
+          >
+            {isPending ? (
+              <Loader2 className='h-4 w-4 animate-spin' />
+            ) : (
+              <Send className='h-5 w-5' />
+            )}
+          </Button>
+        </div>
       </form>
     </div>
   );
-}
+};
 
 export default ChatWindow;

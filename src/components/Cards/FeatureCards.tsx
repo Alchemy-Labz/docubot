@@ -1,5 +1,5 @@
 import React from 'react';
-import featuresData from '@/l/util/constants.json';
+import featuresData from '@/util/constants.json';
 import { FilePlus2, TextSearch, Binary, DatabaseZap, FileOutput, Eye } from 'lucide-react';
 const iconMap = {
   FilePlus2,

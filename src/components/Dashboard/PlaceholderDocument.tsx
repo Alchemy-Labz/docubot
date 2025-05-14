@@ -6,7 +6,7 @@ import { Button } from '../ui/button';
 import { useRouter } from 'next/navigation';
 import useSubscription from '@/hooks/useSubscription';
 
-function PlaceholderDocument() {
+const PlaceholderDocument = () => {
   const router = useRouter();
   const { isOverFileLimit } = useSubscription();
 
@@ -21,7 +21,7 @@ function PlaceholderDocument() {
   return (
     <Button
       onClick={handleClick}
-      className='flex h-80 w-64 flex-col items-center justify-center space-y-3 rounded-xl border border-accent/60 shadow-md dark:bg-dark-700 dark:text-light-300 dark:shadow-light-800/60 dark:hover:bg-dark-800/90'
+      className='flex h-80 w-64 flex-col items-center justify-center space-y-3 rounded-xl border border-accent2/60 bg-light-900/80 shadow-md hover:bg-light-800/90 dark:border-accent/60 dark:bg-dark-700 dark:text-light-300 dark:shadow-light-800/60 dark:hover:bg-dark-800/90'
     >
       {isOverFileLimit ? (
         <>
@@ -38,6 +38,6 @@ function PlaceholderDocument() {
       )}
     </Button>
   );
-}
+};
 
 export default PlaceholderDocument;

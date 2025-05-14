@@ -1,43 +1,54 @@
 import React from 'react';
-// eslint-disable-next-line import/no-cycle
 import { Message } from './ChatWindow';
 import { useUser } from '@clerk/nextjs';
 import Image from 'next/image';
 import { BotMessageSquare } from 'lucide-react';
-// import ReactMarkdown from 'react-markdown';
-// import CodeBlock from './CodeBlock';
 import { MarkdownRenderer } from './Markdown';
-function ChatMessage({ message }: { message: Message }) {
+
+const ChatMessage = ({ message }: { message: Message }) => {
   const isHuman = message.role === 'human';
   const { user } = useUser();
 
   return (
-    <div className={`chat w-full ${isHuman ? 'chat-end flex flex-row-reverse' : 'chat-start'}`}>
-      <div className='chat-image-avatar'>
-        <div className='w-10 rounded-full'>
-          {isHuman ? (
-            user?.imageUrl && (
-              <Image
-                src={user.imageUrl}
-                width={40}
-                height={40}
-                alt='user'
-                className='rounded-full'
-              />
-            )
-          ) : (
-            <div className='flex h-10 w-10 items-center justify-center rounded-full bg-gray-300'>
-              <BotMessageSquare className='h-6 w-6 text-white' />
-            </div>
-          )}
+    <div className={`chat mb-4 flex ${isHuman ? 'justify-end' : 'justify-start'}`}>
+      <div className={`flex max-w-3xl ${isHuman ? 'flex-row-reverse' : 'flex-row'}`}>
+        <div className={`chat-image-avatar flex items-end ${isHuman ? 'ml-2' : 'mr-2'}`}>
+          <div className='h-8 w-8 overflow-hidden rounded-full'>
+            {isHuman ? (
+              user?.imageUrl ? (
+                <Image
+                  src={user.imageUrl}
+                  width={32}
+                  height={32}
+                  alt='user'
+                  className='rounded-full'
+                />
+              ) : (
+                <div className='flex h-8 w-8 items-center justify-center rounded-full bg-neon2-300'>
+                  <span className='text-xs font-bold text-dark-800'>
+                    {user?.firstName?.[0] || 'U'}
+                  </span>
+                </div>
+              )
+            ) : (
+              <div className='flex h-8 w-8 items-center justify-center rounded-full bg-neon-500'>
+                <BotMessageSquare className='h-5 w-5 text-dark-800' />
+              </div>
+            )}
+          </div>
         </div>
-      </div>
-
-      <div className={`chat-bubble prose ${isHuman && 'bg-accent2 text-white'}`}>
-        <MarkdownRenderer>{message.message}</MarkdownRenderer>
+        <div
+          className={`chat-bubble prose rounded-2xl p-4 ${
+            isHuman
+              ? 'rounded-br-none bg-dark-700/60 text-light-300'
+              : 'rounded-bl-none bg-light-800/60 text-light-300'
+          }`}
+        >
+          <MarkdownRenderer>{message.message}</MarkdownRenderer>
+        </div>
       </div>
     </div>
   );
-}
+};
 
 export default ChatMessage;

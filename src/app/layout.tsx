@@ -2,7 +2,6 @@ import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
 import { ErrorBoundary } from '@sentry/nextjs';
-import Header from '@/components/Global/Header';
 import { ClerkProvider } from '@clerk/nextjs';
 import { ThemeProvider } from '@/providers/ThemeProvider';
 import { Toaster } from 'react-hot-toast';
@@ -24,18 +23,16 @@ export default function RootLayout({
   return (
     <html lang='en'>
       <body
-        className={`${inter.className} flex h-screen min-h-screen flex-col overflow-hidden bg-light-500 dark:bg-dark-500`}
+        className={`${inter.className} flex min-h-screen flex-col bg-light-500 dark:bg-dark-500`}
       >
         <ErrorBoundary>
           <ClerkProvider>
-            {/* <Header /> */}
             <ThemeProvider
               attribute='class'
               defaultTheme='system'
               enableSystem
               disableTransitionOnChange
             >
-              <Header />
               {children}
               <Toaster
                 position='bottom-right'

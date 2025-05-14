@@ -1,9 +1,9 @@
 import React from 'react';
 import { Avatar, AvatarFallback } from '@/c/ui/avatar';
-import { cn } from '@/lib/util/utils';
+import { cn } from '@/util/utils';
 import Image from 'next/image';
 
-function UserAvatar({
+const UserAvatar = ({
   name,
   image,
   className,
@@ -11,7 +11,7 @@ function UserAvatar({
   name?: string;
   image?: string;
   className?: string;
-}) {
+}) => {
   return (
     <Avatar
       className={cn(
@@ -41,6 +41,6 @@ function UserAvatar({
       </AvatarFallback>
     </Avatar>
   );
-}
+};
 
 export default UserAvatar;
