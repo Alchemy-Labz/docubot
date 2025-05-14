@@ -1,6 +1,6 @@
 import React from 'react';
 import { Avatar, AvatarFallback } from '@/c/ui/avatar';
-import { cn } from '@/lib/util/utils';
+import { cn } from '@/util/utils';
 import Image from 'next/image';
 
 const UserAvatar = ({

@@ -1,5 +1,3 @@
-// import SubHeader from '@/components/Global/SubHeader';
-
 import { ClerkLoaded } from '@clerk/nextjs';
 import Header from '@/components/Global/Header';
 

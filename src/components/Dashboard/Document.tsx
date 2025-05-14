@@ -2,7 +2,6 @@
 
 import React, { useTransition } from 'react';
 import { FileText, Download, Trash2 } from 'lucide-react';
-// import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import useSubscription from '@/hooks/useSubscription';
 import { Button } from '../ui/button';
@@ -16,9 +15,22 @@ interface DocumentProps {
 }
 
 const Document = ({ id, name, size, downloadURL }: DocumentProps) => {
-  // const router = useRouter();
   const [isDeleting, startTransaction] = useTransition();
-  const { hasActiveMembership } = useSubscription();
+
+  // Use the hook safely
+  const { hasActiveMembership, loading: membershipLoading } = useSubscription();
+
+  // Only enable deletion when we know membership status for sure
+  const canDelete = hasActiveMembership && !membershipLoading;
+
+  const handleDelete = () => {
+    const prompt = window.confirm(`Are you sure you want to delete document ${name}?`);
+    if (prompt) {
+      startTransaction(async () => {
+        await deleteDocument(id);
+      });
+    }
+  };
 
   return (
     <div
@@ -47,15 +59,8 @@ const Document = ({ id, name, size, downloadURL }: DocumentProps) => {
           </a>
           <Button
             variant='default'
-            disabled={isDeleting || !hasActiveMembership}
-            onClick={() => {
-              const promt = window.confirm(`Are you sure you want to delete document ${name}?`);
-              if (promt) {
-                startTransaction(async () => {
-                  await deleteDocument(id);
-                });
-              }
-            }}
+            disabled={isDeleting || !canDelete}
+            onClick={handleDelete}
             className='flex w-full items-center justify-center rounded-md bg-red-500 px-4 py-2 text-sm font-medium text-white transition duration-300 ease-in-out hover:bg-red-600'
           >
             <Trash2 className='mr-1' size={14} />

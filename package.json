@@ -14,8 +14,8 @@
     "test": "jest --passWithNoTests",
     "test:watch": "jest --watch",
     "prepare": "husky install",
-    "deploy": "vercel",
-    "prod": "vercel --prod"
+    "deploy": "npx vercel",
+    "prod": "npx vercel --prod"
   },
   "dependencies": {
     "@clerk/elements": "^0.11.0",
@@ -39,6 +39,8 @@
     "@radix-ui/react-label": "^2.1.0",
     "@radix-ui/react-select": "^2.1.1",
     "@radix-ui/react-slot": "^1.1.0",
+    "@radix-ui/react-switch": "^1.2.2",
+    "@radix-ui/react-tooltip": "^1.2.3",
     "@react-pdf/renderer": "^3.4.4",
     "@sentry/nextjs": "^8.26.0",
     "@sentry/node": "^8.22.0",
@@ -50,6 +52,7 @@
     "clsx": "^2.1.1",
     "daisyui": "^4.12.10",
     "firebase-admin": "^12.3.0",
+    "framer-motion": "^12.7.4",
     "jsonwebtoken": "^9.0.2",
     "langchain": "^0.2.11",
     "lucide-react": "^0.419.0",

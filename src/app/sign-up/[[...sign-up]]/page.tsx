@@ -1,4 +1,5 @@
 'use client';
+// eslint-disable react/function-component-definition
 import * as Clerk from '@clerk/elements/common';
 import * as SignUp from '@clerk/elements/sign-up';
 import Link from 'next/link';
@@ -14,7 +15,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Icons } from '@/components/ui/icons';
-import { cn } from '@/lib/util/utils';
+import { cn } from '@/util/utils';
 import Image from 'next/image';
 // import { BsMicrosoft } from 'react-icons/bs';
 
