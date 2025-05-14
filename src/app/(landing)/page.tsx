@@ -441,6 +441,11 @@ const LandingPage = () => {
           <div className='grid gap-8 md:grid-cols-3'>
             {[
               {
+                text: 'Very effective way to quickly get important information from documents. An example use case for me was exporting 2 firewall configs a working one and one that wasnt working to quickly compare the differencs 2/5 stars',
+                author: 'George Watkins',
+                role: 'Systems Engineer',
+              },
+              {
                 text: 'DocuBot has been a game-changer for my research. I can now process academic papers in minutes instead of hours.',
                 author: 'Sarah Kincaid',
                 role: 'PhD Researcher',
