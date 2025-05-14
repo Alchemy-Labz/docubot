@@ -446,17 +446,17 @@ const LandingPage = () => {
                 role: 'Systems Engineer',
               },
               {
-                text: 'DocuBot has been a game-changer for my research. I can now process academic papers in minutes instead of hours.',
+                text: "DocuBot has been a game-changer for my research work. I've been using it to analyze complex academic papers and research documents. The ability to quickly process and understand multiple papers simultaneously has completely transformed my workflow and research methodology",
                 author: 'Sarah Kincaid',
                 role: 'PhD Researcher',
               },
               {
-                text: 'As a lawyer, I deal with lengthy documents daily. DocuBot helps me extract the exact clauses I need instantly.',
+                text: "As a lawyer handling complex corporate cases, I deal with lengthy legal documents and contracts daily. DocuBot has revolutionized how I work by helping me extract specific clauses and legal terminology instantly. It's particularly useful when comparing multiple contract versions",
                 author: 'Michael Thackery',
                 role: 'Corporate Attorney',
               },
               {
-                text: 'The ability to ask questions about my technical documentation has saved my team countless hours of reading time.',
+                text: "The ability to ask questions about my technical documentation has transformed our development process. My team now saves countless hours by quickly finding specific implementation details and troubleshooting information. It's like having an expert system administrator always available",
                 author: 'James Lockridge',
                 role: 'Technical Lead',
               },
