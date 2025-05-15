@@ -1,40 +1,44 @@
+// src/app/dashboard/documents/[id]/page.tsx
 import { adminDb } from '#/firebaseAdmin';
-import ChatWindow from '@/components/Dashboard/ChatWindow';
-import PDFViewer from '@/components/Dashboard/PDFViewer';
+import DocumentViewContainer from '@/components/Dashboard/DocumentViewContainer';
 import { auth } from '@clerk/nextjs/server';
-import React from 'react';
+import { notFound } from 'next/navigation';
 
-const ChatWithDocumentPage = async ({
-  params: { id },
-  searchParams,
-}: {
+interface DocumentPageProps {
   params: { id: string };
-  searchParams: { [key: string]: string | string[] | undefined };
-}) => {
+}
+
+const DocumentPage = async ({ params: { id } }: DocumentPageProps) => {
   auth().protect();
   const { userId } = await auth();
 
-  const ref = await adminDb.collection('users').doc(userId!).collection('files').doc(id).get();
-  const url = ref.data()?.downloadURL;
+  try {
+    const docRef = await adminDb
+      .collection('users')
+      .doc(userId!)
+      .collection('files')
+      .doc(id)
+      .get();
 
-  const isPdfVisible = searchParams.pdf !== 'hidden';
+    if (!docRef.exists) {
+      notFound();
+    }
 
-  return (
-    <div
-      className={`flex h-[calc(100vh-64px)] flex-col overflow-hidden lg:flex-row ${isPdfVisible ? 'lg:flex-row' : 'lg:flex-row-reverse'}`}
-    >
-      {isPdfVisible && (
-        <div
-          className={`border-accent-200 dark:border-accent-700 border-b lg:border-b-0 lg:border-r ${isPdfVisible ? 'h-1/2 w-full lg:h-full lg:w-1/2' : 'h-12 w-full lg:h-full lg:w-12'}`}
-        >
-          <PDFViewer url={url} />
-        </div>
-      )}
-      <div className={isPdfVisible ? 'h-1/2 w-full lg:h-full lg:w-1/2' : 'h-full w-full'}>
-        <ChatWindow id={id} />
-      </div>
-    </div>
-  );
+    const documentData = docRef.data();
+
+    // Only pass the data we need, not Firebase references
+    return (
+      <DocumentViewContainer
+        id={id}
+        userId={userId!}
+        url={documentData?.downloadURL}
+        fileName={documentData?.name || 'Document'}
+      />
+    );
+  } catch (error) {
+    console.error('Error fetching document:', error);
+    notFound();
+  }
 };
 
-export default ChatWithDocumentPage;
+export default DocumentPage;

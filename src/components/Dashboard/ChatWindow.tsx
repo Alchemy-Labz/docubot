@@ -1,22 +1,16 @@
-//ChatWindow.tsx
-/* eslint-disable @typescript-eslint/no-unused-vars */
+// src/components/Dashboard/ChatWindow.tsx
 'use client';
 
 import { FormEvent, useEffect, useRef, useState, useTransition } from 'react';
-import { Button } from '@/c/ui/button';
-import { Input } from '@/c/ui/input';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { Loader2, Send } from 'lucide-react';
 import { useCollection } from 'react-firebase-hooks/firestore';
 import { useUser } from '@clerk/nextjs';
-import { useRouter } from 'next/router';
-import { db } from '#/firebase';
 import { collection, orderBy, query } from '@firebase/firestore';
 import toast from 'react-hot-toast';
-
-// import ChatMessage from '@/components/Dashboard/ChatMessage';
-// eslint-disable-next-line import/no-cycle
+import { db } from '#/firebase'; // Client Firebase SDK
 import { askQuestion } from '@/actions/openAI/askQuestion';
-// eslint-disable-next-line import/no-cycle
 import ChatMessage from './ChatMessage';
 
 export type Message = {
@@ -25,108 +19,143 @@ export type Message = {
   message: string;
   createdAt: Date;
 };
-const ChatWindow = ({ id }: { id: string }) => {
-  const { user } = useUser();
 
+interface ChatWindowProps {
+  id: string;
+}
+
+const ChatWindow = ({ id }: ChatWindowProps) => {
+  const { user } = useUser();
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [isPending, startTransition] = useTransition();
-  const bottomofChatRef = useRef<HTMLDivElement>(null);
+  const bottomOfChatRef = useRef<HTMLDivElement>(null);
 
+  // Only initialize Firebase client queries if we have a user
   const [snapshot, loading, error] = useCollection(
-    user &&
-      query(collection(db, 'users', user?.id, 'files', id, 'chat'), orderBy('createdAt', 'asc'))
+    user && db
+      ? query(collection(db, 'users', user.id, 'files', id, 'chat'), orderBy('createdAt', 'asc'))
+      : null
   );
 
   useEffect(() => {
-    bottomofChatRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }),
-    [messages];
+    bottomOfChatRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages]);
+
   useEffect(() => {
     if (!snapshot) return;
-    console.log('Updated snapshot', snapshot.docs);
-
-    const lastMessage = messages.pop();
-
-    if (lastMessage?.role === 'ai' && lastMessage.message === 'DocuBot is thinking...') {
-      //return this as a dummy place holder message
-      return;
-    }
 
     const newMessages = snapshot.docs.map((doc) => {
-      const { role, message, createdAt } = doc.data();
-      return { id: doc.id, role, message, createdAt: createdAt.toDate() };
+      const data = doc.data();
+      return {
+        id: doc.id,
+        role: data.role,
+        message: data.message,
+        createdAt: data.createdAt?.toDate() || new Date(),
+      };
     });
-    setMessages(newMessages);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [snapshot]);
+
+    // Remove any placeholder AI message from our local state
+    const filteredMessages = messages.filter(
+      (msg) => !(msg.role === 'ai' && msg.message === 'DocuBot is thinking...' && !msg.id)
+    );
+
+    // Only update if there's a difference
+    if (JSON.stringify(filteredMessages) !== JSON.stringify(newMessages)) {
+      setMessages(newMessages);
+    }
+  }, [snapshot, messages]);
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const q = input;
+
+    if (!input.trim() || !user) return;
+
+    const userQuestion = input.trim();
     setInput('');
 
-    //Optimistic Message Update
+    // Optimistic message update
     setMessages((prev) => [
       ...prev,
-      { role: 'human', message: q, createdAt: new Date() },
+      { role: 'human', message: userQuestion, createdAt: new Date() },
       { role: 'ai', message: 'DocuBot is thinking...', createdAt: new Date() },
     ]);
 
     startTransition(async () => {
-      const { success, message } = await askQuestion(id, q);
+      try {
+        const result = await askQuestion(id, userQuestion);
 
-      console.log('DEBUG', success, message);
+        if (!result.success) {
+          // Remove the thinking message and add error message
+          setMessages((prev) =>
+            prev
+              .filter((msg) => !(msg.role === 'ai' && msg.message === 'DocuBot is thinking...'))
+              .concat({
+                role: 'ai',
+                message: `Error: ${result.message || 'Something went wrong'}`,
+                createdAt: new Date(),
+              })
+          );
 
-      if (!success) {
-        toast.error(`Error: ${message}`);
+          toast.error(`Error: ${result.message || 'Failed to get response'}`);
+        }
+      } catch (err) {
+        console.error('Error asking question:', err);
 
+        // Remove the thinking message and add error message
         setMessages((prev) =>
-          prev.slice(0, prev.length - 1).concat([
-            {
+          prev
+            .filter((msg) => !(msg.role === 'ai' && msg.message === 'DocuBot is thinking...'))
+            .concat({
               role: 'ai',
-              message: `Oops, there was an Error: ${message}`,
+              message: 'Sorry, there was an error processing your question. Please try again.',
               createdAt: new Date(),
-            },
-          ])
+            })
         );
-      } else {
-        toast.success('DocuBot has answered your question!');
-        // Handle successful case here if needed
+
+        toast.error('Failed to get a response');
       }
     });
   };
+
   return (
-    <div className='bg-accent-50 dark:bg-accent-900 flex h-full flex-col'>
-      <div className='mx-auto max-w-7xl flex-1 items-center space-y-4 overflow-y-auto p-4'>
+    <div className='flex h-full flex-col bg-light-400/40 dark:bg-dark-800/40'>
+      <div className='mx-auto w-full max-w-3xl flex-1 space-y-4 overflow-y-auto p-4'>
         {loading ? (
           <div className='flex h-full items-center justify-center'>
             <Loader2 className='h-8 w-8 animate-spin text-accent' />
+          </div>
+        ) : messages.length === 0 ? (
+          <div className='flex h-full flex-col items-center justify-center p-6 text-center text-muted-foreground'>
+            <p className='mb-2 text-lg font-medium'>Chat with your document</p>
+            <p>Ask questions about your document and get AI-powered answers.</p>
           </div>
         ) : (
           <>
             {messages.map((message, index) => (
               <ChatMessage key={message.id || index} message={message} />
             ))}
-            <div ref={bottomofChatRef} />
+            <div ref={bottomOfChatRef} />
           </>
         )}
       </div>
+
       <form
         onSubmit={handleSubmit}
-        className='border-accent-200 dark:border-accent-700 border-t bg-dark-600/40 p-4'
+        className='border-accent-200 dark:border-accent-700 border-t bg-light-600/40 p-4 dark:bg-dark-600/40'
       >
         <div className='flex space-x-2'>
           <Input
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder='Type your message...'
-            className='flex-1 bg-dark-700/40'
+            placeholder='Type your question...'
+            className='flex-1 bg-light-500 dark:bg-dark-700/40'
+            disabled={isPending || !user}
           />
           <Button
             type='submit'
-            disabled={!input.trim() || isPending}
-            className='flex items-center justify-center bg-light-500'
+            disabled={!input.trim() || isPending || !user}
+            className='flex items-center justify-center bg-accent hover:bg-accent2'
           >
             {isPending ? (
               <Loader2 className='h-4 w-4 animate-spin' />

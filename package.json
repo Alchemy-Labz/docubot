@@ -51,6 +51,7 @@
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
     "daisyui": "^4.12.10",
+    "firebase": "^11.7.3",
     "firebase-admin": "^12.3.0",
     "framer-motion": "^12.7.4",
     "jsonwebtoken": "^9.0.2",
