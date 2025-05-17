@@ -27,6 +27,23 @@ function useUpload() {
   const [docId, setDocId] = useState<string | null>(null);
   const { user } = useUser();
 
+  const getFileTypeIcon = (fileType: string): string => {
+    switch (fileType) {
+      case 'application/pdf':
+        return 'pdf';
+      case 'application/vnd.openxmlformats-officedocument.wordprocessingml.document':
+        return 'docx';
+      case 'text/plain':
+        return 'txt';
+      case 'text/markdown':
+        return 'md';
+      case 'text/rtf':
+        return 'rtf';
+      default:
+        return 'document';
+    }
+  };
+
   const handleUploadDocument = async (file: File) => {
     console.log('handleUploadDocument called with file:', file);
     if (!file || !user) {
@@ -39,6 +56,7 @@ function useUpload() {
     try {
       // Fetch the Firebase token from your backend
       console.log('Fetching Firebase token');
+      setStatus(UploadStatusText.AUTHENTICATING);
       const response = await fetch('/api/firebase-token', {
         method: 'POST',
         headers: {
@@ -103,10 +121,14 @@ function useUpload() {
           console.log('Saving to database');
           setStatus(UploadStatusText.SAVING);
 
+          // Get file icon type
+          const fileIcon = getFileTypeIcon(file.type);
+
           await setDoc(doc(db, 'users', user.id, 'files', fileToUploadToDB), {
             name: file.name,
             size: file.size,
             type: file.type,
+            fileIcon: fileIcon,
             downloadURL: docDownloadURL,
             ref: uploadTask.snapshot.ref.fullPath,
             createdAt: new Date(),

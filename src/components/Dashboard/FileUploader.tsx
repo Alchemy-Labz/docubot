@@ -2,9 +2,21 @@
 'use client';
 
 import Image from 'next/image';
-import React, { useCallback, useEffect } from 'react';
+import React, { useCallback, useEffect, useMemo } from 'react';
 import { FileRejection, useDropzone } from 'react-dropzone';
-import { CheckCircle, CircleArrowDown, Hammer, Lock, Rocket, Save } from 'lucide-react';
+import {
+  CheckCircle,
+  CircleArrowDown,
+  File,
+  FileArchive,
+  FileDigit,
+  FileText,
+  FileType,
+  Hammer,
+  Lock,
+  Rocket,
+  Save,
+} from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useRouter } from 'next/navigation';
 import useUpload, { UploadStatusText } from '@/hooks/useUpload';
@@ -16,11 +28,62 @@ const FileUploader = () => {
   const { isOverFileLimit, docsLoading } = useSubscription();
   const router = useRouter();
 
+  // File type icons mapping
+  const fileTypeIcons = useMemo(
+    () => ({
+      'application/pdf': <FileText className='h-10 w-10 text-accent' />,
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document': (
+        <FileDigit className='h-10 w-10 text-accent' />
+      ),
+      'text/plain': <FileText className='h-10 w-10 text-accent' />,
+      'text/markdown': <FileType className='h-10 w-10 text-accent' />,
+      'text/rtf': <FileArchive className='h-10 w-10 text-accent' />,
+      default: <File className='h-10 w-10 text-accent' />,
+    }),
+    []
+  );
+
+  // Accepted file types
+  const acceptedFileTypes = useMemo(
+    () => ({
+      'application/pdf': ['.pdf'],
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document': ['.docx'],
+      'text/plain': ['.txt'],
+      'text/markdown': ['.md'],
+      'text/rtf': ['.rtf'],
+    }),
+    []
+  );
+
+  // File size limit in bytes (15MB)
+  const MAX_FILE_SIZE = 15 * 1024 * 1024;
+
   useEffect(() => {
     if (docId) {
       router.push(`/dashboard/documents/${docId}`);
     }
   }, [docId, router, status]);
+
+  const getFileTypeDisplay = (fileType: string) => {
+    return fileTypeIcons[fileType as keyof typeof fileTypeIcons] || fileTypeIcons.default;
+  };
+
+  const getFileTypeLabel = (fileType: string) => {
+    switch (fileType) {
+      case 'application/pdf':
+        return 'PDF';
+      case 'application/vnd.openxmlformats-officedocument.wordprocessingml.document':
+        return 'DOCX';
+      case 'text/plain':
+        return 'TXT';
+      case 'text/markdown':
+        return 'MD';
+      case 'text/rtf':
+        return 'RTF';
+      default:
+        return 'Document';
+    }
+  };
 
   const onDrop = useCallback(
     async (acceptedFiles: File[]) => {
@@ -33,7 +96,7 @@ const FileUploader = () => {
         if (!isOverFileLimit && !docsLoading) {
           try {
             await handleUploadDocument(file);
-            toast.success(`DocuBot has consumed the Document: ${file.name}`);
+            toast.success(`DocuBot has consumed the ${getFileTypeLabel(file.type)}: ${file.name}`);
           } catch (error) {
             if (error instanceof Error) {
               toast.error(`Upload failed: ${error.message}`);
@@ -48,7 +111,7 @@ const FileUploader = () => {
         }
       }
     },
-    [handleUploadDocument, isOverFileLimit, docsLoading]
+    [handleUploadDocument, isOverFileLimit, docsLoading, getFileTypeLabel]
   );
 
   const onDropRejected = useCallback((fileRejections: FileRejection[]) => {
@@ -59,10 +122,10 @@ const FileUploader = () => {
         const error = errors[0];
         switch (error.code) {
           case 'file-too-large':
-            toast.error('File is too large. Maximum size is 17.5MB.');
+            toast.error('File is too large. Maximum size is 15MB.');
             break;
           case 'file-invalid-type':
-            toast.error('Invalid file type. Please upload a PDF.');
+            toast.error('Invalid file type. Please upload a PDF, DOCX, TXT, MD, or RTF file.');
             break;
           default:
             toast.error(`Upload error: ${error.message}`);
@@ -84,15 +147,17 @@ const FileUploader = () => {
     [UploadStatusText.AUTHENTICATING]: <Lock className='h-20 w-20 text-accent' />,
   };
 
-  const { getRootProps, getInputProps, isDragActive, isFocused, isDragAccept } = useDropzone({
-    onDrop,
-    onDropRejected,
-    maxFiles: 1,
-    maxSize: 15 * 1024 * 1024,
-    accept: { 'application/pdf': ['.pdf'] },
-  });
+  const { getRootProps, getInputProps, isDragActive, isFocused, isDragAccept, acceptedFiles } =
+    useDropzone({
+      onDrop,
+      onDropRejected,
+      maxFiles: 1,
+      maxSize: MAX_FILE_SIZE,
+      accept: acceptedFileTypes,
+    });
 
   const uploadInProgress = progress !== null && progress >= 0 && progress <= 100;
+  const currentFile = acceptedFiles[0];
 
   return (
     <div className='font mx-auto flex max-w-7xl flex-col items-center gap-4'>
@@ -111,11 +176,18 @@ const FileUploader = () => {
                 '--thickness': '1.3rem',
               } as React.CSSProperties
             }
+            aria-valuenow={progress || 0}
           >
             {progress}%
           </div>
           {statusIcons[status! as keyof typeof statusIcons]}
           <p className='animate-pulse text-accent2'>{status}</p>
+          {currentFile && (
+            <div className='flex flex-col items-center gap-2'>
+              {getFileTypeDisplay(currentFile.type)}
+              <p className='text-sm text-accent2'>{currentFile.name}</p>
+            </div>
+          )}
         </div>
       )}
 
@@ -127,10 +199,11 @@ const FileUploader = () => {
               ? 'border-accent3 bg-accent4/50 dark:border-accent3 dark:bg-accent/40 dark:text-accent2'
               : 'border-accent bg-light-500/30 dark:bg-dark-600/30'
           } ${isFocused ? 'border-accent4' : 'border-accent'}`}
+          aria-label='Drop zone for document upload'
         >
-          <input {...getInputProps()} />
+          <input {...getInputProps()} aria-label='File input' />
           <div className='flex flex-col items-center justify-center space-y-6'>
-            <Image src='/logo.png' alt='' width={75} height={75} />
+            <Image src='/logo.png' alt='DocuBot logo' width={75} height={75} />
             {isDragActive ? (
               <>
                 <Rocket className='h-14 w-14 animate-ping text-accent2' />
@@ -140,6 +213,24 @@ const FileUploader = () => {
               <>
                 <CircleArrowDown className='h-14 w-14 animate-caret-blink text-accent2 dark:text-accent' />
                 <p>Feed me some Documents by dropping them in front of me or clicking here.</p>
+                <div className='flex max-w-md flex-wrap items-center justify-center gap-3'>
+                  <div className='flex items-center gap-1 rounded-md bg-light-600/50 p-1 text-sm dark:bg-dark-700/50'>
+                    <FileText className='h-4 w-4' /> PDF
+                  </div>
+                  <div className='flex items-center gap-1 rounded-md bg-light-600/50 p-1 text-sm dark:bg-dark-700/50'>
+                    <FileDigit className='h-4 w-4' /> DOCX
+                  </div>
+                  <div className='flex items-center gap-1 rounded-md bg-light-600/50 p-1 text-sm dark:bg-dark-700/50'>
+                    <FileText className='h-4 w-4' /> TXT
+                  </div>
+                  <div className='flex items-center gap-1 rounded-md bg-light-600/50 p-1 text-sm dark:bg-dark-700/50'>
+                    <FileType className='h-4 w-4' /> MD
+                  </div>
+                  <div className='flex items-center gap-1 rounded-md bg-light-600/50 p-1 text-sm dark:bg-dark-700/50'>
+                    <FileArchive className='h-4 w-4' /> RTF
+                  </div>
+                </div>
+                <p className='text-xs text-muted-foreground'>Maximum file size: 15MB</p>
               </>
             )}
           </div>

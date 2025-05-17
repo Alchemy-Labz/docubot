@@ -8,7 +8,7 @@ import { generateEmbeddingsWithPineconeVectorStore } from './langchain/langchain
 export async function generateVectorEmbeddings(docId: string) {
   auth().protect(); //Protect this route with Clerk's authentication
 
-  //Convert PDF file to Vector Embeddings
+  //Convert document file to Vector Embeddings
   await generateEmbeddingsWithPineconeVectorStore(docId);
 
   revalidatePath('/dashboard');

@@ -38,6 +38,8 @@ const Documents = async () => {
                 name={data.name || 'Untitled'}
                 size={data.size || 0}
                 downloadURL={data.downloadURL || ''}
+                type={data.type || ''}
+                fileIcon={data.fileIcon || ''}
               />
             );
           })

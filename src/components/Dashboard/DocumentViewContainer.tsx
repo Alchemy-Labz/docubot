@@ -4,9 +4,13 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import PDFViewer from './PDFViewer';
+import TextDocumentViewer from './TextDocumentViewer';
 import ChatWindowClient from './ChatWindowClient';
 import { FileText, MessageSquare, SplitSquareVertical } from 'lucide-react';
 import { Button } from '../ui/button';
+import { db, auth } from '#/firebase';
+import { doc, getDoc } from '@firebase/firestore';
+import { signInWithCustomToken } from '@firebase/auth';
 
 type ViewType = 'split' | 'document' | 'chat';
 
@@ -20,6 +24,63 @@ interface DocumentViewContainerProps {
 const DocumentViewContainer = ({ id, userId, url, fileName }: DocumentViewContainerProps) => {
   const [currentView, setCurrentView] = useState<ViewType>('split');
   const [isMobile, setIsMobile] = useState(false);
+  const [fileType, setFileType] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  // Authenticate with Firebase first
+  useEffect(() => {
+    const authenticateWithFirebase = async () => {
+      try {
+        // Fetch Firebase token
+        const response = await fetch('/api/firebase-token', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ userId }),
+        });
+
+        if (!response.ok) {
+          throw new Error(`Failed to fetch Firebase token: ${response.status}`);
+        }
+
+        const data = await response.json();
+        if (!data.firebaseToken) {
+          throw new Error('No Firebase token received');
+        }
+
+        // Sign in to Firebase
+        await signInWithCustomToken(auth, data.firebaseToken);
+        setIsAuthenticated(true);
+      } catch (error) {
+        console.error('Error authenticating with Firebase:', error);
+        setLoading(false);
+      }
+    };
+
+    authenticateWithFirebase();
+  }, [userId]);
+
+  // Fetch file type after authentication
+  useEffect(() => {
+    const fetchFileType = async () => {
+      if (!isAuthenticated || !userId || !id || !db) return;
+
+      try {
+        const docRef = doc(db, 'users', userId, 'files', id);
+        const docSnap = await getDoc(docRef);
+
+        if (docSnap.exists()) {
+          setFileType(docSnap.data()?.type || null);
+        }
+        setLoading(false);
+      } catch (error) {
+        console.error('Error fetching document type:', error);
+        setLoading(false);
+      }
+    };
+
+    fetchFileType();
+  }, [isAuthenticated, id, userId]);
 
   // Handle responsive behavior
   useEffect(() => {
@@ -41,6 +102,31 @@ const DocumentViewContainer = ({ id, userId, url, fileName }: DocumentViewContai
     // Cleanup
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
+
+  // Determine which document viewer to use based on file type
+  const renderDocumentViewer = () => {
+    if (loading)
+      return <div className='flex h-full items-center justify-center'>Loading document...</div>;
+
+    // Default to PDF viewer if type is unknown or is PDF
+    if (!fileType || fileType === 'application/pdf') {
+      return <PDFViewer url={url} fileName={fileName} />;
+    }
+
+    // Use TextDocumentViewer for text-based documents
+    if (
+      fileType === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' ||
+      fileType === 'text/plain' ||
+      fileType === 'text/markdown' ||
+      fileType === 'text/rtf' ||
+      fileType === 'application/rtf'
+    ) {
+      return <TextDocumentViewer url={url} fileName={fileName} fileType={fileType} />;
+    }
+
+    // Fallback to PDF viewer
+    return <PDFViewer url={url} fileName={fileName} />;
+  };
 
   return (
     <div className='flex h-[calc(100vh-64px)] w-full flex-col'>
@@ -94,9 +180,8 @@ const DocumentViewContainer = ({ id, userId, url, fileName }: DocumentViewContai
           }}
           transition={{ type: 'spring', stiffness: 300, damping: 30 }}
         >
-          {(currentView === 'document' || currentView === 'split' || !isMobile) && (
-            <PDFViewer url={url} fileName={fileName} />
-          )}
+          {(currentView === 'document' || currentView === 'split' || !isMobile) &&
+            renderDocumentViewer()}
         </motion.div>
 
         <motion.div

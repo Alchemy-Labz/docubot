@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { ChatOpenAI, OpenAIEmbeddings } from '@langchain/openai';
 import { PDFLoader } from '@langchain/community/document_loaders/fs/pdf';
+import { TextLoader } from 'langchain/document_loaders/fs/text';
 import { RecursiveCharacterTextSplitter } from 'langchain/text_splitter';
 import { createStuffDocumentsChain } from 'langchain/chains/combine_documents';
 import { ChatPromptTemplate } from '@langchain/core/prompts';
@@ -13,6 +14,7 @@ import { PineconeConflictError } from '@pinecone-database/pinecone/dist/errors';
 import { Index, RecordMetadata } from '@pinecone-database/pinecone';
 import { adminDb } from '#/firebaseAdmin';
 import { auth } from '@clerk/nextjs/server';
+import { Document } from '@langchain/core/documents';
 
 //Initialize the OpenAI model with LangChain using your API key
 const model = new ChatOpenAI({
@@ -47,10 +49,36 @@ async function fetchMessagesFromDB(docId: string) {
       : new AIMessage(doc.data().message)
   );
 
-  //console.log(`--- ${chatHistory.length} Messages fetched sucessfully. ---`);
+  //console.log(`--- ${chatHistory.length} Messages fetched successfully. ---`);
   //console.log(chatHistory.map((msg) => msg.content.toString()));
 
   return chatHistory;
+}
+
+// Custom processing for DOCX files
+async function processDocxFile(data: Blob): Promise<Document[]> {
+  try {
+    // Convert the blob to text (this won't be perfect but will extract raw text)
+    const text = await data.text();
+    // Remove XML/formatting and keep just the text content
+    const cleanedText = text
+      .replace(/<[^>]*>/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim();
+
+    // Create a Document with the extracted text
+    return [
+      new Document({
+        pageContent: cleanedText,
+        metadata: { source: 'docx' },
+      }),
+    ];
+  } catch (error) {
+    console.error('Error processing DOCX file:', error);
+    throw new Error(
+      'Failed to process DOCX file: ' + (error instanceof Error ? error.message : String(error))
+    );
+  }
 }
 
 export async function generateDocs(docId: string) {
@@ -61,48 +89,91 @@ export async function generateDocs(docId: string) {
     //TODO: Send Error to Sentry
   }
 
-  //console.log('--- Fecthing the download URL from Firebase... ---');
-  const firebaseRef = await adminDb
+  //console.log('--- Fetching the document info from Firebase... ---');
+  const fileRef = await adminDb
     .collection('users')
     .doc(userId)
     .collection('files')
     .doc(docId)
     .get();
 
-  const downloadURL = firebaseRef.data()?.downloadURL;
+  const fileData = fileRef.data();
+  if (!fileData) {
+    throw new Error('Document data not found');
+    //TODO: Send Error to Sentry
+  }
+
+  const downloadURL = fileData.downloadURL;
+  const fileType = fileData.type;
 
   if (!downloadURL) {
     throw new Error('Download URL not found');
     //TODO: Send Error to Sentry
   }
 
-  //console.log(`--- Download URL fetched sucessfully. ${downloadURL} ---`);
+  //console.log(`--- Download URL fetched successfully. ${downloadURL} ---`);
 
-  // Fetch the PDF from the specified URL
+  // Fetch the document from the specified URL
   const response = await fetch(downloadURL);
 
-  // Load  the PDF into into a PDFDocument Object
+  if (!response.ok) {
+    throw new Error(`Failed to fetch document: ${response.status}`);
+  }
+
+  // Load the document into a blob
   const data = await response.blob();
+  let docs: Document[] = [];
 
-  //Load the PDF document from the specified path
-  //console.log('--- Loading PDF Document... ---');
-  const loader = new PDFLoader(data);
-  const docs = await loader.load();
-  //console.log('--- PDF Document loaded sucessfully. ---');
+  // Process based on file type
+  //console.log(`--- Processing document of type ${fileType}... ---`);
 
-  //Split the PDF into smaller chunks for smoother processing
-  //console.log('--- Splitting PDF into smaller chunks... ---');
+  if (fileType === 'application/pdf') {
+    // PDF files
+    const loader = new PDFLoader(data);
+    docs = await loader.load();
+  } else if (
+    fileType === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+  ) {
+    // DOCX files - custom handling since the loader has issues
+    docs = await processDocxFile(data);
+  } else if (
+    fileType === 'text/plain' ||
+    fileType === 'text/markdown' ||
+    fileType === 'text/rtf' ||
+    fileType === 'application/rtf'
+  ) {
+    // Text-based files
+    const textContent = await data.text();
+
+    // Create a Document directly without using TextLoader
+    docs = [
+      new Document({
+        pageContent: textContent,
+        metadata: { source: fileType },
+      }),
+    ];
+  } else {
+    throw new Error(`Unsupported file type: ${fileType}`);
+    //TODO: Send Error to Sentry
+  }
+
+  //console.log('--- Document loaded successfully. ---');
+
+  //Split the document into smaller chunks for smoother processing
+  //console.log('--- Splitting document into smaller chunks... ---');
   const splitter = new RecursiveCharacterTextSplitter();
   const splitDocs = await splitter.splitDocuments(docs);
-  //console.log(`--- PDF Document split into ${splitDocs.length} chunks sucessfully. ---`);
+  //console.log(`--- Document split into ${splitDocs.length} chunks successfully. ---`);
 
   return splitDocs;
 }
+
 async function namespaceExists(index: Index<RecordMetadata>, namespace: string) {
   if (namespace === null) throw new Error('Namespace value is not provided'); //TODO: Send Error to Sentry
   const { namespaces } = await index.describeIndexStats();
   return namespaces?.[namespace] !== undefined;
 }
+
 export async function generateEmbeddingsWithPineconeVectorStore(docId: string) {
   const { userId } = await auth();
 
@@ -120,7 +191,7 @@ export async function generateEmbeddingsWithPineconeVectorStore(docId: string) {
 
   const namespaceAlreadyExists = await namespaceExists(index, docId);
   if (namespaceAlreadyExists) {
-    //console.log(`--- ${docId} namespace already exsist in Pinecone. Reusing exsisting embeddings... ---`);
+    //console.log(`--- ${docId} namespace already exists in Pinecone. Reusing existing embeddings... ---`);
 
     pineconeVectorStore = await PineconeStore.fromExistingIndex(embeddings, {
       pineconeIndex: index,
@@ -129,7 +200,7 @@ export async function generateEmbeddingsWithPineconeVectorStore(docId: string) {
 
     return pineconeVectorStore;
   } else {
-    // If the namespace does not exist, download the PDF file from Firebase Storage then generate the Vector Embeddings, and store them in Pinecone vectorr store.
+    // If the namespace does not exist, download the document file from Firebase Storage then generate the Vector Embeddings, and store them in Pinecone vector store.
     const splitDocs = await generateDocs(docId);
 
     //console.log( `--- Storing Vector Embeddings in namespace ${docId} in the ${indexName} Pinecone Vector Store. Begin... ---`);
@@ -160,7 +231,7 @@ const generateLangChainCompletion = async (docId: string, question: string) => {
   // Fetch the chat history from the database
   const chatHistory = await fetchMessagesFromDB(docId);
 
-  // Define a propmpt template for generating search queries based on conversation history
+  // Define a prompt template for generating search queries based on conversation history
   //console.log(    '--- Defining a prompt template for generating search queries based on conversation history... ---'  );
   const historyAwarePrompt = ChatPromptTemplate.fromMessages([
     ...chatHistory, // Insert the actual chat History here
@@ -172,7 +243,7 @@ const generateLangChainCompletion = async (docId: string, question: string) => {
     ],
   ]);
 
-  //Creat a history aware retriever
+  //Create a history aware retriever
   //console.log('--- Creating a history aware retriever chain... ---');
   const historyAwareRetrieverChain = await createHistoryAwareRetriever({
     llm: model,
@@ -193,8 +264,8 @@ const generateLangChainCompletion = async (docId: string, question: string) => {
     ['user', '{input}'],
   ]);
 
-  //Create a document combining chain to create coherant responses
-  //console.log('--- Creating a document combining chain to create coherant responses... ---');
+  //Create a document combining chain to create coherent responses
+  //console.log('--- Creating a document combining chain to create coherent responses... ---');
   const historyAwareCombineDocsChain = await createStuffDocumentsChain({
     llm: model,
     prompt: historyAwareRetrievalPrompt,
