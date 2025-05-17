@@ -9,8 +9,9 @@ import { useUser } from '@clerk/nextjs';
 import toast from 'react-hot-toast';
 import { askQuestion } from '@/actions/openAI/askQuestion';
 import ChatMessage from './ChatMessage';
-import { db } from '#/firebase'; // Client Firebase SDK
-import { collection, onSnapshot, orderBy, query } from 'firebase/firestore';
+import { db, auth } from '#/firebase'; // Import both db and auth
+import { signInWithCustomToken } from 'firebase/auth';
+import { collection, onSnapshot, orderBy, query, Timestamp, getDocs } from 'firebase/firestore';
 
 export type Message = {
   id?: string;
@@ -30,11 +31,47 @@ const ChatWindowClient = ({ docId, userId }: ChatWindowClientProps) => {
   const [input, setInput] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [firebaseInitialized, setFirebaseInitialized] = useState(false);
   const bottomOfChatRef = useRef<HTMLDivElement>(null);
 
-  // Set up listener for messages
+  // First authenticate with Firebase
   useEffect(() => {
-    if (!userId || !docId) return;
+    const authenticateWithFirebase = async () => {
+      if (!userId || !user) return;
+
+      try {
+        // Fetch Firebase token
+        const response = await fetch('/api/firebase-token', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ userId }),
+        });
+
+        if (!response.ok) {
+          throw new Error(`Failed to fetch Firebase token: ${response.status}`);
+        }
+
+        const data = await response.json();
+        if (!data.firebaseToken) {
+          throw new Error('No Firebase token received');
+        }
+
+        // Sign in to Firebase
+        await signInWithCustomToken(auth, data.firebaseToken);
+        console.log('🔥 Firebase authentication successful');
+        setFirebaseInitialized(true);
+      } catch (err) {
+        console.error('🔥 Firebase authentication error:', err);
+        toast.error('Authentication error. Please try again.');
+      }
+    };
+
+    authenticateWithFirebase();
+  }, [userId, user]);
+
+  // Set up listener for messages only after Firebase is initialized
+  useEffect(() => {
+    if (!firebaseInitialized || !userId || !docId) return;
 
     setLoading(true);
 
@@ -53,7 +90,10 @@ const ChatWindowClient = ({ docId, userId }: ChatWindowClientProps) => {
               id: doc.id,
               role: data.role,
               message: data.message,
-              createdAt: data.createdAt?.toDate() || new Date(),
+              createdAt:
+                data.createdAt instanceof Timestamp
+                  ? data.createdAt.toDate()
+                  : new Date(data.createdAt),
             };
           });
 
@@ -74,7 +114,7 @@ const ChatWindowClient = ({ docId, userId }: ChatWindowClientProps) => {
       setLoading(false);
       toast.error('Failed to load chat messages');
     }
-  }, [userId, docId]);
+  }, [firebaseInitialized, userId, docId]);
 
   // Scroll to bottom when messages change
   useEffect(() => {
@@ -84,7 +124,7 @@ const ChatWindowClient = ({ docId, userId }: ChatWindowClientProps) => {
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    if (!input.trim() || !user || isSubmitting) return;
+    if (!input.trim() || !user || isSubmitting || !firebaseInitialized) return;
 
     const userQuestion = input.trim();
     setInput('');
@@ -111,14 +151,22 @@ const ChatWindowClient = ({ docId, userId }: ChatWindowClientProps) => {
       const result = await askQuestion(docId, userQuestion);
 
       if (!result.success) {
-        // Remove the placeholder message
+        // Remove the placeholder message and show error
         setMessages((prev) =>
-          prev.filter(
-            (msg) => !(msg.role === 'ai' && msg.message === 'DocuBot is thinking...' && !msg.id)
-          )
+          prev
+            .filter(
+              (msg) => !(msg.role === 'ai' && msg.message === 'DocuBot is thinking...' && !msg.id)
+            )
+            .concat({
+              role: 'ai',
+              message: `Error: ${result.message || 'Failed to get a response'}`,
+              createdAt: new Date(),
+            })
         );
 
         toast.error(result.message || 'Failed to get a response');
+      } else {
+        toast.success('Question processed successfully!');
       }
     } catch (error) {
       console.error('Error asking question:', error);
@@ -172,13 +220,15 @@ const ChatWindowClient = ({ docId, userId }: ChatWindowClientProps) => {
           <Input
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder='Type your question...'
+            placeholder={
+              firebaseInitialized ? 'Type your question...' : 'Connecting to database...'
+            }
             className='flex-1 bg-light-500 dark:bg-dark-700/40'
-            disabled={isSubmitting || !user}
+            disabled={isSubmitting || !user || !firebaseInitialized}
           />
           <Button
             type='submit'
-            disabled={!input.trim() || isSubmitting || !user}
+            disabled={!input.trim() || isSubmitting || !user || !firebaseInitialized}
             className='flex items-center justify-center bg-accent hover:bg-accent2'
           >
             {isSubmitting ? (
