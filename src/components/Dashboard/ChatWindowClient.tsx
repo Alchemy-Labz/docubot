@@ -1,4 +1,4 @@
-// src/components/Dashboard/ChatWindowClient.tsx
+// Updated ChatWindowClient.tsx - Compatible with existing firebase.ts
 'use client';
 
 import { FormEvent, useEffect, useRef, useState } from 'react';
@@ -9,9 +9,10 @@ import { useUser } from '@clerk/nextjs';
 import toast from 'react-hot-toast';
 import { askQuestion } from '@/actions/openAI/askQuestion';
 import ChatMessage from './ChatMessage';
-import { db, auth } from '#/firebase'; // Import both db and auth
-import { signInWithCustomToken } from 'firebase/auth';
-import { collection, onSnapshot, orderBy, query, Timestamp, getDocs } from 'firebase/firestore';
+// Import Firebase from your existing setup
+import { db, auth } from '#/firebase';
+import { signInWithCustomToken } from '@firebase/auth';
+import { collection, onSnapshot, orderBy, query, Timestamp } from '@firebase/firestore';
 
 export type Message = {
   id?: string;
@@ -33,13 +34,17 @@ const ChatWindowClient = ({ docId, userId }: ChatWindowClientProps) => {
   const [loading, setLoading] = useState(true);
   const [firebaseInitialized, setFirebaseInitialized] = useState(false);
   const bottomOfChatRef = useRef<HTMLDivElement>(null);
+  const [error, setError] = useState<string | null>(null);
 
   // First authenticate with Firebase
   useEffect(() => {
+    let isMounted = true;
+
     const authenticateWithFirebase = async () => {
       if (!userId || !user) return;
 
       try {
+        console.log('Fetching Firebase token for user:', userId);
         // Fetch Firebase token
         const response = await fetch('/api/firebase-token', {
           method: 'POST',
@@ -59,61 +64,131 @@ const ChatWindowClient = ({ docId, userId }: ChatWindowClientProps) => {
         // Sign in to Firebase
         await signInWithCustomToken(auth, data.firebaseToken);
         console.log('🔥 Firebase authentication successful');
-        setFirebaseInitialized(true);
+
+        if (isMounted) {
+          setFirebaseInitialized(true);
+        }
       } catch (err) {
         console.error('🔥 Firebase authentication error:', err);
-        toast.error('Authentication error. Please try again.');
+
+        if (isMounted) {
+          setError(err instanceof Error ? err.message : 'Authentication error');
+          setLoading(false);
+          toast.error('Authentication error. Please try again.');
+        }
       }
     };
 
     authenticateWithFirebase();
+
+    return () => {
+      isMounted = false;
+    };
   }, [userId, user]);
 
   // Set up listener for messages only after Firebase is initialized
   useEffect(() => {
-    if (!firebaseInitialized || !userId || !docId) return;
+    if (!firebaseInitialized || !userId || !docId) {
+      console.log('Conditions not met for fetching messages:', {
+        firebaseInitialized,
+        userId,
+        docId,
+        dbInitialized: !!db,
+      });
+      return;
+    }
 
+    let isMounted = true;
     setLoading(true);
+    console.log('Setting up Firestore listener for:', `users/${userId}/files/${docId}/chat`);
 
     try {
-      // Create a query against the collection
-      const messagesRef = collection(db, 'users', userId, 'files', docId, 'chat');
-      const messagesQuery = query(messagesRef, orderBy('createdAt', 'asc'));
+      // Delayed initialization to ensure Firebase is ready
+      setTimeout(() => {
+        try {
+          // Create a query against the chat collection
+          const messagesRef = collection(db, 'users', userId, 'files', docId, 'chat');
+          const messagesQuery = query(messagesRef, orderBy('createdAt', 'asc'));
 
-      // Set up the subscription
-      const unsubscribe = onSnapshot(
-        messagesQuery,
-        (snapshot) => {
-          const newMessages = snapshot.docs.map((doc) => {
-            const data = doc.data();
-            return {
-              id: doc.id,
-              role: data.role,
-              message: data.message,
-              createdAt:
-                data.createdAt instanceof Timestamp
-                  ? data.createdAt.toDate()
-                  : new Date(data.createdAt),
-            };
-          });
+          // Set up the subscription
+          const unsubscribe = onSnapshot(
+            messagesQuery,
+            (snapshot) => {
+              if (!isMounted) return;
 
-          setMessages(newMessages);
+              console.log(`Received ${snapshot.docs.length} chat messages`);
+
+              if (snapshot.empty) {
+                console.log('No messages found in this chat');
+                setMessages([]);
+                setLoading(false);
+                return;
+              }
+
+              const newMessages = snapshot.docs.map((doc) => {
+                const data = doc.data();
+                console.log('Message data:', { id: doc.id, ...data });
+
+                // Handle different timestamp formats
+                let createdAt;
+                if (data.createdAt instanceof Timestamp) {
+                  createdAt = data.createdAt.toDate();
+                } else if (data.createdAt && typeof data.createdAt.toDate === 'function') {
+                  createdAt = data.createdAt.toDate();
+                } else if (data.createdAt && data.createdAt.seconds) {
+                  // Handle Firestore timestamp object
+                  createdAt = new Date(data.createdAt.seconds * 1000);
+                } else {
+                  // Fall back to current date if timestamp is invalid
+                  createdAt = new Date(data.createdAt || Date.now());
+                }
+
+                return {
+                  id: doc.id,
+                  role: data.role,
+                  message: data.message,
+                  createdAt: createdAt,
+                };
+              });
+
+              setMessages(newMessages);
+              setLoading(false);
+            },
+            (err) => {
+              if (!isMounted) return;
+
+              console.error('Error in Firestore snapshot listener:', err);
+              setError(`Error loading messages: ${err.message}`);
+              setLoading(false);
+              toast.error('Failed to load chat messages');
+            }
+          );
+
+          // Return cleanup function
+          return () => {
+            console.log('Cleaning up Firestore listener');
+            unsubscribe();
+          };
+        } catch (err) {
+          if (!isMounted) return;
+
+          console.error('Error creating Firestore query:', err);
+          setError(err instanceof Error ? err.message : 'Error setting up messages query');
           setLoading(false);
-        },
-        (error) => {
-          console.error('Error fetching messages:', error);
-          setLoading(false);
-          toast.error('Failed to load chat messages');
         }
-      );
+      }, 1000); // Add a small delay to ensure Firebase is fully initialized
+    } catch (err) {
+      if (!isMounted) return;
 
-      // Clean up the subscription
-      return () => unsubscribe();
-    } catch (error) {
-      console.error('Error setting up messages listener:', error);
+      console.error('Error setting up messages listener:', err);
+      setError(err instanceof Error ? err.message : 'Error loading messages');
       setLoading(false);
       toast.error('Failed to load chat messages');
     }
+
+    return () => {
+      isMounted = false;
+    };
   }, [firebaseInitialized, userId, docId]);
 
   // Scroll to bottom when messages change
@@ -128,62 +203,22 @@ const ChatWindowClient = ({ docId, userId }: ChatWindowClientProps) => {
 
     const userQuestion = input.trim();
     setInput('');
-
-    // Optimistic UI update
-    const optimisticUserMsg: Message = {
-      role: 'human',
-      message: userQuestion,
-      createdAt: new Date(),
-    };
-
-    const optimisticAiMsg: Message = {
-      role: 'ai',
-      message: 'DocuBot is thinking...',
-      createdAt: new Date(),
-    };
-
-    // For optimistic UI updates
-    setMessages((prev) => [...prev, optimisticUserMsg, optimisticAiMsg]);
     setIsSubmitting(true);
 
     try {
+      console.log(`Sending question for doc ${docId}: ${userQuestion}`);
+
       // Call server action to process the question
       const result = await askQuestion(docId, userQuestion);
 
       if (!result.success) {
-        // Remove the placeholder message and show error
-        setMessages((prev) =>
-          prev
-            .filter(
-              (msg) => !(msg.role === 'ai' && msg.message === 'DocuBot is thinking...' && !msg.id)
-            )
-            .concat({
-              role: 'ai',
-              message: `Error: ${result.message || 'Failed to get a response'}`,
-              createdAt: new Date(),
-            })
-        );
-
+        console.error('Error from askQuestion:', result.message);
         toast.error(result.message || 'Failed to get a response');
       } else {
         toast.success('Question processed successfully!');
       }
     } catch (error) {
       console.error('Error asking question:', error);
-
-      // Remove the placeholder and show error
-      setMessages((prev) =>
-        prev
-          .filter(
-            (msg) => !(msg.role === 'ai' && msg.message === 'DocuBot is thinking...' && !msg.id)
-          )
-          .concat({
-            role: 'ai',
-            message: 'Sorry, there was an error processing your question. Please try again.',
-            createdAt: new Date(),
-          })
-      );
-
       toast.error('Failed to get a response');
     } finally {
       setIsSubmitting(false);
@@ -196,6 +231,11 @@ const ChatWindowClient = ({ docId, userId }: ChatWindowClientProps) => {
         {loading ? (
           <div className='flex h-full items-center justify-center'>
             <Loader2 className='h-8 w-8 animate-spin text-accent' />
+          </div>
+        ) : error ? (
+          <div className='flex h-full flex-col items-center justify-center p-6 text-center text-destructive'>
+            <p className='mb-2 text-lg font-medium'>Error loading messages</p>
+            <p>{error}</p>
           </div>
         ) : messages.length === 0 ? (
           <div className='flex h-full flex-col items-center justify-center p-6 text-center text-muted-foreground'>
