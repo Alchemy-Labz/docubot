@@ -3,10 +3,9 @@
 
 import { useEffect, useState } from 'react';
 import { Loader2 } from 'lucide-react';
-import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
-import { vscDarkPlus } from 'react-syntax-highlighter/dist/cjs/styles/prism';
-import './prism-synthwave84.css';
-import { Button } from '../ui/button';
+import Link from 'next/link';
+import { MarkdownRenderer } from './Markdown';
+import RichTextViewer from './RichTextViewer';
 
 interface TextDocumentViewerProps {
   url: string;
@@ -19,6 +18,23 @@ const TextDocumentViewer = ({ url, fileName, fileType }: TextDocumentViewerProps
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
+  // Get a friendly display name for the file type
+  const getFileTypeDisplay = (): string => {
+    switch (fileType) {
+      case 'text/plain':
+        return 'Text';
+      case 'text/markdown':
+        return 'Markdown';
+      case 'text/rtf':
+      case 'application/rtf':
+        return 'Rich Text Format (RTF)';
+      case 'application/vnd.openxmlformats-officedocument.wordprocessingml.document':
+        return 'Word Document (DOCX)';
+      default:
+        return 'Document';
+    }
+  };
+
   useEffect(() => {
     const fetchDocument = async () => {
       setLoading(true);
@@ -30,7 +46,6 @@ const TextDocumentViewer = ({ url, fileName, fileType }: TextDocumentViewerProps
         }
 
         // For DOCX files, we can't display them directly in the browser
-        // So we'll show a message to download and view
         if (
           fileType === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
         ) {
@@ -41,19 +56,10 @@ const TextDocumentViewer = ({ url, fileName, fileType }: TextDocumentViewerProps
           return;
         }
 
-        // For RTF files
+        // For RTF files, we'll just load the content for the component
         if (fileType === 'text/rtf' || fileType === 'application/rtf') {
-          // For RTF, we'll just display a simple preview since it's complex to parse client-side
           const text = await response.text();
-          const plainText = text
-            .replace(/[\\{}]|\\[a-z0-9]+\s?|-?[0-9]+/g, ' ')
-            .replace(/\s+/g, ' ')
-            .trim()
-            .substring(0, 5000); // Limit for performance
-
-          setContent(
-            `${plainText}...\n\n(This is a simplified preview of the RTF content. For the full formatted document, please download it.)`
-          );
+          setContent(text);
           setLoading(false);
           return;
         }
@@ -74,36 +80,6 @@ const TextDocumentViewer = ({ url, fileName, fileType }: TextDocumentViewerProps
     }
   }, [url, fileType]);
 
-  // Get language for syntax highlighting based on file type
-  const getLanguage = () => {
-    switch (fileType) {
-      case 'text/markdown':
-        return 'markdown';
-      case 'text/rtf':
-      case 'application/rtf':
-        return 'markup';
-      default:
-        return 'text';
-    }
-  };
-
-  // Get a friendly display name for the file type
-  const getFileTypeDisplay = () => {
-    switch (fileType) {
-      case 'text/plain':
-        return 'Text';
-      case 'text/markdown':
-        return 'Markdown';
-      case 'text/rtf':
-      case 'application/rtf':
-        return 'Rich Text Format (RTF)';
-      case 'application/vnd.openxmlformats-officedocument.wordprocessingml.document':
-        return 'Word Document (DOCX)';
-      default:
-        return 'Document';
-    }
-  };
-
   // Special handling for DOCX files
   if (fileType === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
     return (
@@ -114,16 +90,21 @@ const TextDocumentViewer = ({ url, fileName, fileType }: TextDocumentViewerProps
             DOCX files cannot be displayed directly in the browser. Please download the file to
             view it.
           </p>
-          <a
+          <Link
             href={url}
             download={fileName}
             className='inline-block rounded-md bg-accent px-6 py-3 font-semibold text-white transition hover:bg-accent2'
           >
             Download {fileName}
-          </a>
+          </Link>
         </div>
       </div>
     );
+  }
+
+  // Special handling for RTF files
+  if ((fileType === 'text/rtf' || fileType === 'application/rtf') && !loading && !error) {
+    return <RichTextViewer url={url} fileName={fileName} />;
   }
 
   return (
@@ -131,20 +112,19 @@ const TextDocumentViewer = ({ url, fileName, fileType }: TextDocumentViewerProps
       <div className='sticky top-0 z-10 flex items-center justify-between bg-light-600 p-2 shadow-md dark:bg-dark-600'>
         <div className='flex items-center'>
           <div className='max-w-[200px] truncate text-sm font-medium'>{fileName}</div>
-          <span className='text-accent-foreground ml-2 rounded bg-accent/20 px-2 py-0.5 text-xs font-medium'>
+          <span className='ml-2 rounded bg-accent/20 px-2 py-0.5 text-xs font-medium text-dark-700 dark:text-light-300'>
             {getFileTypeDisplay()}
           </span>
         </div>
 
-        <a
+        <Link
           href={url}
           download={fileName}
           className='rounded bg-accent px-3 py-1 text-sm font-medium text-white transition hover:bg-accent2'
         >
           Download
-        </a>
+        </Link>
       </div>
-
       <div className='flex-1 overflow-auto p-4'>
         {loading ? (
           <div className='flex h-full items-center justify-center'>
@@ -157,14 +137,7 @@ const TextDocumentViewer = ({ url, fileName, fileType }: TextDocumentViewerProps
         ) : (
           <div className='prose-lg dark:prose-invert prose max-w-none'>
             {fileType === 'text/markdown' ? (
-              <SyntaxHighlighter
-                language={getLanguage()}
-                style={vscDarkPlus}
-                className='rounded-md p-4'
-                showLineNumbers
-              >
-                {content}
-              </SyntaxHighlighter>
+              <MarkdownRenderer>{content}</MarkdownRenderer>
             ) : (
               <pre className='whitespace-pre-wrap break-words rounded-md bg-dark-800/50 p-4 text-light-300'>
                 {content}
