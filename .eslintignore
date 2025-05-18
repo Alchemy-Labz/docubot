@@ -5,3 +5,4 @@ node_modules
 .next/
 __tests__
 tailwind.config
+/src/compoonents/ui
