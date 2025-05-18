@@ -1,130 +1,212 @@
-// src/components/Dashboard/ChatWindow.tsx
+// src/components/Dashboard/ChatWindowClient.tsx
 'use client';
 
-import { FormEvent, useEffect, useRef, useState, useTransition } from 'react';
+import { FormEvent, useEffect, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Loader2, Send } from 'lucide-react';
-import { useCollection } from 'react-firebase-hooks/firestore';
 import { useUser } from '@clerk/nextjs';
-import { collection, orderBy, query } from '@firebase/firestore';
 import toast from 'react-hot-toast';
-import { db } from '@/lib/firebase/firebase'; // Client Firebase SDK
 import { askQuestion } from '@/actions/openAI/askQuestion';
 import ChatMessage from './ChatMessage';
+import { useFirebaseAuth } from '@/providers/FirebaseContext';
+import { db } from '@/lib/firebase/firebase';
+import { collection, onSnapshot, orderBy, query, Timestamp } from '@firebase/firestore';
 import { CHAT_CONFIG, SUCCESS_MESSAGES } from '@/lib/constants/appConstants';
-import { Message } from '@/models/types/chatTypes';
 
-interface ChatWindowProps {
-  id: string;
+export type Message = {
+  id?: string;
+  role: 'human' | 'ai' | 'placeholder';
+  message: string;
+  createdAt: Date;
+};
+
+interface ChatWindowClientProps {
+  docId: string;
+  userId: string; // This is the Clerk user ID passed from parent
 }
 
-const ChatWindow = ({ id }: ChatWindowProps) => {
-  const { user } = useUser();
+const ChatWindowClient = ({ docId, userId }: ChatWindowClientProps) => {
+  const { user: clerkUser } = useUser();
+  const { isAuthenticated, isLoading: authLoading } = useFirebaseAuth();
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
-  const [isPending, startTransition] = useTransition();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const bottomOfChatRef = useRef<HTMLDivElement>(null);
+  const chatContainerRef = useRef<HTMLDivElement>(null);
 
-  // Only initialize Firebase client queries if we have a user
-  const [snapshot, loading] = useCollection(
-    user && db
-      ? query(collection(db, 'users', user.id, 'files', id, 'chat'), orderBy('createdAt', 'asc'))
-      : null
-  );
+  // Set up listener for messages - use the passed userId (Clerk ID)
+  useEffect(() => {
+    if (authLoading) return;
 
+    if (!isAuthenticated || !userId || !docId) {
+      console.log('Authentication not ready for messages:', {
+        isAuthenticated,
+        userId,
+        docId,
+        authLoading,
+      });
+      setLoading(false);
+      return;
+    }
+
+    let isMounted = true;
+    setLoading(true);
+    console.log('Setting up Firestore listener for:', `users/${userId}/files/${docId}/chat`);
+
+    try {
+      const messagesRef = collection(db, 'users', userId, 'files', docId, 'chat');
+      const messagesQuery = query(messagesRef, orderBy('createdAt', 'asc'));
+
+      const unsubscribe = onSnapshot(
+        messagesQuery,
+        (snapshot) => {
+          if (!isMounted) return;
+
+          console.log(`Received ${snapshot.docs.length} chat messages`);
+
+          if (snapshot.empty) {
+            console.log('No messages found in this chat');
+            setMessages([]);
+            setLoading(false);
+            return;
+          }
+
+          const newMessages = snapshot.docs.map((doc) => {
+            const data = doc.data();
+
+            // Handle different timestamp formats
+            let createdAt;
+            if (data.createdAt instanceof Timestamp) {
+              createdAt = data.createdAt.toDate();
+            } else if (data.createdAt && typeof data.createdAt.toDate === 'function') {
+              createdAt = data.createdAt.toDate();
+            } else if (data.createdAt && data.createdAt.seconds) {
+              createdAt = new Date(data.createdAt.seconds * 1000);
+            } else {
+              createdAt = new Date(data.createdAt || Date.now());
+            }
+
+            return {
+              id: doc.id,
+              role: data.role,
+              message: data.message,
+              createdAt: createdAt,
+            };
+          });
+
+          setMessages(newMessages);
+          setLoading(false);
+          setError(null);
+        },
+        (err) => {
+          if (!isMounted) return;
+
+          console.error('Error in Firestore snapshot listener:', err);
+          setError(`Error loading messages: ${err.message}`);
+          setLoading(false);
+          toast.error('Failed to load chat messages');
+        }
+      );
+
+      return () => {
+        console.log('Cleaning up Firestore listener');
+        unsubscribe();
+      };
+    } catch (err) {
+      if (!isMounted) return;
+
+      console.error('Error setting up messages listener:', err);
+      setError(err instanceof Error ? err.message : 'Error loading messages');
+      setLoading(false);
+      toast.error('Failed to load chat messages');
+    }
+
+    return () => {
+      isMounted = false;
+    };
+  }, [isAuthenticated, authLoading, userId, docId]);
+
+  // Scroll to bottom when messages change
   useEffect(() => {
     bottomOfChatRef.current?.scrollIntoView({ behavior: CHAT_CONFIG.SCROLL_BEHAVIOR });
   }, [messages]);
 
-  useEffect(() => {
-    if (!snapshot) return;
-
-    const newMessages = snapshot.docs.map((doc) => {
-      const data = doc.data();
-      return {
-        id: doc.id,
-        role: data.role,
-        message: data.message,
-        createdAt: data.createdAt?.toDate() || new Date(),
-      };
-    });
-
-    // Remove any placeholder AI message from our local state
-    const filteredMessages = messages.filter(
-      (msg) => !(msg.role === 'ai' && msg.message === 'DocuBot is thinking...' && !msg.id)
-    );
-
-    // Only update if there's a difference
-    if (JSON.stringify(filteredMessages) !== JSON.stringify(newMessages)) {
-      setMessages(newMessages);
-    }
-  }, [snapshot, messages]);
-
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    if (!input.trim() || !user) return;
+    if (!input.trim() || !clerkUser || isSubmitting || !isAuthenticated) return;
 
     const userQuestion = input.trim();
     setInput('');
+    setIsSubmitting(true);
 
-    // Optimistic message update
-    setMessages((prev) => [
-      ...prev,
-      { role: 'human', message: userQuestion, createdAt: new Date() },
-      { role: 'ai', message: 'DocuBot is thinking...', createdAt: new Date() },
-    ]);
+    try {
+      console.log(`Sending question for doc ${docId}: ${userQuestion}`);
 
-    startTransition(async () => {
-      try {
-        const result = await askQuestion(id, userQuestion);
+      const result = await askQuestion(docId, userQuestion);
 
-        if (!result.success) {
-          // Remove the thinking message and add error message
-          setMessages((prev) =>
-            prev
-              .filter((msg) => !(msg.role === 'ai' && msg.message === 'DocuBot is thinking...'))
-              .concat({
-                role: 'ai',
-                message: `Error: ${result.message || 'Something went wrong'}`,
-                createdAt: new Date(),
-              })
-          );
-
-          toast.error(`Error: ${result.message || 'Failed to get response'}`);
-        } else {
-          toast.success(SUCCESS_MESSAGES.QUESTION_PROCESSED);
-        }
-      } catch (err) {
-        console.error('Error asking question:', err);
-
-        // Remove the thinking message and add error message
-        setMessages((prev) =>
-          prev
-            .filter((msg) => !(msg.role === 'ai' && msg.message === 'DocuBot is thinking...'))
-            .concat({
-              role: 'ai',
-              message: 'Sorry, there was an error processing your question. Please try again.',
-              createdAt: new Date(),
-            })
-        );
-
-        toast.error('Failed to get a response');
+      if (!result.success) {
+        console.error('Error from askQuestion:', result.message);
+        toast.error(result.message || 'Failed to get a response');
+      } else {
+        toast.success(SUCCESS_MESSAGES.QUESTION_PROCESSED);
       }
-    });
+    } catch (error) {
+      console.error('Error asking question:', error);
+      toast.error('Failed to get a response');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
     <div className='flex h-full flex-col bg-light-400/40 dark:bg-dark-800/40'>
-      <div className='mx-auto w-full max-w-3xl flex-1 space-y-4 overflow-y-auto p-4'>
-        {loading ? (
-          <div className='flex h-full items-center justify-center'>
-            <Loader2 className='h-8 w-8 animate-spin text-accent' />
+      {/* Chat Messages Container */}
+      <div
+        ref={chatContainerRef}
+        className='mx-auto w-full max-w-3xl flex-1 space-y-4 overflow-y-auto p-4'
+        role='log'
+        aria-label='Chat conversation'
+        aria-describedby='chat-description'
+        aria-live='polite'
+        aria-atomic='false'
+      >
+        <div id='chat-description' className='sr-only'>
+          Chat conversation with DocuBot about your document. New messages will be announced.
+        </div>
+
+        {loading || authLoading ? (
+          <div
+            className='flex h-full items-center justify-center'
+            role='status'
+            aria-label='Loading chat messages'
+          >
+            <Loader2 className='h-8 w-8 animate-spin text-accent' aria-hidden='true' />
+            <span className='sr-only'>Loading chat messages...</span>
+          </div>
+        ) : error ? (
+          <div
+            className='flex h-full flex-col items-center justify-center p-6 text-center text-destructive'
+            role='alert'
+            aria-labelledby='error-title'
+          >
+            <h3 id='error-title' className='mb-2 text-lg font-medium'>
+              Error loading messages
+            </h3>
+            <p>{error}</p>
           </div>
         ) : messages.length === 0 ? (
-          <div className='flex h-full flex-col items-center justify-center p-6 text-center text-muted-foreground'>
-            <p className='mb-2 text-lg font-medium'>Chat with your document</p>
+          <div
+            className='flex h-full flex-col items-center justify-center p-6 text-center text-muted-foreground'
+            role='status'
+            aria-labelledby='empty-chat-title'
+          >
+            <h3 id='empty-chat-title' className='mb-2 text-lg font-medium'>
+              Chat with your document
+            </h3>
             <p>Ask questions about your document and get AI-powered answers.</p>
           </div>
         ) : (
@@ -132,33 +214,48 @@ const ChatWindow = ({ id }: ChatWindowProps) => {
             {messages.map((message, index) => (
               <ChatMessage key={message.id || index} message={message} />
             ))}
-            <div ref={bottomOfChatRef} />
+            <div ref={bottomOfChatRef} aria-hidden='true' />
           </>
         )}
       </div>
 
+      {/* Chat Input Form */}
       <form
         onSubmit={handleSubmit}
         className='border-accent-200 dark:border-accent-700 border-t bg-light-600/40 p-4 dark:bg-dark-600/40'
+        aria-label='Send message form'
       >
         <div className='flex space-x-2'>
+          <label htmlFor='chat-input' className='sr-only'>
+            Type your question about the document
+          </label>
           <Input
+            id='chat-input'
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder='Type your question...'
+            placeholder={isAuthenticated ? 'Type your question...' : 'Connecting to database...'}
             className='flex-1 bg-light-500 dark:bg-dark-700/40'
-            disabled={isPending || !user}
+            disabled={isSubmitting || !clerkUser || !isAuthenticated}
+            aria-describedby='chat-input-help'
+            autoComplete='off'
           />
+          <div id='chat-input-help' className='sr-only'>
+            Type your question about the document and press enter or click send to get an AI
+            response
+          </div>
+
           <Button
             type='submit'
-            disabled={!input.trim() || isPending || !user}
+            disabled={!input.trim() || isSubmitting || !clerkUser || !isAuthenticated}
             className='flex items-center justify-center bg-accent hover:bg-accent2'
+            aria-label={isSubmitting ? 'Sending message...' : 'Send message'}
           >
-            {isPending ? (
-              <Loader2 className='h-4 w-4 animate-spin' />
+            {isSubmitting ? (
+              <Loader2 className='h-4 w-4 animate-spin' aria-hidden='true' />
             ) : (
-              <Send className='h-5 w-5' />
+              <Send className='h-5 w-5' aria-hidden='true' />
             )}
+            <span className='sr-only'>{isSubmitting ? 'Sending...' : 'Send'}</span>
           </Button>
         </div>
       </form>
@@ -166,4 +263,4 @@ const ChatWindow = ({ id }: ChatWindowProps) => {
   );
 };
 
-export default ChatWindow;
+export default ChatWindowClient;

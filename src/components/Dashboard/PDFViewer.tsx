@@ -51,7 +51,8 @@ const PDFViewer = ({ url, fileName = 'Document' }: PDFViewerProps) => {
   }, [url]);
 
   const handlePageChange = (newPage: number) => {
-    setCurrentPage(Math.max(1, Math.min(newPage, numPages)));
+    const validPage = Math.max(1, Math.min(newPage, numPages));
+    setCurrentPage(validPage);
   };
 
   const handlePageNumberInput = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -61,31 +62,77 @@ const PDFViewer = ({ url, fileName = 'Document' }: PDFViewerProps) => {
     }
   };
 
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    switch (e.key) {
+      case 'ArrowLeft':
+        e.preventDefault();
+        handlePageChange(currentPage - 1);
+        break;
+      case 'ArrowRight':
+        e.preventDefault();
+        handlePageChange(currentPage + 1);
+        break;
+      case 'Home':
+        e.preventDefault();
+        handlePageChange(1);
+        break;
+      case 'End':
+        e.preventDefault();
+        handlePageChange(numPages);
+        break;
+      default:
+        break;
+    }
+  };
+
   const onDocumentLoadSuccess = ({ numPages }: { numPages: number }): void => {
     setNumPages(numPages);
     setLoading(false);
   };
 
   return (
-    <div className='flex h-full w-full flex-col'>
-      <div className='sticky top-0 z-10 flex items-center justify-between bg-accent3/20 bg-light-600 p-2 shadow-md dark:bg-dark-600'>
+    <div
+      className='flex h-full w-full flex-col'
+      onKeyDown={handleKeyDown}
+      tabIndex={0}
+      role='application'
+      aria-label={`PDF viewer for ${fileName}`}
+      aria-describedby='pdf-viewer-instructions'
+    >
+      <div id='pdf-viewer-instructions' className='sr-only'>
+        PDF document viewer. Use arrow keys to navigate pages, or use the navigation controls.
+        Current page: {currentPage} of {numPages}
+      </div>
+
+      {/* PDF Controls */}
+      <div
+        className='sticky top-0 z-10 flex items-center justify-between bg-accent3/20 bg-light-600 p-2 shadow-md dark:bg-dark-600'
+        role='toolbar'
+        aria-label='PDF viewer controls'
+      >
         <div className='hidden max-w-[200px] truncate text-sm font-medium md:block'>
+          <span className='sr-only'>Document: </span>
           {fileName}
         </div>
 
-        <div className='flex items-center space-x-2'>
+        {/* Page Navigation */}
+        <div className='flex items-center space-x-2' role='group' aria-label='Page navigation'>
           <Button
             variant='outline'
             size='icon'
             onClick={() => handlePageChange(currentPage - 1)}
             disabled={currentPage <= 1 || loading}
-            aria-label='Previous page'
+            aria-label={`Go to previous page. Current page: ${currentPage}`}
           >
-            <ChevronLeft className='h-4 w-4' />
+            <ChevronLeft className='h-4 w-4' aria-hidden='true' />
           </Button>
 
           <div className='flex items-center space-x-1'>
+            <label htmlFor='page-input' className='sr-only'>
+              Current page number
+            </label>
             <Input
+              id='page-input'
               type='number'
               min={1}
               max={numPages}
@@ -93,9 +140,11 @@ const PDFViewer = ({ url, fileName = 'Document' }: PDFViewerProps) => {
               onChange={handlePageNumberInput}
               className='w-14 text-center'
               disabled={loading}
-              aria-label='Page number'
+              aria-describedby='page-info'
             />
-            <span className='text-sm'>/ {numPages}</span>
+            <span id='page-info' className='text-sm'>
+              <span className='sr-only'>of</span>/ {numPages}
+            </span>
           </div>
 
           <Button
@@ -103,21 +152,22 @@ const PDFViewer = ({ url, fileName = 'Document' }: PDFViewerProps) => {
             size='icon'
             onClick={() => handlePageChange(currentPage + 1)}
             disabled={currentPage >= numPages || loading}
-            aria-label='Next page'
+            aria-label={`Go to next page. Current page: ${currentPage}`}
           >
-            <ChevronRight className='h-4 w-4' />
+            <ChevronRight className='h-4 w-4' aria-hidden='true' />
           </Button>
         </div>
 
-        <div className='flex items-center space-x-2'>
+        {/* View Controls */}
+        <div className='flex items-center space-x-2' role='group' aria-label='View controls'>
           <Button
             variant='outline'
             size='icon'
             onClick={() => setRotation((rotation + 90) % 360)}
             disabled={loading}
-            aria-label='Rotate document'
+            aria-label={`Rotate document 90 degrees. Current rotation: ${rotation} degrees`}
           >
-            <RotateCw className='h-4 w-4' />
+            <RotateCw className='h-4 w-4' aria-hidden='true' />
           </Button>
 
           <Button
@@ -125,9 +175,9 @@ const PDFViewer = ({ url, fileName = 'Document' }: PDFViewerProps) => {
             size='icon'
             onClick={() => setScale(Math.min(scale * 1.2, 2.5))}
             disabled={scale >= 2.5 || loading}
-            aria-label='Zoom in'
+            aria-label={`Zoom in. Current zoom: ${Math.round(scale * 100)}%`}
           >
-            <ZoomIn className='h-4 w-4' />
+            <ZoomIn className='h-4 w-4' aria-hidden='true' />
           </Button>
 
           <Button
@@ -135,26 +185,44 @@ const PDFViewer = ({ url, fileName = 'Document' }: PDFViewerProps) => {
             size='icon'
             onClick={() => setScale(Math.max(scale / 1.2, 0.4))}
             disabled={scale <= 0.4 || loading}
-            aria-label='Zoom out'
+            aria-label={`Zoom out. Current zoom: ${Math.round(scale * 100)}%`}
           >
-            <ZoomOut className='h-4 w-4' />
+            <ZoomOut className='h-4 w-4' aria-hidden='true' />
           </Button>
         </div>
       </div>
 
+      {/* PDF Content */}
       <div className='flex-1 overflow-auto bg-light-400/40 dark:bg-dark-800/40'>
         {loading ? (
-          <div className='flex h-full items-center justify-center'>
-            <Loader2 className='h-12 w-12 animate-spin text-accent' />
+          <div
+            className='flex h-full items-center justify-center'
+            role='status'
+            aria-live='polite'
+          >
+            <Loader2 className='h-12 w-12 animate-spin text-accent' aria-hidden='true' />
+            <span className='sr-only'>Loading PDF document...</span>
           </div>
         ) : error ? (
-          <div className='flex h-full items-center justify-center p-4 text-center'>
-            <p className='text-destructive'>Error loading PDF: {error}</p>
+          <div
+            className='flex h-full items-center justify-center p-4 text-center'
+            role='alert'
+            aria-live='assertive'
+          >
+            <div>
+              <h3 className='mb-2 text-lg font-medium text-destructive'>Error loading PDF</h3>
+              <p className='text-destructive'>{error}</p>
+            </div>
           </div>
         ) : (
           <Document
             file={file}
-            loading={<Loader2 className='h-12 w-12 animate-spin text-accent' />}
+            loading={
+              <div role='status' aria-label='Loading PDF page'>
+                <Loader2 className='h-12 w-12 animate-spin text-accent' aria-hidden='true' />
+                <span className='sr-only'>Loading page...</span>
+              </div>
+            }
             onLoadSuccess={onDocumentLoadSuccess}
             onLoadError={(err) => {
               console.error('Error loading PDF document:', err);
@@ -162,6 +230,7 @@ const PDFViewer = ({ url, fileName = 'Document' }: PDFViewerProps) => {
             }}
             rotate={rotation}
             className='flex justify-center'
+            aria-label={`PDF document: ${fileName}`}
           >
             <Page
               pageNumber={currentPage}
@@ -169,10 +238,23 @@ const PDFViewer = ({ url, fileName = 'Document' }: PDFViewerProps) => {
               className='shadow-lg'
               renderTextLayer={false}
               renderAnnotationLayer={false}
-              loading={<Loader2 className='h-8 w-8 animate-spin text-accent' />}
+              loading={
+                <div role='status' aria-label='Loading page content'>
+                  <Loader2 className='h-8 w-8 animate-spin text-accent' aria-hidden='true' />
+                  <span className='sr-only'>Loading page content...</span>
+                </div>
+              }
+              aria-label={`Page ${currentPage} of ${numPages}`}
             />
           </Document>
         )}
+      </div>
+
+      {/* Status for screen readers */}
+      <div className='sr-only' aria-live='polite' aria-atomic='true' id='pdf-status'>
+        {!loading &&
+          !error &&
+          `Viewing page ${currentPage} of ${numPages}. Zoom: ${Math.round(scale * 100)}%. Rotation: ${rotation} degrees.`}
       </div>
     </div>
   );

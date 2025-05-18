@@ -5,11 +5,9 @@ import Image from 'next/image';
 import React, { useCallback, useEffect, useMemo } from 'react';
 import { FileRejection, useDropzone } from 'react-dropzone';
 import {
-  // CheckCircle,
   CircleArrowDown,
   File,
   FileArchive,
-  // FileDigit,
   FileText,
   FileType,
   Hammer,
@@ -37,14 +35,11 @@ const FileUploader = () => {
   // File type icons mapping
   const fileTypeIcons = useMemo(
     () => ({
-      'application/pdf': <FileText className='h-10 w-10 text-accent' />,
-      // 'application/vnd.openxmlformats-officedocument.wordprocessingml.document': (
-      //   <FileDigit className='h-10 w-10 text-accent' />
-      // ),
-      'text/plain': <FileText className='h-10 w-10 text-accent' />,
-      'text/markdown': <FileType className='h-10 w-10 text-accent' />,
-      'text/rtf': <FileArchive className='h-10 w-10 text-accent' />,
-      default: <File className='h-10 w-10 text-accent' />,
+      'application/pdf': <FileText className='h-10 w-10 text-accent' aria-hidden='true' />,
+      'text/plain': <FileText className='h-10 w-10 text-accent' aria-hidden='true' />,
+      'text/markdown': <FileType className='h-10 w-10 text-accent' aria-hidden='true' />,
+      'text/rtf': <FileArchive className='h-10 w-10 text-accent' aria-hidden='true' />,
+      default: <File className='h-10 w-10 text-accent' aria-hidden='true' />,
     }),
     []
   );
@@ -117,12 +112,16 @@ const FileUploader = () => {
   const statusIcons: {
     [key in UploadStatusText]: JSX.Element;
   } = {
-    [UploadStatusText.UPLOADING]: <CircleArrowDown className='h-20 w-20 text-accent' />,
-    [UploadStatusText.UPLOADED]: <Rocket className='h-20 w-20 text-accent' />,
-    [UploadStatusText.SAVING]: <Save className='h-20 w-20 text-accent' />,
-    [UploadStatusText.GENERATING]: <Hammer className='h-20 w-20 text-accent' />,
-    [UploadStatusText.ERROR]: <MdError className='h-20 w-20 text-accent' />,
-    [UploadStatusText.AUTHENTICATING]: <Lock className='h-20 w-20 text-accent' />,
+    [UploadStatusText.UPLOADING]: (
+      <CircleArrowDown className='h-20 w-20 text-accent' aria-hidden='true' />
+    ),
+    [UploadStatusText.UPLOADED]: <Rocket className='h-20 w-20 text-accent' aria-hidden='true' />,
+    [UploadStatusText.SAVING]: <Save className='h-20 w-20 text-accent' aria-hidden='true' />,
+    [UploadStatusText.GENERATING]: <Hammer className='h-20 w-20 text-accent' aria-hidden='true' />,
+    [UploadStatusText.ERROR]: <MdError className='h-20 w-20 text-accent' aria-hidden='true' />,
+    [UploadStatusText.AUTHENTICATING]: (
+      <Lock className='h-20 w-20 text-accent' aria-hidden='true' />
+    ),
   };
 
   const { getRootProps, getInputProps, isDragActive, isFocused, isDragAccept, acceptedFiles } =
@@ -155,15 +154,26 @@ const FileUploader = () => {
               } as React.CSSProperties
             }
             aria-valuenow={progress || 0}
+            aria-valuemin={0}
+            aria-valuemax={100}
+            aria-label={`Upload progress: ${progress}% complete`}
           >
+            <span className='sr-only'>{progress}% uploaded</span>
             {progress}%
           </div>
-          {statusIcons[status! as keyof typeof statusIcons]}
-          <p className='animate-pulse text-accent2'>{status}</p>
+
+          <div role='status' aria-live='polite'>
+            {statusIcons[status! as keyof typeof statusIcons]}
+            <p className='animate-pulse text-accent2'>{status}</p>
+          </div>
+
           {currentFile && (
             <div className='flex flex-col items-center gap-2'>
               {getFileTypeDisplay(currentFile.type)}
-              <p className='text-sm text-accent2'>{currentFile.name}</p>
+              <p className='text-sm text-accent2'>
+                <span className='sr-only'>Uploading file: </span>
+                {currentFile.name}
+              </p>
             </div>
           )}
         </div>
@@ -172,43 +182,69 @@ const FileUploader = () => {
       {!uploadInProgress && (
         <div
           {...getRootProps()}
-          className={`mt-12 flex h-86 w-[75%] cursor-pointer items-center justify-center rounded-lg border-2 border-dashed p-10 text-center text-accent2 dark:border-accent2 dark:text-accent ${
+          className={`mt-12 flex h-86 w-[75%] cursor-pointer items-center justify-center rounded-lg border-2 border-dashed p-10 text-center text-accent2 transition-colors focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 dark:border-accent2 dark:text-accent ${
             isDragAccept
               ? 'border-accent3 bg-accent4/50 dark:border-accent3 dark:bg-accent/40 dark:text-accent2'
               : 'border-accent bg-light-500/30 dark:bg-dark-600/30'
           } ${isFocused ? 'border-accent4' : 'border-accent'}`}
-          aria-label='Drop zone for document upload'
+          role='button'
+          tabIndex={0}
+          aria-label='File upload area. Click to select files or drag and drop documents here.'
+          aria-describedby='upload-instructions upload-file-types'
         >
-          <input {...getInputProps()} aria-label='File input' />
+          <input
+            {...getInputProps()}
+            aria-label='File input for document upload'
+            aria-describedby='upload-instructions'
+          />
+
           <div className='flex flex-col items-center justify-center space-y-6'>
-            <Image src='/logo.png' alt='DocuBot logo' width={75} height={75} />
+            <Image src='/logo.png' alt='DocuBot logo' width={75} height={75} priority />
+
             {isDragActive ? (
               <>
-                <Rocket className='h-14 w-14 animate-ping text-accent2' />
-                <p>Drop Documents for DocuBot here...</p>
+                <div role='status' aria-live='polite'>
+                  <Rocket className='h-14 w-14 animate-ping text-accent2' aria-hidden='true' />
+                  <p id='upload-instructions'>Drop Documents for DocuBot here...</p>
+                </div>
               </>
             ) : (
               <>
-                <CircleArrowDown className='h-14 w-14 animate-caret-blink text-accent2 dark:text-accent' />
-                <p>Feed me some Documents by dropping them in front of me or clicking here.</p>
-                <div className='flex max-w-md flex-wrap items-center justify-center gap-3'>
+                <CircleArrowDown
+                  className='h-14 w-14 animate-caret-blink text-accent2 dark:text-accent'
+                  aria-hidden='true'
+                />
+                <div>
+                  <p id='upload-instructions'>
+                    Feed me some Documents by dropping them in front of me or clicking here.
+                  </p>
+                  <p className='mt-2 text-sm text-muted-foreground'>
+                    Supports PDF, TXT, MD, and RTF files. Maximum file size: 15MB
+                  </p>
+                </div>
+
+                <div
+                  id='upload-file-types'
+                  className='flex max-w-md flex-wrap items-center justify-center gap-3'
+                  aria-label='Supported file types'
+                >
                   <div className='flex items-center gap-1 rounded-md bg-light-600/50 p-1 text-sm dark:bg-dark-700/50'>
-                    <FileText className='h-4 w-4' /> PDF
+                    <FileText className='h-4 w-4' aria-hidden='true' />
+                    <span>PDF</span>
                   </div>
-                  {/* <div className='flex items-center gap-1 rounded-md bg-light-600/50 p-1 text-sm dark:bg-dark-700/50'>
-                    <FileDigit className='h-4 w-4' /> DOCX
-                  </div> */}
                   <div className='flex items-center gap-1 rounded-md bg-light-600/50 p-1 text-sm dark:bg-dark-700/50'>
-                    <FileText className='h-4 w-4' /> TXT
+                    <FileText className='h-4 w-4' aria-hidden='true' />
+                    <span>TXT</span>
                   </div>
                   <div className='flex items-center gap-1 rounded-md bg-light-600/50 p-1 text-sm dark:bg-dark-700/50'>
-                    <FileType className='h-4 w-4' /> MD
+                    <FileType className='h-4 w-4' aria-hidden='true' />
+                    <span>MD</span>
                   </div>
                   <div className='flex items-center gap-1 rounded-md bg-light-600/50 p-1 text-sm dark:bg-dark-700/50'>
-                    <FileArchive className='h-4 w-4' /> RTF
+                    <FileArchive className='h-4 w-4' aria-hidden='true' />
+                    <span>RTF</span>
                   </div>
                 </div>
-                <p className='text-xs text-muted-foreground'>Maximum file size: 15MB</p>
               </>
             )}
           </div>
