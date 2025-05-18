@@ -1,7 +1,7 @@
 'use server';
 /* eslint-disable import/prefer-default-export */
 import { adminDb, adminStorage } from '@/lib/firebase/firebaseAdmin';
-import pineconeClient from '@/lib/pinecone';
+import pineconeClient from '@/lib/pinecone/pinecone';
 import { auth } from '@clerk/nextjs/server';
 import { indexName } from './langchain/langchain';
 import { revalidatePath } from 'next/cache';
