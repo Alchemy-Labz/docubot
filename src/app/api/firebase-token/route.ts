@@ -2,7 +2,7 @@
 // app/api/firebase-token/route.ts
 
 import { getAuth } from '@clerk/nextjs/server';
-import { adminDb } from '#/firebaseAdmin';
+import { adminDb } from '@/lib/firebase/firebaseAdmin';
 import { NextRequest, NextResponse } from 'next/server';
 import { isTokenExpiredAction } from '@/actions/tokenActions';
 

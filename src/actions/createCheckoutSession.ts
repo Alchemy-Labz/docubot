@@ -1,7 +1,7 @@
 /* eslint-disable import/no-cycle */
 /* eslint-disable import/prefer-default-export */
 'use server';
-import { adminDb } from '#/firebaseAdmin';
+import { adminDb } from '@/lib/firebase/firebaseAdmin';
 import { UserDetails } from '@/app/dashboard/upgrade/page';
 import { stripe } from '@/lib/stripe';
 import { auth } from '@clerk/nextjs/server';

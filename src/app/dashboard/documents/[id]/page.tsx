@@ -1,5 +1,5 @@
 // src/app/dashboard/documents/[id]/page.tsx
-import { adminDb } from '#/firebaseAdmin';
+import { adminDb } from '@/lib/firebase/firebaseAdmin';
 import DocumentViewContainer from '@/components/Dashboard/DocumentViewContainer';
 import { auth } from '@clerk/nextjs/server';
 import { notFound } from 'next/navigation';

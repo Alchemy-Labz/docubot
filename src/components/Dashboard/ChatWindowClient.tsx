@@ -10,7 +10,7 @@ import toast from 'react-hot-toast';
 import { askQuestion } from '@/actions/openAI/askQuestion';
 import ChatMessage from './ChatMessage';
 // Import Firebase from your existing setup
-import { db, auth } from '#/firebase';
+import { db, auth } from '@/lib/firebase/firebase';
 import { signInWithCustomToken } from '@firebase/auth';
 import { collection, onSnapshot, orderBy, query, Timestamp } from '@firebase/firestore';
 

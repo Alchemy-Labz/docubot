@@ -4,7 +4,7 @@ import * as Sentry from '@sentry/node';
 import { headers } from 'next/headers';
 import { stripe } from '@/lib/stripe';
 import Stripe from 'stripe';
-import { adminDb } from '#/firebaseAdmin';
+import { adminDb } from '@/lib/firebase/firebaseAdmin';
 
 // Initialize Sentry (ensure this is done at the start of your application)
 if (!process.env.NEXT_PUBLIC_SENTRY_DSN) {

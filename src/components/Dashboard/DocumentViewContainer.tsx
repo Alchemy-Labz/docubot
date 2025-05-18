@@ -8,7 +8,7 @@ import TextDocumentViewer from './TextDocumentViewer';
 import ChatWindowClient from './ChatWindowClient';
 import { FileText, MessageSquare, SplitSquareVertical } from 'lucide-react';
 import { Button } from '../ui/button';
-import { db, auth } from '#/firebase';
+import { db, auth } from '@/lib/firebase/firebase';
 import { doc, getDoc } from '@firebase/firestore';
 import { signInWithCustomToken } from '@firebase/auth';
 

@@ -4,7 +4,7 @@ import { headers } from 'next/headers';
 import { WebhookEvent } from '@clerk/nextjs/server';
 import { NextResponse } from 'next/server';
 import { getAuth } from 'firebase-admin/auth';
-import { adminApp, adminDb } from '#/firebaseAdmin';
+import { adminApp, adminDb } from '@/lib/firebase/firebaseAdmin';
 
 export async function POST(req: Request) {
   // 👽️ This Webhook Secret is provided by the clerks dashboard > webhooks >endpoint > signing secret

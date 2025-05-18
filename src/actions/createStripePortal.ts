@@ -1,7 +1,7 @@
 /* eslint-disable import/prefer-default-export */
 'use server';
 
-import { adminDb } from '#/firebaseAdmin';
+import { adminDb } from '@/lib/firebase/firebaseAdmin';
 import { stripe } from '@/lib/stripe';
 import { getBaseURL } from '@/util/getBaseURL';
 import { auth } from '@clerk/nextjs/server';

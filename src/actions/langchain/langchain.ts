@@ -12,7 +12,7 @@ import pineconeClient from '@/lib/pinecone';
 import { PineconeStore } from '@langchain/pinecone';
 import { PineconeConflictError } from '@pinecone-database/pinecone/dist/errors';
 import { Index, RecordMetadata } from '@pinecone-database/pinecone';
-import { adminDb } from '#/firebaseAdmin';
+import { adminDb } from '@/lib/firebase/firebaseAdmin';
 import { auth } from '@clerk/nextjs/server';
 import { Document } from '@langchain/core/documents';
 

@@ -1,7 +1,7 @@
 // useSubscription.ts
 'use client';
 
-import { db, auth } from '#/firebase'; // Client SDK
+import { db, auth } from '@/lib/firebase/firebase'; // Client SDK
 import { useUser } from '@clerk/nextjs';
 import { collection, doc, onSnapshot } from '@firebase/firestore';
 import { useEffect, useState } from 'react';

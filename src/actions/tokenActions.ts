@@ -5,7 +5,7 @@
 
 import jwt from 'jsonwebtoken';
 import { getAuth } from 'firebase-admin/auth';
-import { adminDb } from '#/firebaseAdmin'; // Adjust this import based on your project structure
+import { adminDb } from '@/lib/firebase/firebaseAdmin'; // Adjust this import based on your project structure
 
 export async function isTokenExpiredAction(userId: string): Promise<boolean> {
   try {

@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 'use client';
 
-import { storage, db, auth } from '#/firebase';
+import { storage, db, auth } from '@/lib/firebase/firebase';
 import { useUser } from '@clerk/nextjs';
 import { doc, setDoc } from '@firebase/firestore';
 import { getDownloadURL, ref, uploadBytesResumable } from '@firebase/storage';
