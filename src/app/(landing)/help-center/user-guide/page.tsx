@@ -1,4 +1,4 @@
-import { MarkdownRenderer } from '@/components/Dashboard/Markdown';
+import MarkdownRenderer from '@/components/Dashboard/Markdown';
 import React from 'react';
 
 const markdown = `

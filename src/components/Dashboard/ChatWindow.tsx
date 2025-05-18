@@ -13,13 +13,7 @@ import { db } from '@/lib/firebase/firebase'; // Client Firebase SDK
 import { askQuestion } from '@/actions/openAI/askQuestion';
 import ChatMessage from './ChatMessage';
 import { CHAT_CONFIG, SUCCESS_MESSAGES } from '@/lib/constants/appConstants';
-
-export type Message = {
-  id?: string;
-  role: 'human' | 'ai' | 'placeholder';
-  message: string;
-  createdAt: Date;
-};
+import { Message } from '@/models/types/chatTypes';
 
 interface ChatWindowProps {
   id: string;

@@ -12,14 +12,9 @@ import ChatMessage from './ChatMessage';
 import { useFirebaseAuth } from '@/providers/FirebaseContext';
 import { db } from '@/lib/firebase/firebase';
 import { collection, onSnapshot, orderBy, query, Timestamp } from '@firebase/firestore';
-import { CHAT_CONFIG, SUCCESS_MESSAGES } from '@/lib/constants/appConstants';
 
-export type Message = {
-  id?: string;
-  role: 'human' | 'ai' | 'placeholder';
-  message: string;
-  createdAt: Date;
-};
+import { CHAT_CONFIG, SUCCESS_MESSAGES } from '@/lib/constants/appConstants';
+import { Message } from '@/models/types/chatTypes';
 
 interface ChatWindowClientProps {
   docId: string;

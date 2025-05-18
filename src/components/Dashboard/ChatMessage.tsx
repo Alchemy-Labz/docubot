@@ -1,9 +1,10 @@
 import React from 'react';
-import { Message } from './ChatWindow';
+
 import { useUser } from '@clerk/nextjs';
 import Image from 'next/image';
 import { BotMessageSquare } from 'lucide-react';
-import  MarkdownRenderer  from './Markdown';
+import MarkdownRenderer from './Markdown';
+import { Message } from '@/models/types/chatTypes';
 
 const ChatMessage = ({ message }: { message: Message }) => {
   const isHuman = message.role === 'human';

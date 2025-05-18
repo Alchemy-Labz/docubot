@@ -1,4 +1,4 @@
-// eslint-disable-next-line import/prefer-default-export
+// eslint-disable import/prefer-default-export
 
 'use client';
 

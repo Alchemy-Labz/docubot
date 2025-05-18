@@ -59,10 +59,8 @@ const FileUploader = () => {
     return fileTypeIcons[fileType as keyof typeof fileTypeIcons] || fileTypeIcons.default;
   };
 
-
   const getFileTypeLabel = useCallback((fileType: string) => {
     return FILE_TYPE_LABELS[fileType as keyof typeof FILE_TYPE_LABELS] || 'Document';
-
   }, []);
 
   const onDrop = useCallback(
@@ -219,6 +217,5 @@ const FileUploader = () => {
     </div>
   );
 };
-
 
 export default FileUploader;
