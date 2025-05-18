@@ -6,7 +6,14 @@ import { motion } from 'framer-motion';
 import PDFViewer from './PDFViewer';
 import TextDocumentViewer from './TextDocumentViewer';
 import ChatWindowClient from './ChatWindowClient';
-import { FileText, MessageSquare, SplitSquareVertical } from 'lucide-react';
+import {
+  FileText,
+  MessageSquare,
+  SplitSquareVertical,
+  ArrowLeftRight,
+  ArrowUpDown,
+  Loader2,
+} from 'lucide-react';
 import { Button } from '../ui/button';
 import { doc, getDoc } from '@firebase/firestore';
 import { useFirebaseAuth } from '@/providers/FirebaseContext';
@@ -17,7 +24,7 @@ type ViewType = 'split' | 'document' | 'chat';
 
 interface DocumentViewContainerProps {
   id: string;
-  userId: string; // This is the Clerk user ID from the parent
+  userId: string;
   url: string;
   fileName: string;
 }
@@ -25,11 +32,13 @@ interface DocumentViewContainerProps {
 const DocumentViewContainer = ({ id, userId, url, fileName }: DocumentViewContainerProps) => {
   const [currentView, setCurrentView] = useState<ViewType>('split');
   const [isMobile, setIsMobile] = useState(false);
+  const [isTablet, setIsTablet] = useState(false);
   const [fileType, setFileType] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isSwapped, setIsSwapped] = useState(false);
   const { isAuthenticated, isLoading: authLoading } = useFirebaseAuth();
 
-  // Fetch file type after authentication - use the passed userId (Clerk ID)
+  // Fetch file type after authentication
   useEffect(() => {
     const fetchFileType = async () => {
       if (authLoading) return;
@@ -40,7 +49,6 @@ const DocumentViewContainer = ({ id, userId, url, fileName }: DocumentViewContai
       }
 
       try {
-        // Use the Clerk user ID that was passed down
         const docRef = doc(db, 'users', userId, 'files', id);
         const docSnap = await getDoc(docRef);
 
@@ -57,35 +65,102 @@ const DocumentViewContainer = ({ id, userId, url, fileName }: DocumentViewContai
     fetchFileType();
   }, [isAuthenticated, authLoading, id, userId]);
 
-  // Handle responsive behavior
+  // Handle responsive behavior with tablet detection
   useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < UI_CONFIG.MOBILE_BREAKPOINT);
+    const checkScreenSize = () => {
+      const width = window.innerWidth;
+      setIsMobile(width < UI_CONFIG.MOBILE_BREAKPOINT);
+      setIsTablet(width >= UI_CONFIG.MOBILE_BREAKPOINT && width < 1024);
     };
 
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
+    checkScreenSize();
+    window.addEventListener('resize', checkScreenSize);
 
-    if (window.innerWidth < UI_CONFIG.MOBILE_BREAKPOINT && currentView === 'split') {
-      setCurrentView('document');
+    return () => window.removeEventListener('resize', checkScreenSize);
+  }, []);
+
+  // Reset swap state when view changes
+  useEffect(() => {
+    if (currentView !== 'split') {
+      setIsSwapped(false);
     }
-
-    return () => window.removeEventListener('resize', checkMobile);
   }, [currentView]);
 
-  // Determine which document viewer to use based on file type
+  // Determine if we should use vertical layout (mobile/tablet)
+  const useVerticalLayout = isMobile || isTablet;
+
+  // Determine component order for split view
+  const getComponentOrder = () => {
+    if (!useVerticalLayout) {
+      // Desktop: left-right, swap means right-left
+      return isSwapped
+        ? { first: 'chat', second: 'document' }
+        : { first: 'document', second: 'chat' };
+    } else {
+      // Mobile/Tablet: top-bottom, swap means bottom-top
+      return isSwapped
+        ? { first: 'chat', second: 'document' }
+        : { first: 'document', second: 'chat' };
+    }
+  };
+
+  // Animation variants for different layouts
+  const getAnimationProps = (component: 'first' | 'second') => {
+    if (!useVerticalLayout) {
+      // Desktop horizontal layout
+      if (component === 'first') {
+        return {
+          initial: { width: currentView === 'split' ? '50%' : '100%', height: '100%' },
+          animate: {
+            width: currentView === 'document' ? '100%' : currentView === 'split' ? '50%' : '0%',
+            opacity: currentView === 'chat' ? 0 : 1,
+            x: isSwapped && currentView === 'split' ? '100%' : '0%',
+          },
+        };
+      } else {
+        return {
+          initial: { width: currentView === 'split' ? '50%' : '0%', height: '100%' },
+          animate: {
+            width: currentView === 'chat' ? '100%' : currentView === 'split' ? '50%' : '0%',
+            opacity: currentView === 'document' ? 0 : 1,
+            x: isSwapped && currentView === 'split' ? '-100%' : '0%',
+          },
+        };
+      }
+    } else {
+      // Mobile/Tablet vertical layout
+      if (component === 'first') {
+        return {
+          initial: { height: currentView === 'split' ? '50%' : '100%', width: '100%' },
+          animate: {
+            height: currentView === 'document' ? '100%' : currentView === 'split' ? '50%' : '0%',
+            opacity: currentView === 'chat' ? 0 : 1,
+            y: isSwapped && currentView === 'split' ? '100%' : '0%',
+          },
+        };
+      } else {
+        return {
+          initial: { height: currentView === 'split' ? '50%' : '0%', width: '100%' },
+          animate: {
+            height: currentView === 'chat' ? '100%' : currentView === 'split' ? '50%' : '0%',
+            opacity: currentView === 'document' ? 0 : 1,
+            y: isSwapped && currentView === 'split' ? '-100%' : '0%',
+          },
+        };
+      }
+    }
+  };
+
+  // Render document viewer based on file type
   const renderDocumentViewer = () => {
-    if (loading || authLoading)
+    if (loading || authLoading) {
       return (
-        <div
-          className='flex h-full items-center justify-center'
-          role='status'
-          aria-label='Loading document'
-        >
-          <span className='sr-only'>Loading document...</span>
-          Loading document...
+        <div className='flex h-full items-center justify-center bg-light-400/40 dark:bg-dark-800/40'>
+          <Loader2 className='h-8 w-8 animate-spin text-accent' />
+          <span className='ml-2 text-sm text-muted-foreground'>Loading document...</span>
         </div>
       );
+    }
 
     if (!fileType || fileType === 'application/pdf') {
       return <PDFViewer url={url} fileName={fileName} />;
@@ -104,123 +179,122 @@ const DocumentViewContainer = ({ id, userId, url, fileName }: DocumentViewContai
     return <PDFViewer url={url} fileName={fileName} />;
   };
 
-  const getViewDescription = (view: ViewType) => {
-    switch (view) {
-      case 'document':
-        return 'Document only view';
-      case 'chat':
-        return 'Chat only view';
-      case 'split':
-        return 'Split view showing both document and chat';
-      default:
-        return 'View selector';
-    }
-  };
+  const componentOrder = getComponentOrder();
 
   return (
     <div className='flex h-[calc(100vh-64px)] w-full flex-col'>
-      {/* View Selection Controls */}
-      <div className='flex justify-center border-b bg-background p-2 dark:bg-dark-700'>
-        <div
-          className='flex items-center space-x-2'
-          role='group'
-          aria-label='View selection controls'
-        >
+      {/* Enhanced Control Bar */}
+      <div className='flex items-center justify-between border-b bg-background p-3 dark:bg-dark-700'>
+        {/* Left spacer for balance */}
+        <div className='flex-1' />
+
+        {/* Centered View Controls */}
+        <div className='flex items-center justify-center space-x-2'>
           <Button
             variant={currentView === 'document' ? 'default' : 'outline'}
             size='sm'
             onClick={() => setCurrentView('document')}
-            aria-label={`Switch to document view. ${currentView === 'document' ? 'Currently active' : ''}`}
-            aria-pressed={currentView === 'document'}
+            aria-label='Document only view'
             className='flex items-center gap-2'
           >
-            <FileText className='h-4 w-4' aria-hidden='true' />
+            <FileText className='h-4 w-4' />
             <span className='hidden sm:inline'>Document</span>
           </Button>
 
-          {!isMobile && (
-            <Button
-              variant={currentView === 'split' ? 'default' : 'outline'}
-              size='sm'
-              onClick={() => setCurrentView('split')}
-              aria-label={`Switch to split view. ${currentView === 'split' ? 'Currently active' : ''}`}
-              aria-pressed={currentView === 'split'}
-              className='flex items-center gap-2'
-            >
-              <SplitSquareVertical className='h-4 w-4' aria-hidden='true' />
-              <span className='hidden sm:inline'>Split</span>
-            </Button>
-          )}
+          <Button
+            variant={currentView === 'split' ? 'default' : 'outline'}
+            size='sm'
+            onClick={() => setCurrentView('split')}
+            aria-label='Split view'
+            className='flex items-center gap-2'
+          >
+            <SplitSquareVertical className='h-4 w-4' />
+            <span className='hidden sm:inline'>Split</span>
+          </Button>
 
           <Button
             variant={currentView === 'chat' ? 'default' : 'outline'}
             size='sm'
             onClick={() => setCurrentView('chat')}
-            aria-label={`Switch to chat view. ${currentView === 'chat' ? 'Currently active' : ''}`}
-            aria-pressed={currentView === 'chat'}
+            aria-label='Chat only view'
             className='flex items-center gap-2'
           >
-            <MessageSquare className='h-4 w-4' aria-hidden='true' />
+            <MessageSquare className='h-4 w-4' />
             <span className='hidden sm:inline'>Chat</span>
           </Button>
+        </div>
+
+        {/* Right Side - Swap Button */}
+        <div className='flex flex-1 items-center justify-end'>
+          {currentView === 'split' && (
+            <div className='flex items-center space-x-2'>
+              <span className='hidden text-xs text-muted-foreground sm:inline'>
+                {useVerticalLayout ? 'Switch top/bottom' : 'Switch left/right'}
+              </span>
+              <Button
+                variant='outline'
+                size='sm'
+                onClick={() => setIsSwapped(!isSwapped)}
+                aria-label={`Swap ${useVerticalLayout ? 'top and bottom' : 'left and right'} panels`}
+                className='flex items-center gap-1'
+              >
+                {useVerticalLayout ? (
+                  <ArrowUpDown className='h-4 w-4' />
+                ) : (
+                  <ArrowLeftRight className='h-4 w-4' />
+                )}
+                <span className='hidden sm:inline'>Swap</span>
+              </Button>
+            </div>
+          )}
         </div>
       </div>
 
       {/* Main Content Area */}
       <div
-        className='relative flex flex-1 overflow-hidden'
-        role='main'
-        aria-label={getViewDescription(currentView)}
+        className={`relative flex flex-1 overflow-hidden ${useVerticalLayout ? 'flex-col' : 'flex-row'}`}
       >
-        {/* Document Panel */}
+        {/* First Component (Document or Chat based on order) */}
         <motion.div
-          className='absolute h-full'
-          initial={{ width: isMobile ? '100%' : '50%' }}
-          animate={{
-            width: currentView === 'document' ? '100%' : currentView === 'split' ? '50%' : '0%',
-            opacity: currentView === 'chat' ? 0 : 1,
-            zIndex: currentView === 'chat' ? -1 : 1,
-          }}
+          className={`${useVerticalLayout ? 'w-full' : 'h-full'} relative overflow-hidden`}
+          {...getAnimationProps('first')}
           transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-          aria-hidden={currentView === 'chat'}
         >
-          {(currentView === 'document' || currentView === 'split' || !isMobile) && (
-            <div
-              role='region'
-              aria-label={`Document viewer for ${fileName}`}
-              aria-describedby='document-description'
-            >
-              <div id='document-description' className='sr-only'>
-                Document content area. Use arrow keys to navigate if applicable.
-              </div>
-              {renderDocumentViewer()}
+          {componentOrder.first === 'document' ? (
+            <div className='h-full w-full'>
+              {(currentView === 'document' || currentView === 'split') && renderDocumentViewer()}
+            </div>
+          ) : (
+            <div className='h-full w-full'>
+              {(currentView === 'chat' || currentView === 'split') && (
+                <ChatWindowClient docId={id} userId={userId} />
+              )}
             </div>
           )}
         </motion.div>
 
-        {/* Chat Panel */}
+        {/* Divider for split view */}
+        {currentView === 'split' && (
+          <div
+            className={`${useVerticalLayout ? 'h-1 w-full bg-border' : 'h-full w-1 bg-border'} flex-shrink-0`}
+          />
+        )}
+
+        {/* Second Component (Chat or Document based on order) */}
         <motion.div
-          className='absolute right-0 h-full'
-          initial={{ width: isMobile ? '0%' : '50%' }}
-          animate={{
-            width: currentView === 'chat' ? '100%' : currentView === 'split' ? '50%' : '0%',
-            opacity: currentView === 'document' ? 0 : 1,
-            zIndex: currentView === 'document' ? -1 : 1,
-          }}
+          className={`${useVerticalLayout ? 'w-full' : 'h-full'} relative overflow-hidden`}
+          {...getAnimationProps('second')}
           transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-          aria-hidden={currentView === 'document'}
         >
-          {(currentView === 'chat' || currentView === 'split' || !isMobile) && (
-            <div
-              role='region'
-              aria-label='Chat with DocuBot about this document'
-              aria-describedby='chat-description'
-            >
-              <div id='chat-description' className='sr-only'>
-                Chat interface for asking questions about the document. Messages will be read by
-                screen reader.
-              </div>
-              <ChatWindowClient docId={id} userId={userId} />
+          {componentOrder.second === 'document' ? (
+            <div className='h-full w-full'>
+              {(currentView === 'document' || currentView === 'split') && renderDocumentViewer()}
+            </div>
+          ) : (
+            <div className='h-full w-full'>
+              {(currentView === 'chat' || currentView === 'split') && (
+                <ChatWindowClient docId={id} userId={userId} />
+              )}
             </div>
           )}
         </motion.div>

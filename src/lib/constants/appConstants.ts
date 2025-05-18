@@ -51,6 +51,7 @@ export const PINECONE_CONFIG = {
 // UI Settings
 export const UI_CONFIG = {
   MOBILE_BREAKPOINT: 768, // pixels
+  TABLET_BREAKPOINT: 1024, // pixels
   THEME_TRANSITION_DISABLED: false,
 } as const;
 
