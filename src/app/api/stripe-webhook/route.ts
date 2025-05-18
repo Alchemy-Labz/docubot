@@ -5,7 +5,6 @@ import { headers } from 'next/headers';
 import { stripe } from '@/lib/stripe';
 import Stripe from 'stripe';
 import { adminDb } from '#/firebaseAdmin';
-import verifyStripeSignature from '@/lib/verifyStripeSignature';
 
 // Initialize Sentry (ensure this is done at the start of your application)
 if (!process.env.NEXT_PUBLIC_SENTRY_DSN) {
@@ -14,113 +13,195 @@ if (!process.env.NEXT_PUBLIC_SENTRY_DSN) {
 const dsn = process.env.NEXT_PUBLIC_SENTRY_DSN;
 Sentry.init({ dsn: dsn });
 
-console.log('Server started');
+console.log('Stripe webhook server started');
+
 export async function POST(request: NextRequest) {
-  console.log('Webhook API route called');
+  console.log('Stripe webhook received');
   const headersList = headers();
   const body = await request.text();
   const signature = headersList.get('stripe-signature');
-  try {
-    if (!signature) {
-      throw new Error('No signature found in request headers');
-    }
 
-    // Continue with the rest of your webhook handling code
-  } catch (error) {
-    Sentry.captureException(error); // Send error to Sentry
-    console.error(error); // Log the error message to the console
-    return new NextResponse(String(error), { status: 400 }); // Return a response with status code 400
+  if (!signature) {
+    console.error('No signature found in request headers');
+    return new NextResponse('No signature found in request headers', { status: 400 });
   }
 
   if (!process.env.STRIPE_WEBHOOK_SECRET) {
-    console.log('No STRIPE_WEBHOOK_SECRET defined');
+    console.error('No STRIPE_WEBHOOK_SECRET defined');
     return new NextResponse('No STRIPE_WEBHOOK_SECRET defined', { status: 400 });
   }
 
   let event: Stripe.Event;
 
   try {
+    // Verify the webhook signature and construct the event
     event = stripe.webhooks.constructEvent(
       body,
       signature,
       process.env.STRIPE_WEBHOOK_SECRET as string
     );
-    console.log('Event constructed successfully:', event.type);
+    console.log('✅ Stripe event verified successfully:', event.type);
   } catch (err) {
-    Sentry.captureException(err); // Send err to Sentry
-    console.log(`Webhook Error:${err}`); // Log the err message to the console
-    return new NextResponse(String(err), { status: 400 }); // Return a response with status code 400
+    console.error('❌ Webhook signature verification failed:', err);
+    Sentry.captureException(err);
+    return new NextResponse(`Webhook signature verification failed: ${err}`, { status: 400 });
   }
 
   const getUserDetails = async (customerId: string) => {
-    const userDoc = await adminDb
-      .collection('users')
-      .where('stripecustomerId', '==', customerId)
-      .limit(1)
-      .get();
-    return !userDoc.empty ? userDoc.docs[0] : null;
+    try {
+      const userQuery = await adminDb
+        .collection('users')
+        .where('stripecustomerId', '==', customerId)
+        .limit(1)
+        .get();
+
+      if (userQuery.empty) {
+        console.error(`❌ User not found for Stripe customer ID: ${customerId}`);
+        return null;
+      }
+
+      return userQuery.docs[0];
+    } catch (error) {
+      console.error('❌ Error fetching user details:', error);
+      return null;
+    }
   };
 
   try {
-    const event = verifyStripeSignature(body, signature);
+    console.log(`🔄 Processing webhook event: ${event.type}`);
 
     switch (event.type) {
-      case 'checkout.session.completed':
-      case 'payment_intent.succeeded': {
-        const invoice = event.data.object;
-        const customerId = invoice.customer as string;
-        console.log('🚀 ~ POST ~ Event type:', event.type);
-        console.log('🚀 ~ POST ~ customerId:', customerId);
+      case 'checkout.session.completed': {
+        const session = event.data.object as Stripe.Checkout.Session;
+        const customerId = session.customer as string;
+        console.log('💳 Checkout session completed for customer:', customerId);
 
         const userDetails = await getUserDetails(customerId);
         if (!userDetails?.id) {
-          console.log('🚀 ~ POST ~ User not found for customerId:', customerId);
-          return new NextResponse('User not Found', { status: 400 });
+          return new NextResponse('User not found', { status: 404 });
         }
 
-        console.log('🚀 ~ POST ~ Updating subscription status for user:', userDetails.id);
         await adminDb.collection('users').doc(userDetails.id).update({
           hasActiveMembership: true,
         });
 
-        console.log('🚀 ~ POST ~ Subscription status updated successfully');
+        console.log('✅ Membership activated for user:', userDetails.id);
         break;
       }
 
-      case 'customer.subscription.deleted':
-      case 'subscription_schedule.canceled': {
-        const subscription = event.data.object;
+      case 'customer.subscription.created': {
+        const subscription = event.data.object as Stripe.Subscription;
         const customerId = subscription.customer as string;
-        console.log('🚀 ~ POST ~ Event type:', event.type);
-        console.log('🚀 ~ POST ~ customerId:', customerId);
+        console.log('🎯 Subscription created for customer:', customerId);
+        console.log('📋 Subscription status:', subscription.status);
 
         const userDetails = await getUserDetails(customerId);
         if (!userDetails?.id) {
-          console.log('🚀 ~ POST ~ User not found for customerId:', customerId);
-          return new NextResponse('User not Found', { status: 400 });
+          return new NextResponse('User not found', { status: 404 });
         }
 
-        console.log('🚀 ~ POST ~ Updating subscription status for user:', userDetails.id);
+        // Set membership to active if subscription is in a valid state
+        const isActive = ['active', 'trialing'].includes(subscription.status);
+
+        await adminDb.collection('users').doc(userDetails.id).update({
+          hasActiveMembership: isActive,
+        });
+
+        console.log(
+          `✅ Membership ${isActive ? 'activated' : 'not activated'} for user:`,
+          userDetails.id
+        );
+        break;
+      }
+
+      case 'customer.subscription.updated': {
+        const subscription = event.data.object as Stripe.Subscription;
+        const customerId = subscription.customer as string;
+        console.log('🔄 Subscription updated for customer:', customerId);
+        console.log('📋 New subscription status:', subscription.status);
+
+        const userDetails = await getUserDetails(customerId);
+        if (!userDetails?.id) {
+          return new NextResponse('User not found', { status: 404 });
+        }
+
+        // Check if subscription is still active
+        const isActive = ['active', 'trialing'].includes(subscription.status);
+
+        await adminDb.collection('users').doc(userDetails.id).update({
+          hasActiveMembership: isActive,
+        });
+
+        console.log(
+          `✅ Membership ${isActive ? 'activated' : 'deactivated'} for user:`,
+          userDetails.id
+        );
+        break;
+      }
+
+      case 'customer.subscription.deleted': {
+        const subscription = event.data.object as Stripe.Subscription;
+        const customerId = subscription.customer as string;
+        console.log('❌ Subscription deleted for customer:', customerId);
+
+        const userDetails = await getUserDetails(customerId);
+        if (!userDetails?.id) {
+          return new NextResponse('User not found', { status: 404 });
+        }
+
         await adminDb.collection('users').doc(userDetails.id).update({
           hasActiveMembership: false,
         });
 
-        console.log('🚀 ~ POST ~ Subscription status updated successfully');
+        console.log('✅ Membership deactivated for user:', userDetails.id);
+        break;
+      }
+
+      case 'invoice.payment_succeeded': {
+        const invoice = event.data.object as Stripe.Invoice;
+        const customerId = invoice.customer as string;
+        console.log('💰 Invoice payment succeeded for customer:', customerId);
+
+        // Only process if this is for a subscription
+        if (invoice.subscription) {
+          const userDetails = await getUserDetails(customerId);
+          if (!userDetails?.id) {
+            return new NextResponse('User not found', { status: 404 });
+          }
+
+          await adminDb.collection('users').doc(userDetails.id).update({
+            hasActiveMembership: true,
+          });
+
+          console.log('✅ Membership activated for user:', userDetails.id);
+        }
+        break;
+      }
+
+      case 'invoice.payment_failed': {
+        const invoice = event.data.object as Stripe.Invoice;
+        const customerId = invoice.customer as string;
+        console.log('💸 Invoice payment failed for customer:', customerId);
+
+        // Only log this event, don't deactivate membership immediately
+        // Stripe will handle retries and eventual subscription cancellation
+        console.log('ℹ️ Payment failed, but membership remains active pending retry');
         break;
       }
 
       default: {
-        console.log(`Unhandled event type ${event.type}`);
+        console.log(`ℹ️ Unhandled event type: ${event.type}`);
       }
     }
 
+    console.log('✅ Webhook processed successfully');
     return NextResponse.json({ received: true }, { status: 200 });
   } catch (error) {
+    console.error('❌ Webhook processing error:', error);
     Sentry.captureException(error);
-    console.error('Webhook error:', error);
     return new NextResponse(
-      'Webhook error: ' + (error instanceof Error ? error.message : 'Unknown error'),
-      { status: 400 }
+      'Webhook processing error: ' + (error instanceof Error ? error.message : 'Unknown error'),
+      { status: 500 }
     );
   }
 }

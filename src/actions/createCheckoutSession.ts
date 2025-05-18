@@ -43,20 +43,15 @@ export async function createCheckoutSession(userDetails: UserDetails) {
     line_items: [
       {
         // price: 'price_1Pj3axL5fHlelvMafHXvd27p',
-        price: 'price_1Pq509L5fHlelvMavcQ9zc14',
+        price: 'price_1RPxUwL5fHlelvMazFyq1jW4',
         quantity: 1,
-      },
-    ],
-    discounts: [
-      {
-        coupon: 'U40YMbrX', // Replace with your Coupon ID
       },
     ],
     mode: 'subscription',
     customer: stripecustomerId,
     // getBaseURL works and the function runs past here
-    success_url: `${getBaseURL()}/dashboard?upgrade=true`,
-    cancel_url: `${getBaseURL()}/dashboard/upgrade?upgrade=false`,
+    success_url: `${getBaseURL()}dashboard?upgrade=true`,
+    cancel_url: `${getBaseURL()}dashboard/upgrade?upgrade=false`,
   });
 
   return session.id;

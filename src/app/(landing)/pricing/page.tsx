@@ -82,7 +82,7 @@ const PricingPage = () => {
       id: 'pro',
       name: 'Professional',
       description: 'For professionals who need more power and flexibility',
-      price: annualBilling ? '$5.99/mo' : '$7.99/mo',
+      price: annualBilling ? '$8.33/mo' : '$9.99/mo',
       features: [
         { title: 'Upload up to 12 documents', included: true },
         { title: 'Up to 15 AI messages per document', included: true },

@@ -5,7 +5,14 @@ import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server';
 // See https://clerk.com/docs/references/nextjs/auth-middleware for more information about configuring your Middleware
 
 const isProtectedRoute = createRouteMatcher(['/dashboard(.*)']);
+const isWebhookRoute = createRouteMatcher(['/api/stripe-webhook', '/api/clerk-webhook']);
+
 export default clerkMiddleware((auth, req) => {
+  // Skip authentication for webhook routes
+  if (isWebhookRoute(req)) {
+    return;
+  }
+
   if (isProtectedRoute(req)) auth().protect();
 });
 
