@@ -5,11 +5,11 @@ import Image from 'next/image';
 import React, { useCallback, useEffect, useMemo } from 'react';
 import { FileRejection, useDropzone } from 'react-dropzone';
 import {
-  CheckCircle,
+  // CheckCircle,
   CircleArrowDown,
   File,
   FileArchive,
-  FileDigit,
+  // FileDigit,
   FileText,
   FileType,
   Hammer,
@@ -32,9 +32,9 @@ const FileUploader = () => {
   const fileTypeIcons = useMemo(
     () => ({
       'application/pdf': <FileText className='h-10 w-10 text-accent' />,
-      'application/vnd.openxmlformats-officedocument.wordprocessingml.document': (
-        <FileDigit className='h-10 w-10 text-accent' />
-      ),
+      // 'application/vnd.openxmlformats-officedocument.wordprocessingml.document': (
+      //   <FileDigit className='h-10 w-10 text-accent' />
+      // ),
       'text/plain': <FileText className='h-10 w-10 text-accent' />,
       'text/markdown': <FileType className='h-10 w-10 text-accent' />,
       'text/rtf': <FileArchive className='h-10 w-10 text-accent' />,
@@ -47,7 +47,7 @@ const FileUploader = () => {
   const acceptedFileTypes = useMemo(
     () => ({
       'application/pdf': ['.pdf'],
-      'application/vnd.openxmlformats-officedocument.wordprocessingml.document': ['.docx'],
+      // 'application/vnd.openxmlformats-officedocument.wordprocessingml.document': ['.docx'],
       'text/plain': ['.txt'],
       'text/markdown': ['.md'],
       'text/rtf': ['.rtf'],
@@ -72,8 +72,8 @@ const FileUploader = () => {
     switch (fileType) {
       case 'application/pdf':
         return 'PDF';
-      case 'application/vnd.openxmlformats-officedocument.wordprocessingml.document':
-        return 'DOCX';
+      // case 'application/vnd.openxmlformats-officedocument.wordprocessingml.document':
+      //   return 'DOCX';
       case 'text/plain':
         return 'TXT';
       case 'text/markdown':
@@ -217,9 +217,9 @@ const FileUploader = () => {
                   <div className='flex items-center gap-1 rounded-md bg-light-600/50 p-1 text-sm dark:bg-dark-700/50'>
                     <FileText className='h-4 w-4' /> PDF
                   </div>
-                  <div className='flex items-center gap-1 rounded-md bg-light-600/50 p-1 text-sm dark:bg-dark-700/50'>
+                  {/* <div className='flex items-center gap-1 rounded-md bg-light-600/50 p-1 text-sm dark:bg-dark-700/50'>
                     <FileDigit className='h-4 w-4' /> DOCX
-                  </div>
+                  </div> */}
                   <div className='flex items-center gap-1 rounded-md bg-light-600/50 p-1 text-sm dark:bg-dark-700/50'>
                     <FileText className='h-4 w-4' /> TXT
                   </div>
