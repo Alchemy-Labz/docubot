@@ -2,7 +2,7 @@
 'use server';
 
 import { adminDb } from '@/lib/firebase/firebaseAdmin';
-import { stripe } from '@/lib/stripe';
+import { stripe } from '@/lib/stripe/stripe';
 import { getBaseURL } from '@/util/getBaseURL';
 import { auth } from '@clerk/nextjs/server';
 

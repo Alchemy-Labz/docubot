@@ -1,16 +1,18 @@
-// useSubscription.ts
+// src/hooks/useSubscription.ts
 'use client';
 
-import { db, auth } from '@/lib/firebase/firebase'; // Client SDK
-import { useUser } from '@clerk/nextjs';
 import { collection, doc, onSnapshot } from '@firebase/firestore';
 import { useEffect, useState } from 'react';
-import { signInWithCustomToken } from '@firebase/auth';
+import { useFirebaseAuth } from '@/providers/FirebaseContext';
+import { useUser } from '@clerk/nextjs';
+import { db } from '@/lib/firebase/firebase';
 
 const FREE_DOC_LIMIT = 2;
 const PRO_DOC_LIMIT = 52;
 
 function useSubscription() {
+  const { isAuthenticated, isLoading: authLoading } = useFirebaseAuth();
+  const { user: clerkUser } = useUser(); // Use Clerk user for ID
   const [hasActiveMembership, setHasActiveMembership] = useState<boolean | null>(null);
   const [isOverFileLimit, setIsOverFileLimit] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -19,49 +21,30 @@ function useSubscription() {
   const [docsError, setDocsError] = useState<Error | null>(null);
   const [docsCount, setDocsCount] = useState(0);
 
-  const { user } = useUser();
-
-  // Use direct subscriptions rather than hooks
   useEffect(() => {
-    if (!user) {
+    if (authLoading) return;
+
+    if (!isAuthenticated || !clerkUser?.id) {
       setLoading(false);
       setDocsLoading(false);
+      setHasActiveMembership(false);
+      setDocsCount(0);
+      setIsOverFileLimit(false);
       return;
     }
 
-    // Firebase authentication
-    const authenticateWithFirebase = async () => {
-      try {
-        const response = await fetch('/api/firebase-token', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ userId: user.id }),
-        });
-
-        if (!response.ok) {
-          throw new Error(`Failed to fetch Firebase token: ${response.status}`);
-        }
-
-        const data = await response.json();
-        if (!data.firebaseToken) {
-          throw new Error('No Firebase token received');
-        }
-
-        await signInWithCustomToken(auth, data.firebaseToken);
-        console.log('🔥 Firebase authentication successful');
-      } catch (err) {
-        console.error('🔥 Firebase authentication error:', err);
-        setError(err instanceof Error ? err : new Error(String(err)));
-      }
-    };
-
-    authenticateWithFirebase();
+    // Use Clerk user ID for Firestore operations
+    const userId = clerkUser.id;
+    let isMounted = true;
 
     // Set up user document subscription
-    const userDocRef = doc(db, 'users', user.id);
+    const userDocRef = doc(db, 'users', userId);
+
     const unsubscribeUserDoc = onSnapshot(
       userDocRef,
       (docSnapshot) => {
+        if (!isMounted) return;
+
         if (docSnapshot.exists()) {
           const userData = docSnapshot.data();
           setHasActiveMembership(userData?.hasActiveMembership ?? false);
@@ -71,6 +54,7 @@ function useSubscription() {
         setLoading(false);
       },
       (err) => {
+        if (!isMounted) return;
         console.error('🔥 Error fetching user document:', err);
         setError(err);
         setLoading(false);
@@ -78,10 +62,12 @@ function useSubscription() {
     );
 
     // Set up files collection subscription
-    const filesCollectionRef = collection(db, 'users', user.id, 'files');
+    const filesCollectionRef = collection(db, 'users', userId, 'files');
     const unsubscribeFiles = onSnapshot(
       filesCollectionRef,
       (querySnapshot) => {
+        if (!isMounted) return;
+
         const count = querySnapshot.size;
         setDocsCount(count);
 
@@ -91,6 +77,7 @@ function useSubscription() {
         setDocsLoading(false);
       },
       (err) => {
+        if (!isMounted) return;
         console.error('🔥 Error fetching files collection:', err);
         setDocsError(err);
         setDocsLoading(false);
@@ -99,17 +86,18 @@ function useSubscription() {
 
     // Clean up subscriptions
     return () => {
+      isMounted = false;
       unsubscribeUserDoc();
       unsubscribeFiles();
     };
-  }, [user, hasActiveMembership]);
+  }, [isAuthenticated, authLoading, clerkUser?.id, hasActiveMembership]);
 
   return {
     hasActiveMembership,
     isOverFileLimit,
-    loading,
+    loading: loading || authLoading,
     error,
-    docsLoading,
+    docsLoading: docsLoading || authLoading,
     docsError,
     docsCount,
   };

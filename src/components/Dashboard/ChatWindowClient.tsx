@@ -1,4 +1,4 @@
-// Updated ChatWindowClient.tsx - Compatible with existing firebase.ts
+// src/components/Dashboard/ChatWindowClient.tsx
 'use client';
 
 import { FormEvent, useEffect, useRef, useState } from 'react';
@@ -9,9 +9,8 @@ import { useUser } from '@clerk/nextjs';
 import toast from 'react-hot-toast';
 import { askQuestion } from '@/actions/openAI/askQuestion';
 import ChatMessage from './ChatMessage';
-// Import Firebase from your existing setup
-import { db, auth } from '@/lib/firebase/firebase';
-import { signInWithCustomToken } from '@firebase/auth';
+import { useFirebaseAuth } from '@/providers/FirebaseContext';
+import { db } from '@/lib/firebase/firebase';
 import { collection, onSnapshot, orderBy, query, Timestamp } from '@firebase/firestore';
 
 export type Message = {
@@ -23,78 +22,31 @@ export type Message = {
 
 interface ChatWindowClientProps {
   docId: string;
-  userId: string;
+  userId: string; // This is the Clerk user ID passed from parent
 }
 
 const ChatWindowClient = ({ docId, userId }: ChatWindowClientProps) => {
-  const { user } = useUser();
+  const { user: clerkUser } = useUser();
+  const { isAuthenticated, isLoading: authLoading } = useFirebaseAuth();
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [firebaseInitialized, setFirebaseInitialized] = useState(false);
-  const bottomOfChatRef = useRef<HTMLDivElement>(null);
   const [error, setError] = useState<string | null>(null);
+  const bottomOfChatRef = useRef<HTMLDivElement>(null);
 
-  // First authenticate with Firebase
+  // Set up listener for messages - use the passed userId (Clerk ID)
   useEffect(() => {
-    let isMounted = true;
+    if (authLoading) return;
 
-    const authenticateWithFirebase = async () => {
-      if (!userId || !user) return;
-
-      try {
-        console.log('Fetching Firebase token for user:', userId);
-        // Fetch Firebase token
-        const response = await fetch('/api/firebase-token', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ userId }),
-        });
-
-        if (!response.ok) {
-          throw new Error(`Failed to fetch Firebase token: ${response.status}`);
-        }
-
-        const data = await response.json();
-        if (!data.firebaseToken) {
-          throw new Error('No Firebase token received');
-        }
-
-        // Sign in to Firebase
-        await signInWithCustomToken(auth, data.firebaseToken);
-        console.log('🔥 Firebase authentication successful');
-
-        if (isMounted) {
-          setFirebaseInitialized(true);
-        }
-      } catch (err) {
-        console.error('🔥 Firebase authentication error:', err);
-
-        if (isMounted) {
-          setError(err instanceof Error ? err.message : 'Authentication error');
-          setLoading(false);
-          toast.error('Authentication error. Please try again.');
-        }
-      }
-    };
-
-    authenticateWithFirebase();
-
-    return () => {
-      isMounted = false;
-    };
-  }, [userId, user]);
-
-  // Set up listener for messages only after Firebase is initialized
-  useEffect(() => {
-    if (!firebaseInitialized || !userId || !docId) {
-      console.log('Conditions not met for fetching messages:', {
-        firebaseInitialized,
+    if (!isAuthenticated || !userId || !docId) {
+      console.log('Authentication not ready for messages:', {
+        isAuthenticated,
         userId,
         docId,
-        dbInitialized: !!db,
+        authLoading,
       });
+      setLoading(false);
       return;
     }
 
@@ -103,80 +55,64 @@ const ChatWindowClient = ({ docId, userId }: ChatWindowClientProps) => {
     console.log('Setting up Firestore listener for:', `users/${userId}/files/${docId}/chat`);
 
     try {
-      // Delayed initialization to ensure Firebase is ready
-      setTimeout(() => {
-        try {
-          // Create a query against the chat collection
-          const messagesRef = collection(db, 'users', userId, 'files', docId, 'chat');
-          const messagesQuery = query(messagesRef, orderBy('createdAt', 'asc'));
+      const messagesRef = collection(db, 'users', userId, 'files', docId, 'chat');
+      const messagesQuery = query(messagesRef, orderBy('createdAt', 'asc'));
 
-          // Set up the subscription
-          const unsubscribe = onSnapshot(
-            messagesQuery,
-            (snapshot) => {
-              if (!isMounted) return;
-
-              console.log(`Received ${snapshot.docs.length} chat messages`);
-
-              if (snapshot.empty) {
-                console.log('No messages found in this chat');
-                setMessages([]);
-                setLoading(false);
-                return;
-              }
-
-              const newMessages = snapshot.docs.map((doc) => {
-                const data = doc.data();
-                console.log('Message data:', { id: doc.id, ...data });
-
-                // Handle different timestamp formats
-                let createdAt;
-                if (data.createdAt instanceof Timestamp) {
-                  createdAt = data.createdAt.toDate();
-                } else if (data.createdAt && typeof data.createdAt.toDate === 'function') {
-                  createdAt = data.createdAt.toDate();
-                } else if (data.createdAt && data.createdAt.seconds) {
-                  // Handle Firestore timestamp object
-                  createdAt = new Date(data.createdAt.seconds * 1000);
-                } else {
-                  // Fall back to current date if timestamp is invalid
-                  createdAt = new Date(data.createdAt || Date.now());
-                }
-
-                return {
-                  id: doc.id,
-                  role: data.role,
-                  message: data.message,
-                  createdAt: createdAt,
-                };
-              });
-
-              setMessages(newMessages);
-              setLoading(false);
-            },
-            (err) => {
-              if (!isMounted) return;
-
-              console.error('Error in Firestore snapshot listener:', err);
-              setError(`Error loading messages: ${err.message}`);
-              setLoading(false);
-              toast.error('Failed to load chat messages');
-            }
-          );
-
-          // Return cleanup function
-          return () => {
-            console.log('Cleaning up Firestore listener');
-            unsubscribe();
-          };
-        } catch (err) {
+      const unsubscribe = onSnapshot(
+        messagesQuery,
+        (snapshot) => {
           if (!isMounted) return;
 
-          console.error('Error creating Firestore query:', err);
-          setError(err instanceof Error ? err.message : 'Error setting up messages query');
+          console.log(`Received ${snapshot.docs.length} chat messages`);
+
+          if (snapshot.empty) {
+            console.log('No messages found in this chat');
+            setMessages([]);
+            setLoading(false);
+            return;
+          }
+
+          const newMessages = snapshot.docs.map((doc) => {
+            const data = doc.data();
+
+            // Handle different timestamp formats
+            let createdAt;
+            if (data.createdAt instanceof Timestamp) {
+              createdAt = data.createdAt.toDate();
+            } else if (data.createdAt && typeof data.createdAt.toDate === 'function') {
+              createdAt = data.createdAt.toDate();
+            } else if (data.createdAt && data.createdAt.seconds) {
+              createdAt = new Date(data.createdAt.seconds * 1000);
+            } else {
+              createdAt = new Date(data.createdAt || Date.now());
+            }
+
+            return {
+              id: doc.id,
+              role: data.role,
+              message: data.message,
+              createdAt: createdAt,
+            };
+          });
+
+          setMessages(newMessages);
           setLoading(false);
+          setError(null);
+        },
+        (err) => {
+          if (!isMounted) return;
+
+          console.error('Error in Firestore snapshot listener:', err);
+          setError(`Error loading messages: ${err.message}`);
+          setLoading(false);
+          toast.error('Failed to load chat messages');
         }
-      }, 1000); // Add a small delay to ensure Firebase is fully initialized
+      );
+
+      return () => {
+        console.log('Cleaning up Firestore listener');
+        unsubscribe();
+      };
     } catch (err) {
       if (!isMounted) return;
 
@@ -189,7 +125,7 @@ const ChatWindowClient = ({ docId, userId }: ChatWindowClientProps) => {
     return () => {
       isMounted = false;
     };
-  }, [firebaseInitialized, userId, docId]);
+  }, [isAuthenticated, authLoading, userId, docId]);
 
   // Scroll to bottom when messages change
   useEffect(() => {
@@ -199,7 +135,7 @@ const ChatWindowClient = ({ docId, userId }: ChatWindowClientProps) => {
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    if (!input.trim() || !user || isSubmitting || !firebaseInitialized) return;
+    if (!input.trim() || !clerkUser || isSubmitting || !isAuthenticated) return;
 
     const userQuestion = input.trim();
     setInput('');
@@ -208,7 +144,6 @@ const ChatWindowClient = ({ docId, userId }: ChatWindowClientProps) => {
     try {
       console.log(`Sending question for doc ${docId}: ${userQuestion}`);
 
-      // Call server action to process the question
       const result = await askQuestion(docId, userQuestion);
 
       if (!result.success) {
@@ -228,7 +163,7 @@ const ChatWindowClient = ({ docId, userId }: ChatWindowClientProps) => {
   return (
     <div className='flex h-full flex-col bg-light-400/40 dark:bg-dark-800/40'>
       <div className='mx-auto w-full max-w-3xl flex-1 space-y-4 overflow-y-auto p-4'>
-        {loading ? (
+        {loading || authLoading ? (
           <div className='flex h-full items-center justify-center'>
             <Loader2 className='h-8 w-8 animate-spin text-accent' />
           </div>
@@ -260,15 +195,13 @@ const ChatWindowClient = ({ docId, userId }: ChatWindowClientProps) => {
           <Input
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder={
-              firebaseInitialized ? 'Type your question...' : 'Connecting to database...'
-            }
+            placeholder={isAuthenticated ? 'Type your question...' : 'Connecting to database...'}
             className='flex-1 bg-light-500 dark:bg-dark-700/40'
-            disabled={isSubmitting || !user || !firebaseInitialized}
+            disabled={isSubmitting || !clerkUser || !isAuthenticated}
           />
           <Button
             type='submit'
-            disabled={!input.trim() || isSubmitting || !user || !firebaseInitialized}
+            disabled={!input.trim() || isSubmitting || !clerkUser || !isAuthenticated}
             className='flex items-center justify-center bg-accent hover:bg-accent2'
           >
             {isSubmitting ? (

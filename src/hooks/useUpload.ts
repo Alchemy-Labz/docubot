@@ -1,15 +1,14 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
+// src/hooks/useUpload.ts
 'use client';
 
-import { storage, db, auth } from '@/lib/firebase/firebase';
+import { storage, db } from '@/lib/firebase/firebase';
 import { useUser } from '@clerk/nextjs';
 import { doc, setDoc } from '@firebase/firestore';
 import { getDownloadURL, ref, uploadBytesResumable } from '@firebase/storage';
 import { generateVectorEmbeddings } from '@/actions/generateVectorEmbeddings';
 import { useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
-import { signInWithCustomToken } from '@firebase/auth';
-
+import { useFirebaseAuth } from '@/providers/FirebaseContext';
 export enum UploadStatusText {
   AUTHENTICATING = 'Authenticating...',
   UPLOADING = 'Uploading document.',
@@ -26,6 +25,7 @@ function useUpload() {
   const [status, setStatus] = useState<string | null>(null);
   const [docId, setDocId] = useState<string | null>(null);
   const { user } = useUser();
+  const { isAuthenticated, authenticate } = useFirebaseAuth(); // Use context
 
   const getFileTypeIcon = (fileType: string): string => {
     switch (fileType) {
@@ -51,43 +51,16 @@ function useUpload() {
       return;
     }
 
-    // TODO: Free/Pro Limitations
-
     try {
-      // Fetch the Firebase token from your backend
-      console.log('Fetching Firebase token');
+      // Ensure Firebase authentication
       setStatus(UploadStatusText.AUTHENTICATING);
-      const response = await fetch('/api/firebase-token', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ userId: user.id }),
-      });
 
-      if (!response.ok) {
-        throw new Error(
-          `Failed to fetch Firebase token: ${response.status} ${response.statusText}`
-        );
+      if (!isAuthenticated) {
+        console.log('Not authenticated, authenticating...');
+        await authenticate();
       }
 
-      const data = await response.json();
-      console.log('Firebase token response:', data);
-      if (!data.firebaseToken) {
-        throw new Error('No Firebase token received from the server');
-      }
-
-      console.log('Signing in to Firebase');
-      await signInWithCustomToken(auth, data.firebaseToken);
-      console.log('Signed in to Firebase successfully');
-
-      const { firebaseToken } = data;
-      console.log('Firebase token received');
-
-      // Sign in to Firebase with the custom token
-      console.log('Signing in to Firebase');
-      await signInWithCustomToken(auth, firebaseToken);
-      console.log('Signed in to Firebase successfully');
+      console.log('Firebase authenticated, proceeding with upload');
 
       const fileToUploadToDB = uuidv4();
       console.log('Generated file ID:', fileToUploadToDB);
@@ -109,7 +82,6 @@ function useUpload() {
         (error: Error) => {
           console.error('Error uploading the document:', error);
           setStatus(UploadStatusText.ERROR);
-          // TODO: Send Error to Sentry
         },
         async () => {
           console.log('Upload completed');
@@ -121,7 +93,6 @@ function useUpload() {
           console.log('Saving to database');
           setStatus(UploadStatusText.SAVING);
 
-          // Get file icon type
           const fileIcon = getFileTypeIcon(file.type);
 
           await setDoc(doc(db, 'users', user.id, 'files', fileToUploadToDB), {
@@ -137,12 +108,11 @@ function useUpload() {
           console.log('Generating AI embeddings');
           setStatus(UploadStatusText.GENERATING);
 
-          // Generate AI Vector Embeddings
           await generateVectorEmbeddings(fileToUploadToDB);
 
           console.log('Process completed');
           setDocId(fileToUploadToDB);
-          setStatus(null); // Clear status when everything is done
+          setStatus(null);
         }
       );
     } catch (error) {

@@ -1,9 +1,11 @@
+// src/app/layout.tsx
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
 import { ErrorBoundary } from '@sentry/nextjs';
 import { ClerkProvider } from '@clerk/nextjs';
 import { ThemeProvider } from '@/providers/ThemeProvider';
+import { FirebaseProvider } from '@/providers/FirebaseContext'; // Add this import
 import { Toaster } from 'react-hot-toast';
 import { Analytics } from '@vercel/analytics/react';
 import { SpeedInsights } from '@vercel/speed-insights/next';
@@ -27,30 +29,33 @@ export default function RootLayout({
       >
         <ErrorBoundary>
           <ClerkProvider>
-            <ThemeProvider
-              attribute='class'
-              defaultTheme='system'
-              enableSystem
-              disableTransitionOnChange
-            >
-              {children}
-              <Toaster
-                position='bottom-right'
-                toastOptions={{
-                  // className: 'border border-accent bg-dark-700 text-accent2',
-                  success: {
-                    iconTheme: {
-                      primary: '#549412',
-                      secondary: '#f4f6f7',
+            <FirebaseProvider>
+              {' '}
+              {/* Add Firebase Provider */}
+              <ThemeProvider
+                attribute='class'
+                defaultTheme='system'
+                enableSystem
+                disableTransitionOnChange
+              >
+                {children}
+                <Toaster
+                  position='bottom-right'
+                  toastOptions={{
+                    success: {
+                      iconTheme: {
+                        primary: '#549412',
+                        secondary: '#f4f6f7',
+                      },
                     },
-                  },
-                  style: {
-                    color: '#5029a6',
-                    backgroundColor: '#808b96',
-                  },
-                }}
-              />
-            </ThemeProvider>
+                    style: {
+                      color: '#5029a6',
+                      backgroundColor: '#808b96',
+                    },
+                  }}
+                />
+              </ThemeProvider>
+            </FirebaseProvider>
           </ClerkProvider>
           <Analytics />
           <SpeedInsights />
