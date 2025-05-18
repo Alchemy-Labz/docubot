@@ -1,82 +1,134 @@
-// components/Dashboard/Documents.tsx
-import { auth } from '@clerk/nextjs/server';
+'use client';
+
+import { useEffect, useState } from 'react';
 import PlaceholderDocument from './PlaceholderDocument';
-import { adminDb } from '@/lib/firebase/firebaseAdmin'; // Admin SDK
 import Document from './Document';
+import { Button } from '../ui/button';
+import { Grid3X3, List, Loader2 } from 'lucide-react';
+import { collection, onSnapshot } from '@firebase/firestore';
+import { db } from '@/lib/firebase/firebase';
+import { useFirebaseAuth } from '@/providers/FirebaseContext';
+import { useUser } from '@clerk/nextjs';
 
-const Documents = async () => {
-  try {
-    // Protect the route
-    auth().protect();
+type ViewType = 'grid' | 'list';
 
-    // Get the authenticated user ID
-    const { userId } = await auth();
-    if (!userId) {
-      throw new Error('Unauthorized');
+interface DocumentData {
+  id: string;
+  name: string;
+  size: number;
+  downloadURL: string;
+  type: string;
+  fileIcon: string;
+  createdAt?: Date;
+}
+
+const Documents = () => {
+  const [viewType, setViewType] = useState<ViewType>('grid');
+  const [documents, setDocuments] = useState<DocumentData[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const { isAuthenticated, isLoading: authLoading } = useFirebaseAuth();
+  const { user } = useUser();
+
+  // Load view preference from localStorage
+  useEffect(() => {
+    const savedView = localStorage.getItem('documents-view') as ViewType;
+    if (savedView && (savedView === 'grid' || savedView === 'list')) {
+      setViewType(savedView);
+    }
+  }, []);
+
+  // Save view preference to localStorage
+  const handleViewChange = (newView: ViewType) => {
+    setViewType(newView);
+    localStorage.setItem('documents-view', newView);
+  };
+
+  // Set up real-time listener for documents
+  useEffect(() => {
+    if (authLoading) return;
+
+    if (!isAuthenticated || !user?.id) {
+      setLoading(false);
+      return;
     }
 
-    // Create a reference to the files collection
-    const userFilesCollection = adminDb.collection('users').doc(userId).collection('files');
+    let isMounted = true;
+    setLoading(true);
 
-    // Fetch the documents
-    const documentsSnapshot = await userFilesCollection.get();
+    try {
+      const documentsRef = collection(db, 'users', user.id, 'files');
+      const unsubscribe = onSnapshot(
+        documentsRef,
+        (snapshot) => {
+          if (!isMounted) return;
 
+          const docs: DocumentData[] = snapshot.docs.map((doc) => {
+            const data = doc.data();
+            return {
+              id: doc.id,
+              name: data.name || 'Untitled',
+              size: data.size || 0,
+              downloadURL: data.downloadURL || '',
+              type: data.type || '',
+              fileIcon: data.fileIcon || '',
+              createdAt: data.createdAt?.toDate() || new Date(),
+            };
+          });
+
+          // Sort by creation date (newest first)
+          docs.sort((a, b) => {
+            const dateA = a.createdAt || new Date(0);
+            const dateB = b.createdAt || new Date(0);
+            return dateB.getTime() - dateA.getTime();
+          });
+
+          setDocuments(docs);
+          setLoading(false);
+          setError(null);
+        },
+        (err) => {
+          if (!isMounted) return;
+          console.error('Error fetching documents:', err);
+          setError('Failed to load documents');
+          setLoading(false);
+        }
+      );
+
+      return () => {
+        isMounted = false;
+        unsubscribe();
+      };
+    } catch (err) {
+      if (!isMounted) return;
+      console.error('Error setting up documents listener:', err);
+      setError('Failed to load documents');
+      setLoading(false);
+    }
+
+    return () => {
+      isMounted = false;
+    };
+  }, [isAuthenticated, authLoading, user?.id]);
+
+  if (loading || authLoading) {
     return (
       <main
-        className='mx-auto flex max-w-7xl flex-wrap justify-center gap-5 rounded-b-md bg-dark-700/40 p-5 lg:justify-start'
-        aria-labelledby='documents-heading'
+        className='mx-auto flex max-w-7xl justify-center rounded-b-md bg-dark-700/40 p-8'
+        aria-label='Loading documents'
       >
-        <h2 id='documents-heading' className='sr-only'>
-          Your Documents
-        </h2>
-
-        {documentsSnapshot.empty ? (
-          <div
-            className='flex flex-col items-center justify-center p-6 text-light-300'
-            role='status'
-            aria-live='polite'
-          >
-            <p>You don&apos;t have any documents yet.</p>
-            <p className='mt-2 text-sm text-light-400'>
-              Upload your first document to get started with DocuBot.
-            </p>
-          </div>
-        ) : (
-          // Map through the documents
-          <div
-            className='flex flex-wrap justify-center gap-5 lg:justify-start'
-            role='grid'
-            aria-label={`${documentsSnapshot.docs.length} documents`}
-          >
-            {documentsSnapshot.docs.map((doc) => {
-              const data = doc.data();
-              return (
-                <div key={doc.id} role='gridcell'>
-                  <Document
-                    id={doc.id}
-                    name={data.name || 'Untitled'}
-                    size={data.size || 0}
-                    downloadURL={data.downloadURL || ''}
-                    type={data.type || ''}
-                    fileIcon={data.fileIcon || ''}
-                  />
-                </div>
-              );
-            })}
-          </div>
-        )}
-
-        {/* Placeholder Document Card */}
-        <div role='gridcell'>
-          <PlaceholderDocument />
+        <div className='flex items-center space-x-3'>
+          <Loader2 className='h-6 w-6 animate-spin text-accent' aria-hidden='true' />
+          <span className='text-light-300'>Loading your documents...</span>
         </div>
       </main>
     );
-  } catch (error) {
-    console.error('Error in Documents component:', error);
+  }
+
+  if (error) {
     return (
       <main
-        className='mx-auto flex max-w-7xl flex-wrap justify-center gap-5 rounded-b-md bg-dark-700/40 p-5'
+        className='mx-auto flex max-w-7xl flex-col items-center justify-center rounded-b-md bg-dark-700/40 p-8'
         aria-labelledby='documents-error-heading'
       >
         <h2 id='documents-error-heading' className='sr-only'>
@@ -88,17 +140,145 @@ const Documents = async () => {
           aria-live='assertive'
         >
           <h3 className='mb-2 text-lg font-medium'>Error Loading Documents</h3>
-          <p>Error loading your documents. Please try again later.</p>
-          <p className='mt-2 text-sm text-light-400'>
+          <p className='mb-4 text-center'>{error}</p>
+          <p className='text-sm text-light-400'>
             If this problem persists, please contact support.
           </p>
         </div>
-        <div role='gridcell'>
+        <div className='mt-6'>
           <PlaceholderDocument />
         </div>
       </main>
     );
   }
+
+  return (
+    <main
+      className='mx-auto max-w-7xl rounded-b-md bg-dark-700/40'
+      aria-labelledby='documents-heading'
+    >
+      <h2 id='documents-heading' className='sr-only'>
+        Your Documents
+      </h2>
+
+      {/* View Toggle Controls */}
+      <div className='flex items-center justify-between border-b border-light-600/20 px-6 py-4 dark:border-light-800/20'>
+        <div className='flex items-center space-x-2'>
+          <span className='text-sm font-medium text-light-300'>View:</span>
+          <div
+            className='flex rounded-lg bg-light-600/20 p-1 dark:bg-dark-600/40'
+            role='tablist'
+            aria-label='Document view options'
+          >
+            <Button
+              variant={viewType === 'grid' ? 'default' : 'ghost'}
+              size='sm'
+              onClick={() => handleViewChange('grid')}
+              className={`flex items-center space-x-1 ${
+                viewType === 'grid'
+                  ? 'bg-accent text-light-100'
+                  : 'text-light-400 hover:text-light-200'
+              }`}
+              role='tab'
+              aria-selected={viewType === 'grid'}
+              aria-controls='documents-content'
+              aria-label='Grid view'
+            >
+              <Grid3X3 className='h-4 w-4' aria-hidden='true' />
+              <span className='hidden sm:inline'>Grid</span>
+            </Button>
+            <Button
+              variant={viewType === 'list' ? 'default' : 'ghost'}
+              size='sm'
+              onClick={() => handleViewChange('list')}
+              className={`flex items-center space-x-1 ${
+                viewType === 'list'
+                  ? 'bg-accent text-light-100'
+                  : 'text-light-400 hover:text-light-200'
+              }`}
+              role='tab'
+              aria-selected={viewType === 'list'}
+              aria-controls='documents-content'
+              aria-label='List view'
+            >
+              <List className='h-4 w-4' aria-hidden='true' />
+              <span className='hidden sm:inline'>List</span>
+            </Button>
+          </div>
+        </div>
+
+        <div className='text-sm text-light-400'>
+          {documents.length} {documents.length === 1 ? 'document' : 'documents'}
+        </div>
+      </div>
+
+      {/* Documents Content */}
+      <div
+        id='documents-content'
+        className='p-6'
+        role='tabpanel'
+        aria-labelledby='documents-heading'
+      >
+        {documents.length === 0 ? (
+          <div className='flex flex-col items-center justify-center py-12 text-light-300'>
+            <p className='mb-2 text-lg'>You don&apos;t have any documents yet.</p>
+            <p className='mb-8 text-sm text-light-400'>
+              Upload your first document to get started with DocuBot.
+            </p>
+            <PlaceholderDocument />
+          </div>
+        ) : (
+          <>
+            {/* Grid View */}
+            {viewType === 'grid' && (
+              <div className='grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'>
+                {documents.map((doc) => (
+                  <Document
+                    key={doc.id}
+                    id={doc.id}
+                    name={doc.name}
+                    size={doc.size}
+                    downloadURL={doc.downloadURL}
+                    type={doc.type}
+                    fileIcon={doc.fileIcon}
+                    viewType={viewType}
+                  />
+                ))}
+                <PlaceholderDocument />
+              </div>
+            )}
+
+            {/* List View */}
+            {viewType === 'list' && (
+              <div className='space-y-3'>
+                <div className='hidden sm:grid sm:grid-cols-12 sm:gap-4 sm:border-b sm:border-light-600/20 sm:pb-2 sm:text-sm sm:font-medium sm:text-light-400 dark:sm:border-light-800/20'>
+                  <div className='col-span-5'>Name</div>
+                  <div className='col-span-2'>Type</div>
+                  <div className='col-span-2'>Size</div>
+                  <div className='col-span-3 text-right'>Actions</div>
+                </div>
+                {documents.map((doc) => (
+                  <Document
+                    key={doc.id}
+                    id={doc.id}
+                    name={doc.name}
+                    size={doc.size}
+                    downloadURL={doc.downloadURL}
+                    type={doc.type}
+                    fileIcon={doc.fileIcon}
+                    viewType={viewType}
+                  />
+                ))}
+                <div className='rounded-lg border-2 border-dashed border-accent/40 p-4'>
+                  <PlaceholderDocument />
+                </div>
+              </div>
+            )}
+          </>
+        )}
+      </div>
+    </main>
+  );
 };
 
 export default Documents;
