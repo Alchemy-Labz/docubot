@@ -9,7 +9,7 @@ import { useCollection } from 'react-firebase-hooks/firestore';
 import { useUser } from '@clerk/nextjs';
 import { collection, orderBy, query } from '@firebase/firestore';
 import toast from 'react-hot-toast';
-import { db } from '#/firebase'; // Client Firebase SDK
+import { db } from '@/lib/firebase/firebase'; // Client Firebase SDK
 import { askQuestion } from '@/actions/openAI/askQuestion';
 import ChatMessage from './ChatMessage';
 

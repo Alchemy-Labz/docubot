@@ -2,7 +2,7 @@
 /* eslint-disable import/prefer-default-export */
 'use server';
 
-import { adminDb } from '#/firebaseAdmin';
+import { adminDb } from '@/lib/firebase/firebaseAdmin';
 // eslint-disable-next-line import/no-cycle
 import { Message } from '@/components/Dashboard/ChatWindow';
 import { auth } from '@clerk/nextjs/server';

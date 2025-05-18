@@ -1,9 +1,9 @@
 /* eslint-disable import/no-cycle */
 /* eslint-disable import/prefer-default-export */
 'use server';
-import { adminDb } from '#/firebaseAdmin';
+import { adminDb } from '@/lib/firebase/firebaseAdmin';
 import { UserDetails } from '@/app/dashboard/upgrade/page';
-import { stripe } from '@/lib/stripe';
+import { stripe } from '@/lib/stripe/stripe';
 import { auth } from '@clerk/nextjs/server';
 import { getBaseURL } from '@/util/getBaseURL';
 export async function createCheckoutSession(userDetails: UserDetails) {
@@ -43,20 +43,15 @@ export async function createCheckoutSession(userDetails: UserDetails) {
     line_items: [
       {
         // price: 'price_1Pj3axL5fHlelvMafHXvd27p',
-        price: 'price_1Pq509L5fHlelvMavcQ9zc14',
+        price: 'price_1RPxUwL5fHlelvMazFyq1jW4',
         quantity: 1,
-      },
-    ],
-    discounts: [
-      {
-        coupon: 'U40YMbrX', // Replace with your Coupon ID
       },
     ],
     mode: 'subscription',
     customer: stripecustomerId,
     // getBaseURL works and the function runs past here
-    success_url: `${getBaseURL()}/dashboard?upgrade=true`,
-    cancel_url: `${getBaseURL()}/dashboard/upgrade?upgrade=false`,
+    success_url: `${getBaseURL()}dashboard?upgrade=true`,
+    cancel_url: `${getBaseURL()}dashboard/upgrade?upgrade=false`,
   });
 
   return session.id;

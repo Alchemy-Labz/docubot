@@ -8,11 +8,11 @@ import { ChatPromptTemplate } from '@langchain/core/prompts';
 import { createRetrievalChain } from 'langchain/chains/retrieval';
 import { createHistoryAwareRetriever } from 'langchain/chains/history_aware_retriever';
 import { HumanMessage, AIMessage } from '@langchain/core/messages';
-import pineconeClient from '@/lib/pinecone';
+import pineconeClient from '@/lib/pinecone/pinecone';
 import { PineconeStore } from '@langchain/pinecone';
 import { PineconeConflictError } from '@pinecone-database/pinecone/dist/errors';
 import { Index, RecordMetadata } from '@pinecone-database/pinecone';
-import { adminDb } from '#/firebaseAdmin';
+import { adminDb } from '@/lib/firebase/firebaseAdmin';
 import { auth } from '@clerk/nextjs/server';
 import { Document } from '@langchain/core/documents';
 

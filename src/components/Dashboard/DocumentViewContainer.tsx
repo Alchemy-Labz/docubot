@@ -8,15 +8,15 @@ import TextDocumentViewer from './TextDocumentViewer';
 import ChatWindowClient from './ChatWindowClient';
 import { FileText, MessageSquare, SplitSquareVertical } from 'lucide-react';
 import { Button } from '../ui/button';
-import { db, auth } from '#/firebase';
 import { doc, getDoc } from '@firebase/firestore';
-import { signInWithCustomToken } from '@firebase/auth';
+import { useFirebaseAuth } from '@/providers/FirebaseContext';
+import { db } from '@/lib/firebase/firebase';
 
 type ViewType = 'split' | 'document' | 'chat';
 
 interface DocumentViewContainerProps {
   id: string;
-  userId: string;
+  userId: string; // This is the Clerk user ID from the parent
   url: string;
   fileName: string;
 }
@@ -26,46 +26,20 @@ const DocumentViewContainer = ({ id, userId, url, fileName }: DocumentViewContai
   const [isMobile, setIsMobile] = useState(false);
   const [fileType, setFileType] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const { isAuthenticated, isLoading: authLoading } = useFirebaseAuth();
 
-  // Authenticate with Firebase first
-  useEffect(() => {
-    const authenticateWithFirebase = async () => {
-      try {
-        // Fetch Firebase token
-        const response = await fetch('/api/firebase-token', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ userId }),
-        });
-
-        if (!response.ok) {
-          throw new Error(`Failed to fetch Firebase token: ${response.status}`);
-        }
-
-        const data = await response.json();
-        if (!data.firebaseToken) {
-          throw new Error('No Firebase token received');
-        }
-
-        // Sign in to Firebase
-        await signInWithCustomToken(auth, data.firebaseToken);
-        setIsAuthenticated(true);
-      } catch (error) {
-        console.error('Error authenticating with Firebase:', error);
-        setLoading(false);
-      }
-    };
-
-    authenticateWithFirebase();
-  }, [userId]);
-
-  // Fetch file type after authentication
+  // Fetch file type after authentication - use the passed userId (Clerk ID)
   useEffect(() => {
     const fetchFileType = async () => {
-      if (!isAuthenticated || !userId || !id || !db) return;
+      if (authLoading) return;
+
+      if (!isAuthenticated || !userId || !id) {
+        setLoading(false);
+        return;
+      }
 
       try {
+        // Use the Clerk user ID that was passed down
         const docRef = doc(db, 'users', userId, 'files', id);
         const docSnap = await getDoc(docRef);
 
@@ -80,7 +54,7 @@ const DocumentViewContainer = ({ id, userId, url, fileName }: DocumentViewContai
     };
 
     fetchFileType();
-  }, [isAuthenticated, id, userId]);
+  }, [isAuthenticated, authLoading, id, userId]);
 
   // Handle responsive behavior
   useEffect(() => {
@@ -88,32 +62,25 @@ const DocumentViewContainer = ({ id, userId, url, fileName }: DocumentViewContai
       setIsMobile(window.innerWidth < 768);
     };
 
-    // Set initial value
     checkMobile();
-
-    // Add event listener
     window.addEventListener('resize', checkMobile);
 
-    // Default to document view on mobile
     if (window.innerWidth < 768 && currentView === 'split') {
       setCurrentView('document');
     }
 
-    // Cleanup
     return () => window.removeEventListener('resize', checkMobile);
-  }, []);
+  }, [currentView]);
 
   // Determine which document viewer to use based on file type
   const renderDocumentViewer = () => {
-    if (loading)
+    if (loading || authLoading)
       return <div className='flex h-full items-center justify-center'>Loading document...</div>;
 
-    // Default to PDF viewer if type is unknown or is PDF
     if (!fileType || fileType === 'application/pdf') {
       return <PDFViewer url={url} fileName={fileName} />;
     }
 
-    // Use TextDocumentViewer for text-based documents
     if (
       fileType === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' ||
       fileType === 'text/plain' ||
@@ -124,7 +91,6 @@ const DocumentViewContainer = ({ id, userId, url, fileName }: DocumentViewContai
       return <TextDocumentViewer url={url} fileName={fileName} fileType={fileType} />;
     }
 
-    // Fallback to PDF viewer
     return <PDFViewer url={url} fileName={fileName} />;
   };
 

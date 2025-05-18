@@ -13,7 +13,7 @@
     "format": "prettier --write .",
     "test": "jest --passWithNoTests",
     "test:watch": "jest --watch",
-    "prepare": "husky install",
+    "prepare": "husky",
     "deploy": "npx vercel",
     "prod": "npx vercel --prod"
   },

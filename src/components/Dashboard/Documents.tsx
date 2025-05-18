@@ -1,7 +1,7 @@
 // components/Dashboard/Documents.tsx
 import { auth } from '@clerk/nextjs/server';
 import PlaceholderDocument from './PlaceholderDocument';
-import { adminDb } from '#/firebaseAdmin'; // Admin SDK
+import { adminDb } from '@/lib/firebase/firebaseAdmin'; // Admin SDK
 import Document from './Document';
 
 const Documents = async () => {

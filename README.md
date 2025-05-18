@@ -1,260 +1,309 @@
-<h1><ul><b>
-   Project: Scoop-Sustain
-</b></ul></h1>
-<p align="center">
-  <br />
-  <img width="650" src="./public/global/" alt="Logo">
-  <br />
-</p>
+# DocuBot - Your Interactive Document Companion
 
- <p svg align="center">
-<img src="https://readme-typing-svg.demolab.com?font=Noto+Serif&pause=3000&color=2FA4D7&center=true&vCenter=true&width=375&lines=Support+Independent+Journalist+&+Artist" alt=typing>
- </p>
+<div align="center">
+  <img src="public/logo.png" alt="DocuBot Logo" width="120" height="120">
+  
+  <p align="center">
+    Transform your PDFs and documents into interactive conversations powered by AI
+  </p>
 
-<p align="center">
-Project version updated for Next.js 13.4.8 [This project will be maintained to remain current with Next.js @latest until otherwise noted.] This is ready to use in its current state project is set up with Jest and React Testing Library for code testing, it has been configured to work with type script. Custom imports have been set up but are currently not working within the testing enviroment. Eslint settings still a WOP refining the configs for Jest & Testing Library as well as Typescript. Uses ESLint to parse to Typescript. Sets specific rules for for testing envrioment (files within the **tests** directory or files with names ending in .spec.js, .test.js, .ts, .jsx, or .tsx). Lots of rule modifications I collected from a few other react projects. Configured Import Resolver to handle custom import settings.
-<br />
+  <p align="center">
+    <a href="#features">Features</a> •
+    <a href="#tech-stack">Tech Stack</a> •
+    <a href="#installation">Installation</a> •
+    <a href="#usage">Usage</a> •
+    <a href="#deployment">Deployment</a>
+  </p>
+</div>
 
-[Demo Video](https://www.youtube.com/watch?v=ZtPs9kD9ExY) <br /> <a href="https://github.com/vercel/next.js"> <img src="https://img.shields.io/badge/Next-black?style=for-the-badge&logo=next.js&logoColor=white" alt="Next.js badge"> </a> <a href="https://github.com/microsoft/TypeScript"> <img src="https://img.shields.io/badge/typescript-%23007ACC.svg?style=for-the-badge&logo=typescript&logoColor=white" alt="Typescript badge"> </a> <a href="https://github.com/tailwindlabs/tailwindcss"> <img src="https://img.shields.io/badge/tailwindcss-%2338B2AC.svg?style=for-the-badge&logo=tailwind-css&logoColor=white" alt="Tailwind badge"> </a> <br />
+## 🚀 Features
 
-</p>
+### Document Management
 
-<h2><ul><b>Live Project</b></ul></h2>
+- **Multi-format Support**: Upload and process PDF, TXT, Markdown, and RTF files
+- **Secure Storage**: Files stored in Firebase Storage with user-specific access
+- **Document Viewer**: In-browser viewing for PDFs and text documents
+- **File Management**: Download, delete, and organize your documents
 
-<a href="https://www.stevenwatkinsphotography.com/" target="blank"><img align="center" src="./public/global/SW-Photog.png" alt="logo" height="55" width="250" /></a>
+### AI-Powered Chat
 
-[Demo Link](https://scoop-sustain.vercel.app/)
+- **Intelligent Q&A**: Ask questions about your documents and get contextual answers
+- **Chat History**: Persistent conversation history for each document
+- **RAG Pipeline**: Advanced retrieval-augmented generation using Pinecone vector database
+- **Context Awareness**: AI understands document context and previous conversations
 
-# Features
+### User Experience
 
-## Environment
+- **Authentication**: Secure login with Clerk (supports GitHub, Google, MetaMask)
+- **Responsive Design**: Beautiful UI that works on desktop, tablet, and mobile
+- **Dark/Light Theme**: Toggle between themes with system preference support
+- **Real-time Updates**: Live chat updates using Firebase real-time listeners
 
-- 📟 Next.js
-- 🎓 TypeScript
-- ✅ Strict Mode for TypeScript and React 18
-- 🚀 Tailwind CSS
-- 🔺 Vercel
+### Subscription Management
 
-## Libraries & Plugins
+- **Free Tier**: 2 documents, 3 questions per document
+- **Pro Plan**: 52 documents, 25 questions per document
+- **Stripe Integration**: Secure payment processing and subscription management
+- **Usage Tracking**: Real-time monitoring of document and question limits
 
-- 📁 ShadCN UI Library
-- 📌 React Icons
-- 🍻 Next.js 3rd Parties - GTM
-- 📢 Google AdSense
-- ✏️ Linter with ESLint (default NextJS, NextJS Core Web Vitals and Airbnb configuration)
-- 🛠 Code Formatter with Prettier
-- 🦊 Husky for Git Hooks
-- 🚫 Lint-staged for running linters on Git staged files
-- 🐒 Clerk
-- 💐 Daisy UI
-- 🌌 Open AI
-- 🔗 LangChain
-- 🌲 Pinecone
+## 🛠 Tech Stack
 
-## Features
+### Frontend
 
-- 🌈 Neon Shadows
-- 🌀 Slower Spin Animation
-- 🙈 Scrollbar Hide
-- 🌈 Expanded Color Library including Social Media Colors
+- **Framework**: Next.js 14 with App Router
+- **Language**: TypeScript
+- **Styling**: Tailwind CSS with custom color system
+- **UI Components**: ShadCN/UI with Radix primitives
+- **Animations**: Framer Motion
+- **State Management**: React Hooks + Context
 
-- 💯 Maximize lighthouse score
-- 🤖 SEO metadata, JSON-LD and Open Graph tags with Next SEO
-- 🖱️ One click deployment with Vercel (or manual deployment to any hosting services)
+### Backend
 
-## Project State
+- **Database**: Firebase Firestore
+- **Storage**: Firebase Cloud Storage
+- **Authentication**: Clerk Auth
+- **Vector Database**: Pinecone
+- **AI/ML**: OpenAI GPT-4 + LangChain
+- **Payments**: Stripe
 
-- 🛠️ Release
+### Infrastructure
 
-# To-Do List
+- **Hosting**: Vercel
+- **Monitoring**: Sentry
+- **Analytics**: Vercel Analytics + Speed Insights
+- **CDN**: Vercel Edge Network
 
-## Main
+## 📋 Prerequisites
 
-- [ ] Page Routes for Pricing, Upload File, Upload Repo, Upgrade Account, Account Settings
-- [ ] Rate Limiting on Document Upload & file sizes
-- [ ]
+Before running this project, make sure you have:
 
-## Documentation
+- Node.js 18+ installed
+- npm or yarn package manager
+- Firebase project with Firestore and Storage enabled
+- Clerk application for authentication
+- OpenAI API key
+- Pinecone account and API key
+- Stripe account for payments
+- Sentry account for error monitoring (optional)
 
-- [ ] Add comments to all public functions
-- [ ] Create a CONTRIBUTING guide
-- [ ] Update the README with installation instructions
+## 🚀 Installation
 
-## Features
+1. **Clone the repository**
 
-- [ ]
-- [ ]
-- [ ]
+   ```bash
+   git clone https://github.com/your-username/docubot.git
+   cd docubot
+   ```
 
-## Bugs
+2. **Install dependencies**
 
-- [ ] Visiting another users document page will not show chat or pdf file but it allows you to hang out on blank page, lets kick the user back to the dashboard
-- [ ] Session tokens only last 1 hour
-- [ ]
+   ```bash
+   npm install
+   # or
+   yarn install
+   ```
 
-## Refactoring
+3. **Set up environment variables**
 
-- [ ]
-- [ ]
-- [ ]
+   Create a `.env.local` file in the root directory:
 
-## Libraries & Plugins to Implement
+   ```env
+   # Clerk Authentication
+   NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=your_clerk_publishable_key
+   CLERK_SECRET_KEY=your_clerk_secret_key
+   WEBHOOK_SECRET=your_clerk_webhook_secret
 
-# Documentation
+   # Firebase Configuration
+   FIREBASE_SERVICE_KEY=your_firebase_service_account_json
+   FIREBASE_STORAGE_BUCKET=your_firebase_storage_bucket
 
-- [Table of Contents](#table-of-contents)
-- [Important files and folders](#important-files-and-folders)
-- [Configuration](#configuration)
-  - [Option 1. Set up the project locally](#step-2-set-up-the-project-locally)
-    - [Step 3.5v1. Create the .env file locally and populate in Vercel](#step-35v1-create-the-env-file-locally-and-populate-in-vercel)
-    - [Step 3.5v2. Download the environment variables from Vercel to your local environment](#step-35v2-download-the-environment-variables-from-vercel-to-your-local-environment)
-  - [Step 3. Run Next.js locally in development mode](#step-3-run-nextjs-locally-in-development-mode)
-    - [Step 3.5v1. Create the .env file locally and populate in Vercel](#step-35v1-create-the-env-file-locally-and-populate-in-vercel)
-    - [Step 3.5v2. Download the environment variables from Vercel to your local environment](#step-35v2-download-the-environment-variables-from-vercel-to-your-local-environment)
-  - [Step 4. Deploy to production](#step-4-deploy-to-production)
-  - [Testing, Formatting, Linting, and Commits](#step-5-testing-formatting-linting-and-commits)
-- [Questions and Answers](#questions-and-answers)
-  - [It doesn't work! Where can I get help?](#it-doesnt-work-where-can-i-get-help)
-- [Next steps](#next-steps)
+   # OpenAI
+   OPENAI_API_KEY=your_openai_api_key
 
-### Important files and folders
+   # Pinecone
+   PINECONE_API_KEY=your_pinecone_api_key
 
-| File(s) | Description |
-| --- | --- |
-| `/src/app/lib/util/models` | Where Mongo DB Schema Models are stored |
-| `/src/app/lib/util/actions` | Where Server Actions are stored including: Uploading files to S3, Updating Profile info, and creating Invoices for Tips |
-| `/src/app/api/auth/[...nextauth]/route.ts` |  API Route for user authentication |
-| `/` |  |
+   # Stripe
+   NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=your_stripe_publishable_key
+   STRIPE_API_KEY=your_stripe_secret_key
+   STRIPE_WEBHOOK_SECRET=your_stripe_webhook_secret
 
-## Configuration
+   # Sentry (optional)
+   NEXT_PUBLIC_SENTRY_DSN=your_sentry_dsn
 
-### Option 1. Set up the project locally
+   # Base URL
+   NEXT_PUBLIC_BASE_URL=http://localhost:3000
+   ```
 
-[Clone/Fork the repository](https://github.com/Digitl-Alchemyst/next-alchemy-14.2)
+4. **Configure Firebase**
 
-Rename.env.example to .env.local and populate the variables with the correct information from the above services. Alternatively, you can populate the env variables in the Vercel Dashboard and use the [Vercel CLI](https://vercel.com/cli) to pull the environment variables from your Vercel project.
+   - Create a new Firebase project
+   - Enable Firestore and Storage
+   - Download service account key and add to environment variables
+   - Update Firebase configuration in `firebase.ts` and `firebaseAdmin.ts`
 
-#### Step 3.5v1. Create the .env file locally and populate in Vercel
+5. **Set up Pinecone**
 
-Deploy to your testing enviroment on Vercel
+   - Create a Pinecone index named "docubot"
+   - Configure index settings as needed
 
-```bash
-npx vercel
-```
+6. **Configure Clerk**
 
-The first build will fail with no env variables. Open your Vercel dashboard and copy the entire .env file and paste it in the first line of the Vercel env variable settings and redeploy the project
+   - Set up authentication providers (GitHub, Google, MetaMask)
+   - Configure webhook endpoints
+   - Add redirect URLs
 
-```bash
-npx vercel
-```
+7. **Run the development server**
 
-### Step 3.5v2. Download the environment variables from Vercel to your local environment:
+   ```bash
+   npm run dev
+   # or
+   yarn dev
+   ```
 
-```bash
-npx vercel env pull
-```
+   Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-### Step 3. Run Next.js locally in development mode
+## 🎯 Usage
 
-```bash
-npm install && npm run dev
-```
+### Getting Started
 
-When you run this development server, the changes you make in your frontend and backend configuration will be applied live using hot reloading.
+1. **Sign Up/Login**: Create an account or sign in using your preferred method
+2. **Upload Document**: Drag and drop or click to upload your first document
+3. **Start Chatting**: Ask questions about your document and get AI-powered answers
+4. **Manage Documents**: View, download, or delete documents from your dashboard
 
-Your personal website should be up and running on [http://localhost:3000][localhost-3000]!
+### Supported File Types
 
-### Step 4. Deploy to production
+- **PDF**: `.pdf` files
+- **Text**: `.txt` files
+- **Markdown**: `.md` files
+- **Rich Text**: `.rtf` files
 
-To deploy your changes to production using `git`:
+### Chat Features
 
-```bash
-git add .
-git commit
-git push
-```
+- Ask specific questions about your documents
+- Reference previous conversations
+- Get contextual answers based on document content
+- Export chat conversations
 
-Alternatively, you can deploy without a `git` hosting provider using the Vercel CLI:
+### Subscription Management
 
-```bash
-npx vercel --prod
-```
+- Upgrade to Pro for more documents and questions
+- Manage billing through Stripe customer portal
+- Track usage limits in real-time
 
-### Testing, Formatting, Linting, and Commits
+## 🔌 API Routes
 
-Run ESLint
+### Authentication
 
-```bash
-npm run lint
-```
+- `POST /api/clerk-webhook` - Handles Clerk user events
+- `POST /api/firebase-token` - Generates Firebase custom tokens
 
-Run ESLint with fixes
+### File Management
 
-```bash
-npm run lint --fix
-```
+- `POST /api/convert-rtf` - Converts RTF files for display
 
-Check code for formatting inconsistencies with Prettier
+### Payments
 
-```bash
-prettier --check.
-```
+- `POST /api/stripe-webhook` - Handles Stripe payment events
 
-Format code to project standards with Prettier
+### Server Actions
 
-```bash
-prettier --write.
-```
+- `generateVectorEmbeddings` - Creates embeddings for uploaded documents
+- `askQuestion` - Processes chat questions with AI
+- `deleteDocument` - Removes documents and associated data
+- `createCheckoutSession` - Creates Stripe checkout sessions
+- `createStripePortal` - Generates Stripe customer portal links
 
-Run Test with Jest & React Testing Library
+## 📱 Mobile Support
 
-```bash
-npm jest
-```
+DocuBot is fully responsive and optimized for mobile devices:
 
-Run Jest in Verbose Mode
+- Adaptive layouts for different screen sizes
+- Touch-friendly interface
+- Mobile-specific navigation patterns
+- Optimized document viewing experience
 
-```bash
-npm jest --verbose --watch
-```
+## 🔒 Security
 
-Run Jest with Coverage
+- **Authentication**: Secure user authentication with Clerk
+- **Authorization**: User-specific data access controls
+- **File Security**: Secure file storage with Firebase rules
+- **API Protection**: Rate limiting and input validation
+- **HTTPS**: SSL encryption for all communications
 
-```bash
-npm jest --coverage
-```
+## 🚀 Deployment
 
-Run Jest in CI Mode
+### Vercel (Recommended)
 
-```bash
-npm jest --ci
-```
+1. Connect your repository to Vercel
+2. Configure environment variables in Vercel dashboard
+3. Deploy automatically on every push to main branch
 
-## Questions and Answers
+### Manual Deployment
 
-### It doesn't work! Where can I get help?
+1. Build the application:
+   ```bash
+   npm run build
+   ```
+2. Start the production server:
+   ```bash
+   npm start
+   ```
 
-In case of any issues or questions, you can post:
+### Domain Configuration
 
-- [Next JS Documentation][nextjs-docs]
-- [Vercel Documentation][vercel-docs]
-- [GitHub Discussions for Vercel][nextjs-vercel]
-- [GitHub Discussions for Next.js][nextjs-github]
-- [Discord Coummunity for Next.js][nextjs-discord]
-- [Discord Coummunity for Tailwind CSS][tailwind-discord]
+- Update `NEXT_PUBLIC_BASE_URL` for production
+- Configure Clerk redirect URLs
+- Update Stripe webhook endpoints
 
-## Next steps
+## 🤝 Contributing
 
-- [Join our Javascript Discord community to ask questions and get help][js-help]
-- [Join the Alchemy Labz Discord server to work with others contributing to this project][js-help]
+We welcome contributions! Please follow these steps:
 
-[localhost-3000]: http://localhost:3000
-[`.env.example`]: .env.example
-[nextjs-docs]: https://nextjs.org/docs
-[nextjs-github]: https://github.com/vercel/next.js/discussions
-[nextjs-discord]: https://discord.gg/nextjs
-[vercel-docs]: https://vercel.com/docs
-[vercel-github]: https://github.com/vercel/vercel/discussions
-[tailwind-discord]: https://discord.gg/tailwind
-[js-help]: https://discord.gg/aDumcW6ESB
-[alchemy-labz]: https://discord.gg/8MSUFpKu6n
+1. Fork the repository
+2. Create a feature branch: `git checkout -b feature/amazing-feature`
+3. Commit your changes: `git commit -m 'Add amazing feature'`
+4. Push to the branch: `git push origin feature/amazing-feature`
+5. Open a Pull Request
+
+### Development Guidelines
+
+- Follow TypeScript best practices
+- Use ESLint rules provided in the project
+- Write responsive, accessible code
+- Test across different devices and browsers
+- Update documentation for new features
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🆘 Support
+
+For support, please:
+
+- Check the [documentation](docs/)
+- Open an issue on GitHub
+- Contact our support team at support@docubot.app
+
+## 🙏 Acknowledgments
+
+- [OpenAI](https://openai.com) for GPT-4 API
+- [LangChain](https://langchain.com) for RAG implementation
+- [Pinecone](https://pinecone.io) for vector database
+- [Clerk](https://clerk.dev) for authentication
+- [Firebase](https://firebase.google.com) for backend services
+- [Vercel](https://vercel.com) for hosting
+- [Stripe](https://stripe.com) for payment processing
+
+---
+
+<div align="center">
+  <p>Built with ❤️ by the DocuBot Team</p>
+  <p>
+    <a href="https://docubot.app">Website</a> •
+    <a href="https://twitter.com/DocuBotAI">Twitter</a> •
+    <a href="https://github.com/your-username/docubot">GitHub</a>
+  </p>
+</div>

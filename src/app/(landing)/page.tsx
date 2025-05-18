@@ -62,6 +62,22 @@ const LandingPage = () => {
         <div className='container flex max-w-7xl flex-col items-center justify-center space-y-4 px-4 md:px-6'>
           <div className='grid gap-6 lg:grid-cols-2 lg:gap-12 xl:gap-16'>
             <div className='flex flex-col justify-center space-y-4'>
+              <div className='flex items-center space-x-2 overflow-hidden'>
+                <div className='rounded bg-accent px-2 py-1 text-sm font-bold text-light-100'>
+                  NEW
+                </div>
+                <div className='relative h-8 w-full'>
+                  <div className='animate-banner-scroll absolute'>
+                    <div className='flex h-8 items-center whitespace-nowrap text-dark-700 dark:text-light-300'>
+                      Enhanced Document Support
+                    </div>
+                    <div className='flex h-8 items-center whitespace-nowrap text-dark-700 dark:text-light-300'>
+                      Multi-language Support Added
+                    </div>
+                    {/* <div className='h-8 flex items-center whitespace-nowrap text-dark-700 dark:text-light-300'>Advanced Search Capabilities</div> */}
+                  </div>
+                </div>
+              </div>
               <div className='space-y-2'>
                 <h1 className='text-4xl font-bold tracking-tighter text-gradient-lime-violet sm:text-5xl md:text-6xl'>
                   Transform Your PDFs Into Interactive Conversations
@@ -112,7 +128,7 @@ const LandingPage = () => {
             </div>
           </div>
         </div>
-        {/* Curved separator */}
+        {/* Curved separator */}{' '}
         <div className='absolute bottom-0 left-0 right-0 w-full overflow-hidden'>
           <svg
             xmlns='http://www.w3.org/2000/svg'
