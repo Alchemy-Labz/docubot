@@ -2,7 +2,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import * as Sentry from '@sentry/node';
 import { headers } from 'next/headers';
-import { stripe } from '@/lib/stripe';
+import { stripe } from '@/lib/stripe/stripe';
 import Stripe from 'stripe';
 import { adminDb } from '@/lib/firebase/firebaseAdmin';
 

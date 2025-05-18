@@ -7,7 +7,7 @@ import { createCheckoutSession } from '@/actions/createCheckoutSession';
 import { createStripePortal } from '@/actions/createStripePortal';
 import { Button } from '@/components/ui/button';
 import useSubscription from '@/hooks/useSubscription';
-import getStripe from '@/lib/stripeConfig';
+import getStripe from '@/lib/stripe/stripeConfig';
 import { useUser } from '@clerk/nextjs';
 import { Check, X } from 'lucide-react';
 import { useRouter } from 'next/navigation';

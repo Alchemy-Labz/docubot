@@ -3,7 +3,7 @@
 'use server';
 import { adminDb } from '@/lib/firebase/firebaseAdmin';
 import { UserDetails } from '@/app/dashboard/upgrade/page';
-import { stripe } from '@/lib/stripe';
+import { stripe } from '@/lib/stripe/stripe';
 import { auth } from '@clerk/nextjs/server';
 import { getBaseURL } from '@/util/getBaseURL';
 export async function createCheckoutSession(userDetails: UserDetails) {

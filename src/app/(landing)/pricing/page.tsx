@@ -12,7 +12,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 import { Switch } from '@/components/ui/switch';
 import { createCheckoutSession } from '@/actions/createCheckoutSession';
 import { createStripePortal } from '@/actions/createStripePortal';
-import getStripe from '@/lib/stripeConfig';
+import getStripe from '@/lib/stripe/stripeConfig';
 import useSubscription from '@/hooks/useSubscription';
 import Footer from '@/components/Global/Footer';
 
