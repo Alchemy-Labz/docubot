@@ -33,7 +33,7 @@ const ChatWindow = ({ id }: ChatWindowProps) => {
   const bottomOfChatRef = useRef<HTMLDivElement>(null);
 
   // Only initialize Firebase client queries if we have a user
-  const [snapshot, loading, error] = useCollection(
+  const [snapshot, loading] = useCollection(
     user && db
       ? query(collection(db, 'users', user.id, 'files', id, 'chat'), orderBy('createdAt', 'asc'))
       : null

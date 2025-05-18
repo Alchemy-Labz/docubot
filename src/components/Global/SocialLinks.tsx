@@ -1,5 +1,5 @@
 import React from 'react';
-import { FaTwitter, FaFacebookF, FaTiktok, FaYoutube } from 'react-icons/fa';
+import { FaTwitter, FaFacebookF, FaYoutube } from 'react-icons/fa';
 import Link from 'next/link';
 const SocialLinks = () => {
   return (

@@ -1,3 +1,5 @@
+// eslint-disable-next-line import/prefer-default-export
+
 'use client';
 
 import * as React from 'react';

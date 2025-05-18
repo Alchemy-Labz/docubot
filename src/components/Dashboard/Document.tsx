@@ -7,7 +7,7 @@ import useSubscription from '@/hooks/useSubscription';
 import { Button } from '../ui/button';
 import { deleteDocument } from '@/actions/deleteDocument';
 import { cn } from '@/util/utils';
-import { FILE_TYPE_ICONS, DEFAULT_FILE_ICON } from '@/lib/constants/appConstants';
+import { FILE_TYPE_ICONS } from '@/lib/constants/appConstants';
 
 interface DocumentProps {
   id: string;

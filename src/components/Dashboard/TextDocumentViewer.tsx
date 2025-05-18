@@ -4,7 +4,7 @@
 import { useEffect, useState } from 'react';
 import { Loader2 } from 'lucide-react';
 import Link from 'next/link';
-import { MarkdownRenderer } from './Markdown';
+import  MarkdownRenderer  from './Markdown';
 import RichTextViewer from './RichTextViewer';
 import { ERROR_MESSAGES } from '@/lib/constants/appConstants';
 

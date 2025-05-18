@@ -5,7 +5,7 @@ import fs from 'fs/promises';
 import os from 'os';
 import { ERROR_MESSAGES } from '@/lib/constants/appConstants';
 
-export async function POST(req: NextRequest) {
+export default async function POST(req: NextRequest) {
   try {
     // Get the RTF content from the request
     const formData = await req.formData();

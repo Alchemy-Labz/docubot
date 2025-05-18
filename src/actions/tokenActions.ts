@@ -27,7 +27,7 @@ export async function isTokenExpiredAction(userId: string): Promise<boolean> {
     const currentTime = Math.floor(Date.now() / 1000); // Current time in seconds
     const bufferTime = currentTime + FIREBASE_CONFIG.TOKEN_EXPIRY_SECONDS / 1000; // Convert to seconds
 
-    const expirationTime = decodedToken.exp;
+    // const expirationTime = decodedToken.exp;
 
     // Check if the token is expired or will expire in the next buffer time
     if (decodedToken.exp <= currentTime + bufferTime) {

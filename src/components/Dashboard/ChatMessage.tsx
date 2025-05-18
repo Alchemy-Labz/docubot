@@ -3,7 +3,7 @@ import { Message } from './ChatWindow';
 import { useUser } from '@clerk/nextjs';
 import Image from 'next/image';
 import { BotMessageSquare } from 'lucide-react';
-import { MarkdownRenderer } from './Markdown';
+import  MarkdownRenderer  from './Markdown';
 
 const ChatMessage = ({ message }: { message: Message }) => {
   const isHuman = message.role === 'human';

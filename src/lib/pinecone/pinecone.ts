@@ -1,5 +1,4 @@
 import { Pinecone } from '@pinecone-database/pinecone';
-import { PINECONE_CONFIG } from '@/lib/constants/appConstants';
 
 if (!process.env.PINECONE_API_KEY) {
   throw new Error('PINECONE_API_KEY is not set');
