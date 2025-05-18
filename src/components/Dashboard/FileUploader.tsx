@@ -22,6 +22,12 @@ import { useRouter } from 'next/navigation';
 import useUpload, { UploadStatusText } from '@/hooks/useUpload';
 import useSubscription from '@/hooks/useSubscription';
 import { MdError } from 'react-icons/md';
+import {
+  FILE_UPLOAD,
+  FILE_TYPE_LABELS,
+  ERROR_MESSAGES,
+  SUCCESS_MESSAGES,
+} from '@/lib/constants/appConstants';
 
 const FileUploader = () => {
   const { progress, status, docId, handleUploadDocument } = useUpload();
@@ -43,21 +49,6 @@ const FileUploader = () => {
     []
   );
 
-  // Accepted file types
-  const acceptedFileTypes = useMemo(
-    () => ({
-      'application/pdf': ['.pdf'],
-      // 'application/vnd.openxmlformats-officedocument.wordprocessingml.document': ['.docx'],
-      'text/plain': ['.txt'],
-      'text/markdown': ['.md'],
-      'text/rtf': ['.rtf'],
-    }),
-    []
-  );
-
-  // File size limit in bytes (15MB)
-  const MAX_FILE_SIZE = 15 * 1024 * 1024;
-
   useEffect(() => {
     if (docId) {
       router.push(`/dashboard/documents/${docId}`);
@@ -69,20 +60,7 @@ const FileUploader = () => {
   };
 
   const getFileTypeLabel = (fileType: string) => {
-    switch (fileType) {
-      case 'application/pdf':
-        return 'PDF';
-      // case 'application/vnd.openxmlformats-officedocument.wordprocessingml.document':
-      //   return 'DOCX';
-      case 'text/plain':
-        return 'TXT';
-      case 'text/markdown':
-        return 'MD';
-      case 'text/rtf':
-        return 'RTF';
-      default:
-        return 'Document';
-    }
+    return FILE_TYPE_LABELS[fileType as keyof typeof FILE_TYPE_LABELS] || 'Document';
   };
 
   const onDrop = useCallback(
@@ -96,18 +74,18 @@ const FileUploader = () => {
         if (!isOverFileLimit && !docsLoading) {
           try {
             await handleUploadDocument(file);
-            toast.success(`DocuBot has consumed the ${getFileTypeLabel(file.type)}: ${file.name}`);
+            toast.success(
+              SUCCESS_MESSAGES.DOCUMENT_CONSUMED(getFileTypeLabel(file.type), file.name)
+            );
           } catch (error) {
             if (error instanceof Error) {
-              toast.error(`Upload failed: ${error.message}`);
+              toast.error(`${ERROR_MESSAGES.UPLOAD_FAILED}: ${error.message}`);
             } else {
               toast.error('An unknown error occurred during upload');
             }
           }
         } else {
-          toast.error(
-            'You have reached the maximum number of documents. Upgrade to Pro to add more documents.'
-          );
+          toast.error(ERROR_MESSAGES.SUBSCRIPTION_LIMIT_REACHED);
         }
       }
     },
@@ -122,10 +100,10 @@ const FileUploader = () => {
         const error = errors[0];
         switch (error.code) {
           case 'file-too-large':
-            toast.error('File is too large. Maximum size is 15MB.');
+            toast.error(ERROR_MESSAGES.FILE_TOO_LARGE);
             break;
           case 'file-invalid-type':
-            toast.error('Invalid file type. Please upload a PDF, DOCX, TXT, MD, or RTF file.');
+            toast.error(ERROR_MESSAGES.INVALID_FILE_TYPE);
             break;
           default:
             toast.error(`Upload error: ${error.message}`);
@@ -152,8 +130,8 @@ const FileUploader = () => {
       onDrop,
       onDropRejected,
       maxFiles: 1,
-      maxSize: MAX_FILE_SIZE,
-      accept: acceptedFileTypes,
+      maxSize: FILE_UPLOAD.MAX_FILE_SIZE,
+      accept: FILE_UPLOAD.ACCEPTED_FILE_TYPES,
     });
 
   const uploadInProgress = progress !== null && progress >= 0 && progress <= 100;

@@ -3,6 +3,7 @@ import { UnRTF } from 'node-unrtf';
 import path from 'path';
 import fs from 'fs/promises';
 import os from 'os';
+import { ERROR_MESSAGES } from '@/lib/constants/appConstants';
 
 export async function POST(req: NextRequest) {
   try {
@@ -11,7 +12,7 @@ export async function POST(req: NextRequest) {
     const file = formData.get('file') as File;
 
     if (!file) {
-      return NextResponse.json({ error: 'No file provided' }, { status: 400 });
+      return NextResponse.json({ error: ERROR_MESSAGES.NO_FILE_PROVIDED }, { status: 400 });
     }
 
     // Create a temporary directory

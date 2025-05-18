@@ -15,6 +15,7 @@ import type {
   FirebaseProviderProps,
 } from '@/models/types/firebaseTypes';
 import toast from 'react-hot-toast';
+import { FIREBASE_CONFIG } from '@/lib/constants/appConstants';
 
 const FirebaseAuthContext = createContext<FirebaseAuthContextProps | null>(null);
 
@@ -59,8 +60,8 @@ export const FirebaseProvider: React.FC<FirebaseProviderProps> = ({ children }) 
 
       const credential = await signInWithCustomToken(auth, data.firebaseToken);
 
-      // Calculate token expiry (Firebase tokens typically expire in 1 hour)
-      const tokenExpiry = new Date(Date.now() + 55 * 60 * 1000); // 55 minutes for safety margin
+      // Calculate token expiry using app constants
+      const tokenExpiry = new Date(Date.now() + FIREBASE_CONFIG.TOKEN_SAFETY_MARGIN);
 
       setState((prev) => ({
         ...prev,
@@ -145,8 +146,8 @@ export const FirebaseProvider: React.FC<FirebaseProviderProps> = ({ children }) 
   useEffect(() => {
     if (!state.tokenExpiry || !state.isAuthenticated) return;
 
-    const refreshBuffer = 5 * 60 * 1000; // 5 minutes before expiry
-    const timeUntilRefresh = state.tokenExpiry.getTime() - Date.now() - refreshBuffer;
+    const timeUntilRefresh =
+      state.tokenExpiry.getTime() - Date.now() - FIREBASE_CONFIG.TOKEN_REFRESH_BUFFER;
 
     if (timeUntilRefresh <= 0) {
       refreshToken();

@@ -12,6 +12,7 @@ import toast from 'react-hot-toast';
 import { db } from '@/lib/firebase/firebase'; // Client Firebase SDK
 import { askQuestion } from '@/actions/openAI/askQuestion';
 import ChatMessage from './ChatMessage';
+import { CHAT_CONFIG, SUCCESS_MESSAGES } from '@/lib/constants/appConstants';
 
 export type Message = {
   id?: string;
@@ -39,7 +40,7 @@ const ChatWindow = ({ id }: ChatWindowProps) => {
   );
 
   useEffect(() => {
-    bottomOfChatRef.current?.scrollIntoView({ behavior: 'smooth' });
+    bottomOfChatRef.current?.scrollIntoView({ behavior: CHAT_CONFIG.SCROLL_BEHAVIOR });
   }, [messages]);
 
   useEffect(() => {
@@ -98,6 +99,8 @@ const ChatWindow = ({ id }: ChatWindowProps) => {
           );
 
           toast.error(`Error: ${result.message || 'Failed to get response'}`);
+        } else {
+          toast.success(SUCCESS_MESSAGES.QUESTION_PROCESSED);
         }
       } catch (err) {
         console.error('Error asking question:', err);

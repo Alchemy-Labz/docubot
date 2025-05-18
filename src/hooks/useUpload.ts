@@ -9,6 +9,8 @@ import { generateVectorEmbeddings } from '@/actions/generateVectorEmbeddings';
 import { useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { useFirebaseAuth } from '@/providers/FirebaseContext';
+import { FILE_TYPE_ICONS, DEFAULT_FILE_ICON } from '@/lib/constants/appConstants';
+
 export enum UploadStatusText {
   AUTHENTICATING = 'Authenticating...',
   UPLOADING = 'Uploading document.',
@@ -28,20 +30,7 @@ function useUpload() {
   const { isAuthenticated, authenticate } = useFirebaseAuth(); // Use context
 
   const getFileTypeIcon = (fileType: string): string => {
-    switch (fileType) {
-      case 'application/pdf':
-        return 'pdf';
-      case 'application/vnd.openxmlformats-officedocument.wordprocessingml.document':
-        return 'docx';
-      case 'text/plain':
-        return 'txt';
-      case 'text/markdown':
-        return 'md';
-      case 'text/rtf':
-        return 'rtf';
-      default:
-        return 'document';
-    }
+    return FILE_TYPE_ICONS[fileType as keyof typeof FILE_TYPE_ICONS] || DEFAULT_FILE_ICON;
   };
 
   const handleUploadDocument = async (file: File) => {

@@ -6,11 +6,13 @@ import { UserDetails } from '@/app/dashboard/upgrade/page';
 import { stripe } from '@/lib/stripe/stripe';
 import { auth } from '@clerk/nextjs/server';
 import { getBaseURL } from '@/util/getBaseURL';
+import { STRIPE_CONFIG, ERROR_MESSAGES } from '@/lib/constants/appConstants';
+
 export async function createCheckoutSession(userDetails: UserDetails) {
   const { userId } = await auth();
 
   if (!userId) {
-    throw new Error('No user found');
+    throw new Error(ERROR_MESSAGES.UNAUTHORIZED);
   }
 
   // Check if the user already has a stripecustomerId in our database
@@ -42,8 +44,7 @@ export async function createCheckoutSession(userDetails: UserDetails) {
   const session = await stripe.checkout.sessions.create({
     line_items: [
       {
-        // price: 'price_1Pj3axL5fHlelvMafHXvd27p',
-        price: 'price_1RPxUwL5fHlelvMazFyq1jW4',
+        price: STRIPE_CONFIG.PRICE_ID,
         quantity: 1,
       },
     ],

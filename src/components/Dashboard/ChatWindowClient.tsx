@@ -12,6 +12,7 @@ import ChatMessage from './ChatMessage';
 import { useFirebaseAuth } from '@/providers/FirebaseContext';
 import { db } from '@/lib/firebase/firebase';
 import { collection, onSnapshot, orderBy, query, Timestamp } from '@firebase/firestore';
+import { CHAT_CONFIG, SUCCESS_MESSAGES } from '@/lib/constants/appConstants';
 
 export type Message = {
   id?: string;
@@ -129,7 +130,7 @@ const ChatWindowClient = ({ docId, userId }: ChatWindowClientProps) => {
 
   // Scroll to bottom when messages change
   useEffect(() => {
-    bottomOfChatRef.current?.scrollIntoView({ behavior: 'smooth' });
+    bottomOfChatRef.current?.scrollIntoView({ behavior: CHAT_CONFIG.SCROLL_BEHAVIOR });
   }, [messages]);
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
@@ -150,7 +151,7 @@ const ChatWindowClient = ({ docId, userId }: ChatWindowClientProps) => {
         console.error('Error from askQuestion:', result.message);
         toast.error(result.message || 'Failed to get a response');
       } else {
-        toast.success('Question processed successfully!');
+        toast.success(SUCCESS_MESSAGES.QUESTION_PROCESSED);
       }
     } catch (error) {
       console.error('Error asking question:', error);

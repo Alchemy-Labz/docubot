@@ -5,6 +5,7 @@ import { adminDb } from '@/lib/firebase/firebaseAdmin';
 import { stripe } from '@/lib/stripe/stripe';
 import { getBaseURL } from '@/util/getBaseURL';
 import { auth } from '@clerk/nextjs/server';
+import { ERROR_MESSAGES } from '@/lib/constants/appConstants';
 
 export async function createStripePortal() {
   // Protect the endpoint
@@ -15,7 +16,7 @@ export async function createStripePortal() {
 
   // Throw an Error if no userId is found
   if (!userId) {
-    throw new Error('No user found');
+    throw new Error(ERROR_MESSAGES.UNAUTHORIZED);
   }
 
   // Get the user document from Firestore
@@ -28,7 +29,7 @@ export async function createStripePortal() {
 
   // Check if stripeCustomerId exists
   if (!stripeCustomerId) {
-    throw new Error('No Stripe customer ID found');
+    throw new Error(ERROR_MESSAGES.STRIPE_CUSTOMER_NOT_FOUND);
   }
 
   // Create a Stripe billing portal session

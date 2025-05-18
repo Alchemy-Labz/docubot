@@ -5,6 +5,7 @@ import { headers } from 'next/headers';
 import { stripe } from '@/lib/stripe/stripe';
 import Stripe from 'stripe';
 import { adminDb } from '@/lib/firebase/firebaseAdmin';
+import { STRIPE_CONFIG, SUCCESS_MESSAGES } from '@/lib/constants/appConstants';
 
 // Initialize Sentry (ensure this is done at the start of your application)
 if (!process.env.NEXT_PUBLIC_SENTRY_DSN) {
@@ -71,7 +72,7 @@ export async function POST(request: NextRequest) {
     console.log(`🔄 Processing webhook event: ${event.type}`);
 
     switch (event.type) {
-      case 'checkout.session.completed': {
+      case STRIPE_CONFIG.WEBHOOK_EVENTS.CHECKOUT_SESSION_COMPLETED: {
         const session = event.data.object as Stripe.Checkout.Session;
         const customerId = session.customer as string;
         console.log('💳 Checkout session completed for customer:', customerId);
@@ -85,11 +86,11 @@ export async function POST(request: NextRequest) {
           hasActiveMembership: true,
         });
 
-        console.log('✅ Membership activated for user:', userDetails.id);
+        console.log(SUCCESS_MESSAGES.MEMBERSHIP_ACTIVATED + ' for user:', userDetails.id);
         break;
       }
 
-      case 'customer.subscription.created': {
+      case STRIPE_CONFIG.WEBHOOK_EVENTS.CUSTOMER_SUBSCRIPTION_CREATED: {
         const subscription = event.data.object as Stripe.Subscription;
         const customerId = subscription.customer as string;
         console.log('🎯 Subscription created for customer:', customerId);
@@ -101,7 +102,9 @@ export async function POST(request: NextRequest) {
         }
 
         // Set membership to active if subscription is in a valid state
-        const isActive = ['active', 'trialing'].includes(subscription.status);
+        const isActive =
+          subscription.status === STRIPE_CONFIG.SUBSCRIPTION_STATUSES.ACTIVE ||
+          subscription.status === STRIPE_CONFIG.SUBSCRIPTION_STATUSES.TRIALING;
 
         await adminDb.collection('users').doc(userDetails.id).update({
           hasActiveMembership: isActive,
@@ -114,7 +117,7 @@ export async function POST(request: NextRequest) {
         break;
       }
 
-      case 'customer.subscription.updated': {
+      case STRIPE_CONFIG.WEBHOOK_EVENTS.CUSTOMER_SUBSCRIPTION_UPDATED: {
         const subscription = event.data.object as Stripe.Subscription;
         const customerId = subscription.customer as string;
         console.log('🔄 Subscription updated for customer:', customerId);
@@ -126,7 +129,9 @@ export async function POST(request: NextRequest) {
         }
 
         // Check if subscription is still active
-        const isActive = ['active', 'trialing'].includes(subscription.status);
+        const isActive =
+          subscription.status === STRIPE_CONFIG.SUBSCRIPTION_STATUSES.ACTIVE ||
+          subscription.status === STRIPE_CONFIG.SUBSCRIPTION_STATUSES.TRIALING;
 
         await adminDb.collection('users').doc(userDetails.id).update({
           hasActiveMembership: isActive,
@@ -139,7 +144,7 @@ export async function POST(request: NextRequest) {
         break;
       }
 
-      case 'customer.subscription.deleted': {
+      case STRIPE_CONFIG.WEBHOOK_EVENTS.CUSTOMER_SUBSCRIPTION_DELETED: {
         const subscription = event.data.object as Stripe.Subscription;
         const customerId = subscription.customer as string;
         console.log('❌ Subscription deleted for customer:', customerId);
@@ -157,7 +162,7 @@ export async function POST(request: NextRequest) {
         break;
       }
 
-      case 'invoice.payment_succeeded': {
+      case STRIPE_CONFIG.WEBHOOK_EVENTS.INVOICE_PAYMENT_SUCCEEDED: {
         const invoice = event.data.object as Stripe.Invoice;
         const customerId = invoice.customer as string;
         console.log('💰 Invoice payment succeeded for customer:', customerId);
@@ -173,12 +178,12 @@ export async function POST(request: NextRequest) {
             hasActiveMembership: true,
           });
 
-          console.log('✅ Membership activated for user:', userDetails.id);
+          console.log(SUCCESS_MESSAGES.MEMBERSHIP_ACTIVATED + ' for user:', userDetails.id);
         }
         break;
       }
 
-      case 'invoice.payment_failed': {
+      case STRIPE_CONFIG.WEBHOOK_EVENTS.INVOICE_PAYMENT_FAILED: {
         const invoice = event.data.object as Stripe.Invoice;
         const customerId = invoice.customer as string;
         console.log('💸 Invoice payment failed for customer:', customerId);
@@ -194,7 +199,7 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    console.log('✅ Webhook processed successfully');
+    console.log(SUCCESS_MESSAGES.WEBHOOK_PROCESSED);
     return NextResponse.json({ received: true }, { status: 200 });
   } catch (error) {
     console.error('❌ Webhook processing error:', error);

@@ -11,6 +11,7 @@ import { Button } from '../ui/button';
 import { doc, getDoc } from '@firebase/firestore';
 import { useFirebaseAuth } from '@/providers/FirebaseContext';
 import { db } from '@/lib/firebase/firebase';
+import { UI_CONFIG } from '@/lib/constants/appConstants';
 
 type ViewType = 'split' | 'document' | 'chat';
 
@@ -59,13 +60,13 @@ const DocumentViewContainer = ({ id, userId, url, fileName }: DocumentViewContai
   // Handle responsive behavior
   useEffect(() => {
     const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768);
+      setIsMobile(window.innerWidth < UI_CONFIG.MOBILE_BREAKPOINT);
     };
 
     checkMobile();
     window.addEventListener('resize', checkMobile);
 
-    if (window.innerWidth < 768 && currentView === 'split') {
+    if (window.innerWidth < UI_CONFIG.MOBILE_BREAKPOINT && currentView === 'split') {
       setCurrentView('document');
     }
 

@@ -7,6 +7,7 @@ import useSubscription from '@/hooks/useSubscription';
 import { Button } from '../ui/button';
 import { deleteDocument } from '@/actions/deleteDocument';
 import { cn } from '@/util/utils';
+import { FILE_TYPE_ICONS, DEFAULT_FILE_ICON } from '@/lib/constants/appConstants';
 
 interface DocumentProps {
   id: string;
@@ -35,19 +36,21 @@ const Document = ({ id, name, size, downloadURL, type, fileIcon }: DocumentProps
     }
   };
 
-  // Get icon based on file type or icon string
+  // Get icon based on file type or icon string - using constants
   const getFileIcon = () => {
     if (fileIcon) {
       switch (fileIcon) {
-        case 'pdf':
+        case FILE_TYPE_ICONS['application/pdf']:
           return <FileText className='text-white' size={48} />;
-        case 'docx':
+        case FILE_TYPE_ICONS[
+          'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+        ]:
           return <FileDigit className='text-white' size={48} />;
-        case 'txt':
+        case FILE_TYPE_ICONS['text/plain']:
           return <FileText className='text-white' size={48} />;
-        case 'md':
+        case FILE_TYPE_ICONS['text/markdown']:
           return <FileType className='text-white' size={48} />;
-        case 'rtf':
+        case FILE_TYPE_ICONS['text/rtf']:
           return <FileArchive className='text-white' size={48} />;
         default:
           return <File className='text-white' size={48} />;
@@ -55,19 +58,22 @@ const Document = ({ id, name, size, downloadURL, type, fileIcon }: DocumentProps
     }
 
     if (type) {
-      switch (type) {
-        case 'application/pdf':
-          return <FileText className='text-white' size={48} />;
-        case 'application/vnd.openxmlformats-officedocument.wordprocessingml.document':
-          return <FileDigit className='text-white' size={48} />;
-        case 'text/plain':
-          return <FileText className='text-white' size={48} />;
-        case 'text/markdown':
-          return <FileType className='text-white' size={48} />;
-        case 'text/rtf':
-          return <FileArchive className='text-white' size={48} />;
-        default:
-          return <File className='text-white' size={48} />;
+      const iconType = FILE_TYPE_ICONS[type as keyof typeof FILE_TYPE_ICONS];
+      if (iconType) {
+        switch (iconType) {
+          case 'pdf':
+            return <FileText className='text-white' size={48} />;
+          case 'docx':
+            return <FileDigit className='text-white' size={48} />;
+          case 'txt':
+            return <FileText className='text-white' size={48} />;
+          case 'md':
+            return <FileType className='text-white' size={48} />;
+          case 'rtf':
+            return <FileArchive className='text-white' size={48} />;
+          default:
+            return <File className='text-white' size={48} />;
+        }
       }
     }
 

@@ -6,9 +6,7 @@ import { useEffect, useState } from 'react';
 import { useFirebaseAuth } from '@/providers/FirebaseContext';
 import { useUser } from '@clerk/nextjs';
 import { db } from '@/lib/firebase/firebase';
-
-const FREE_DOC_LIMIT = 2;
-const PRO_DOC_LIMIT = 52;
+import { SUBSCRIPTION_LIMITS } from '@/lib/constants/appConstants';
 
 function useSubscription() {
   const { isAuthenticated, isLoading: authLoading } = useFirebaseAuth();
@@ -71,7 +69,9 @@ function useSubscription() {
         const count = querySnapshot.size;
         setDocsCount(count);
 
-        const userLimit = hasActiveMembership ? PRO_DOC_LIMIT : FREE_DOC_LIMIT;
+        const userLimit = hasActiveMembership
+          ? SUBSCRIPTION_LIMITS.PRO.FILE_LIMIT
+          : SUBSCRIPTION_LIMITS.FREE.FILE_LIMIT;
         setIsOverFileLimit(count >= userLimit);
 
         setDocsLoading(false);

@@ -3,14 +3,14 @@
 import { adminDb, adminStorage } from '@/lib/firebase/firebaseAdmin';
 import pineconeClient from '@/lib/pinecone/pinecone';
 import { auth } from '@clerk/nextjs/server';
-import { indexName } from './langchain/langchain';
 import { revalidatePath } from 'next/cache';
+import { PINECONE_CONFIG, ERROR_MESSAGES } from '@/lib/constants/appConstants';
 
 export async function deleteDocument(docId: string) {
   auth().protect();
   const { userId } = await auth();
   if (!userId) {
-    throw new Error('Unauthorized');
+    throw new Error(ERROR_MESSAGES.UNAUTHORIZED);
   }
   await adminDb.collection('users').doc(userId!).collection('files').doc(docId).delete();
 
@@ -19,7 +19,7 @@ export async function deleteDocument(docId: string) {
     .file(`users/${userId}/files/${docId}`)
     .delete();
 
-  const index = await pineconeClient.index(indexName);
+  const index = await pineconeClient.index(PINECONE_CONFIG.INDEX_NAME);
   await index.namespace(docId).deleteAll();
 
   revalidatePath('/dashboard');

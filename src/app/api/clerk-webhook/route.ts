@@ -5,6 +5,7 @@ import { WebhookEvent } from '@clerk/nextjs/server';
 import { NextResponse } from 'next/server';
 import { getAuth } from 'firebase-admin/auth';
 import { adminApp, adminDb } from '@/lib/firebase/firebaseAdmin';
+import { FIREBASE_CONFIG, SUCCESS_MESSAGES } from '@/lib/constants/appConstants';
 
 export async function POST(req: Request) {
   // 👽️ This Webhook Secret is provided by the clerks dashboard > webhooks >endpoint > signing secret
@@ -74,7 +75,7 @@ export async function POST(req: Request) {
       // Generate a Firebase custom token based on the users Clerk ID
       const firebaseAuth = getAuth(adminApp);
       const tokenSettings = {
-        expiresIn: 60 * 60 * 24 * 30 * 1000, // 5 days
+        expiresIn: FIREBASE_CONFIG.TOKEN_EXPIRY_SECONDS,
       };
       const firebaseToken = await firebaseAuth.createCustomToken(userId!, tokenSettings);
 
@@ -92,7 +93,7 @@ export async function POST(req: Request) {
         { merge: true }
       );
 
-      console.log(`Firebase token generated and stored for user ${userId}`);
+      console.log(SUCCESS_MESSAGES.FIREBASE_TOKEN_GENERATED + ` for user ${userId}`);
     } catch (error) {
       console.error('Error generating or storing Firebase token:', error);
       return new NextResponse('Error processing webhook', { status: 500 });
@@ -108,7 +109,7 @@ export async function POST(req: Request) {
       // For example, you can log the session data to the console
       const firebaseAuth = getAuth(adminApp);
       const tokenSettings = {
-        expiresIn: 60 * 60 * 24 * 30 * 1000, // 5 days
+        expiresIn: FIREBASE_CONFIG.TOKEN_EXPIRY_SECONDS,
       };
       const firebaseToken = await firebaseAuth.createCustomToken(userId!, tokenSettings);
       console.log('🚀 ~ POST ~ firebaseToken:', firebaseToken);
@@ -120,7 +121,7 @@ export async function POST(req: Request) {
         },
         { merge: true }
       );
-      console.log(`Firebase token generated and stored for user ${userId}`);
+      console.log(SUCCESS_MESSAGES.FIREBASE_TOKEN_GENERATED + ` for user ${userId}`);
     } catch (error) {
       console.error('Error generating or storing Firebase token:', error);
       return new NextResponse('Error processing webhook', { status: 500 });

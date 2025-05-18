@@ -6,6 +6,7 @@
 import jwt from 'jsonwebtoken';
 import { getAuth } from 'firebase-admin/auth';
 import { adminDb } from '@/lib/firebase/firebaseAdmin'; // Adjust this import based on your project structure
+import { FIREBASE_CONFIG } from '@/lib/constants/appConstants';
 
 export async function isTokenExpiredAction(userId: string): Promise<boolean> {
   try {
@@ -24,16 +25,16 @@ export async function isTokenExpiredAction(userId: string): Promise<boolean> {
     }
 
     const currentTime = Math.floor(Date.now() / 1000); // Current time in seconds
-    const bufferTime = currentTime + 300; // 5 minutes buffer
+    const bufferTime = currentTime + FIREBASE_CONFIG.TOKEN_EXPIRY_SECONDS / 1000; // Convert to seconds
 
     const expirationTime = decodedToken.exp;
 
-    // Check if the token is expired or will expire in the next 5 minutes
+    // Check if the token is expired or will expire in the next buffer time
     if (decodedToken.exp <= currentTime + bufferTime) {
       // Token is expired or about to expire, generate a new one
       const firebaseAuth = getAuth();
       const tokenSettings = {
-        expiresIn: 60 * 60 * 24 * 30, // 30 days in seconds
+        expiresIn: FIREBASE_CONFIG.TOKEN_EXPIRY_SECONDS,
       };
       const newFirebaseToken = await firebaseAuth.createCustomToken(userId, tokenSettings);
       console.log('🏆 ~ Expired Token Detected ~ Issuing New Token:', newFirebaseToken);

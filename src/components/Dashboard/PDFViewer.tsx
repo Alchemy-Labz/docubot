@@ -9,6 +9,7 @@ import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { ChevronLeft, ChevronRight, Loader2, RotateCw, ZoomIn, ZoomOut } from 'lucide-react';
 import { Input } from '../ui/input';
+import { ERROR_MESSAGES } from '@/lib/constants/appConstants';
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
 
@@ -32,13 +33,13 @@ const PDFViewer = ({ url, fileName = 'Document' }: PDFViewerProps) => {
       try {
         const response = await fetch(url);
         if (!response.ok) {
-          throw new Error(`Failed to fetch PDF: ${response.status}`);
+          throw new Error(`${ERROR_MESSAGES.FAILED_TO_FETCH_PDF}: ${response.status}`);
         }
         const fileBlob = await response.blob();
         setFile(fileBlob);
       } catch (err) {
         console.error('Error fetching PDF file:', err);
-        setError(err instanceof Error ? err.message : 'Failed to fetch PDF file');
+        setError(err instanceof Error ? err.message : ERROR_MESSAGES.FAILED_TO_FETCH_PDF);
       } finally {
         setLoading(false);
       }
@@ -157,7 +158,7 @@ const PDFViewer = ({ url, fileName = 'Document' }: PDFViewerProps) => {
             onLoadSuccess={onDocumentLoadSuccess}
             onLoadError={(err) => {
               console.error('Error loading PDF document:', err);
-              setError('Failed to load PDF document');
+              setError(ERROR_MESSAGES.FAILED_TO_LOAD_PDF_DOCUMENT);
             }}
             rotate={rotation}
             className='flex justify-center'

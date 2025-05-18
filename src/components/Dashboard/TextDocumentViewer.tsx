@@ -6,6 +6,7 @@ import { Loader2 } from 'lucide-react';
 import Link from 'next/link';
 import { MarkdownRenderer } from './Markdown';
 import RichTextViewer from './RichTextViewer';
+import { ERROR_MESSAGES } from '@/lib/constants/appConstants';
 
 interface TextDocumentViewerProps {
   url: string;
@@ -42,7 +43,7 @@ const TextDocumentViewer = ({ url, fileName, fileType }: TextDocumentViewerProps
         const response = await fetch(url);
 
         if (!response.ok) {
-          throw new Error(`Failed to fetch document: ${response.status}`);
+          throw new Error(`${ERROR_MESSAGES.FAILED_TO_FETCH_DOCUMENT}: ${response.status}`);
         }
 
         // For DOCX files, we can't display them directly in the browser
@@ -69,7 +70,7 @@ const TextDocumentViewer = ({ url, fileName, fileType }: TextDocumentViewerProps
         setContent(text);
       } catch (err) {
         console.error('Error fetching document:', err);
-        setError(err instanceof Error ? err.message : 'Failed to fetch document');
+        setError(err instanceof Error ? err.message : ERROR_MESSAGES.FAILED_TO_FETCH_DOCUMENT);
       } finally {
         setLoading(false);
       }

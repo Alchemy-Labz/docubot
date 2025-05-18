@@ -15,19 +15,25 @@ import { Index, RecordMetadata } from '@pinecone-database/pinecone';
 import { adminDb } from '@/lib/firebase/firebaseAdmin';
 import { auth } from '@clerk/nextjs/server';
 import { Document } from '@langchain/core/documents';
+import {
+  OPENAI_CONFIG,
+  PINECONE_CONFIG,
+  CHAT_CONFIG,
+  ERROR_MESSAGES,
+} from '@/lib/constants/appConstants';
 
 //Initialize the OpenAI model with LangChain using your API key
 const model = new ChatOpenAI({
   apiKey: process.env.OPENAI_API_KEY,
-  modelName: 'gpt-4.1-mini',
+  modelName: OPENAI_CONFIG.MODEL_NAME,
 });
 
-export const indexName = 'docubot';
+export const indexName = PINECONE_CONFIG.INDEX_NAME;
 
 async function fetchMessagesFromDB(docId: string) {
   const { userId } = await auth();
   if (!userId) {
-    throw new Error('No user logged in');
+    throw new Error(ERROR_MESSAGES.NO_USER_LOGGED_IN);
     //TODO: Send Error to Sentry
   }
 
@@ -40,7 +46,7 @@ async function fetchMessagesFromDB(docId: string) {
     .doc(docId)
     .collection('chat')
     .orderBy('createdAt', 'desc')
-    // .limit(6)
+    // .limit(CHAT_CONFIG.HISTORY_LIMIT)
     .get();
 
   const chatHistory = chats.docs.map((doc) =>
@@ -85,7 +91,7 @@ export async function generateDocs(docId: string) {
   const { userId } = await auth();
 
   if (!userId) {
-    throw new Error('No user logged in');
+    throw new Error(ERROR_MESSAGES.NO_USER_LOGGED_IN);
     //TODO: Send Error to Sentry
   }
 
@@ -99,7 +105,7 @@ export async function generateDocs(docId: string) {
 
   const fileData = fileRef.data();
   if (!fileData) {
-    throw new Error('Document data not found');
+    throw new Error(ERROR_MESSAGES.DOCUMENT_NOT_FOUND);
     //TODO: Send Error to Sentry
   }
 
@@ -107,7 +113,7 @@ export async function generateDocs(docId: string) {
   const fileType = fileData.type;
 
   if (!downloadURL) {
-    throw new Error('Download URL not found');
+    throw new Error(ERROR_MESSAGES.DOWNLOAD_URL_NOT_FOUND);
     //TODO: Send Error to Sentry
   }
 
@@ -117,7 +123,7 @@ export async function generateDocs(docId: string) {
   const response = await fetch(downloadURL);
 
   if (!response.ok) {
-    throw new Error(`Failed to fetch document: ${response.status}`);
+    throw new Error(`${ERROR_MESSAGES.FAILED_TO_FETCH_DOCUMENT}: ${response.status}`);
   }
 
   // Load the document into a blob
@@ -153,7 +159,7 @@ export async function generateDocs(docId: string) {
       }),
     ];
   } else {
-    throw new Error(`Unsupported file type: ${fileType}`);
+    throw new Error(ERROR_MESSAGES.UNSUPPORTED_FILE_TYPE(fileType));
     //TODO: Send Error to Sentry
   }
 
@@ -178,7 +184,7 @@ export async function generateEmbeddingsWithPineconeVectorStore(docId: string) {
   const { userId } = await auth();
 
   if (!userId) {
-    throw new Error('No user logged in');
+    throw new Error(ERROR_MESSAGES.NO_USER_LOGGED_IN);
     //TODO: Send Error to Sentry
   }
 
@@ -220,7 +226,7 @@ const generateLangChainCompletion = async (docId: string, question: string) => {
   // eslint-disable-next-line prefer-const
   pineconeVectorStore = await generateEmbeddingsWithPineconeVectorStore(docId);
   if (!pineconeVectorStore) {
-    throw new Error('No Pinecone Vector Store found');
+    throw new Error(ERROR_MESSAGES.NO_PINECONE_VECTOR_STORE);
     //TODO: Send Error to Sentry
   }
 

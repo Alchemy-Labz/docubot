@@ -7,13 +7,12 @@ import { adminDb } from '@/lib/firebase/firebaseAdmin';
 import { Message } from '@/components/Dashboard/ChatWindow';
 import { auth } from '@clerk/nextjs/server';
 import { generateLangChainCompletion } from '../langchain/langchain';
-
-const FREE_DOC_LIMIT = 3;
-const PRO_DOC_LIMIT = 25;
+import { SUBSCRIPTION_LIMITS, ERROR_MESSAGES, OPENAI_CONFIG } from '@/lib/constants/appConstants';
 
 export const maxDuration = async () => {
-  return 30; // Replace this with actual async logic if needed
+  return OPENAI_CONFIG.MAX_DURATION; // Replace this with actual async logic if needed
 };
+
 export async function askQuestion(id: string, question: string) {
   try {
     auth().protect();
@@ -23,7 +22,7 @@ export async function askQuestion(id: string, question: string) {
       console.error('🚀DEBUG askQuestion 1: User ID is null or undefined');
       return {
         success: false,
-        message: 'User authentication failed',
+        message: ERROR_MESSAGES.UNAUTHORIZED,
       };
     }
 
@@ -44,7 +43,9 @@ export async function askQuestion(id: string, question: string) {
     // console.log('🚀DEBUG askQuestion 3: Number of user messages:', userMessages.length);
 
     // Check if the user has reached their limit
-    const limit = hasActiveMembership ? PRO_DOC_LIMIT : FREE_DOC_LIMIT;
+    const limit = hasActiveMembership
+      ? SUBSCRIPTION_LIMITS.PRO.MESSAGE_LIMIT
+      : SUBSCRIPTION_LIMITS.FREE.MESSAGE_LIMIT;
 
     // console.log('🚀DEBUG askQuestion 4: User limit:', limit);
 
@@ -54,7 +55,7 @@ export async function askQuestion(id: string, question: string) {
       // );
       return {
         success: false,
-        message: `You have reached the ${hasActiveMembership ? 'pro' : 'free'} limit of ${limit} questions for this document.`,
+        message: ERROR_MESSAGES.MESSAGE_LIMIT_REACHED(hasActiveMembership, limit),
       };
     }
 

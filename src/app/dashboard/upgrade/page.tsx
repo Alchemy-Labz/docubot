@@ -12,6 +12,7 @@ import { useUser } from '@clerk/nextjs';
 import { Check, X } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import React, { useTransition } from 'react';
+import { SUBSCRIPTION_LIMITS } from '@/lib/constants/appConstants';
 
 export type UserDetails = {
   email: string;
@@ -73,10 +74,11 @@ const PricingPage = () => {
             <ul role='list' className='mt-8 space-y-3 text-sm leading-6 text-dark-600'>
               <li className='gapx-x-3 flex'>
                 <Check className='h-6 w-5 flex-none text-accent2' />
-                Upload up to 5 documents
+                Upload up to {SUBSCRIPTION_LIMITS.FREE.FILE_LIMIT} documents
               </li>
               <li className='gapx-x-3 flex'>
-                <Check className='h-6 w-5 flex-none text-accent2' />3 AI messages per document
+                <Check className='h-6 w-5 flex-none text-accent2' />
+                {SUBSCRIPTION_LIMITS.FREE.MESSAGE_LIMIT} AI messages per document
               </li>
               <li className='gapx-x-3 flex'>
                 <Check className='h-6 w-5 flex-none text-accent2' />
@@ -114,11 +116,11 @@ const PricingPage = () => {
             <ul role='list' className='my-8 space-y-3 text-sm leading-6 text-dark-600'>
               <li className='gapx-x-3 flex'>
                 <Check className='h-6 w-5 flex-none text-accent2' />
-                Upload up to 12 documents
+                Upload up to {SUBSCRIPTION_LIMITS.PRO.FILE_LIMIT} documents
               </li>
               <li className='gapx-x-3 flex'>
                 <Check className='h-6 w-5 flex-none text-accent2' />
-                Up to 15 AI messages per document
+                Up to {SUBSCRIPTION_LIMITS.PRO.MESSAGE_LIMIT} AI messages per document
               </li>
               <li className='gapx-x-3 flex'>
                 <Check className='h-6 w-5 flex-none text-accent2' />
