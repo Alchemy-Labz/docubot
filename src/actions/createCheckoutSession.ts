@@ -47,6 +47,11 @@ export async function createCheckoutSession(userDetails: UserDetails) {
         quantity: 1,
       },
     ],
+    discounts: [
+      {
+        coupon: 'U40YMbrX', // Replace with your Coupon ID
+      },
+    ],
     mode: 'subscription',
     customer: stripecustomerId,
     // getBaseURL works and the function runs past here
