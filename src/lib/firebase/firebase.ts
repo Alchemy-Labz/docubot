@@ -1,8 +1,8 @@
-// firebase.ts - Simple version with fallbacks
-import { initializeApp, getApps, getApp } from '@firebase/app';
-import { getFirestore } from '@firebase/firestore';
-import { getStorage } from '@firebase/storage';
-import { getAuth } from '@firebase/auth';
+// src/lib/firebase/firebase.ts - Enhanced version with better error handling
+import { initializeApp, getApps, getApp, FirebaseApp } from 'firebase/app';
+import { getFirestore, Firestore, connectFirestoreEmulator } from 'firebase/firestore';
+import { getStorage, FirebaseStorage } from 'firebase/storage';
+import { getAuth, Auth } from 'firebase/auth';
 
 // Firebase configuration with fallbacks
 const firebaseConfig = {
@@ -16,7 +16,7 @@ const firebaseConfig = {
 };
 
 // Validate at runtime when actually needed
-function validateConfig() {
+function validateConfig(): void {
   const required = [
     'apiKey',
     'authDomain',
@@ -33,7 +33,7 @@ function validateConfig() {
 }
 
 // Initialize Firebase with validation
-function initFirebase() {
+function initFirebase(): FirebaseApp {
   try {
     validateConfig();
     return getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
@@ -48,12 +48,36 @@ function initFirebase() {
 }
 
 // Initialize Firebase
-const app = initFirebase();
+let app: FirebaseApp;
+let db: Firestore;
+let storage: FirebaseStorage;
+let auth: Auth;
 
-// Initialize services
-export const db = getFirestore(app);
-export const storage = getStorage(app);
-export const auth = getAuth(app);
+try {
+  app = initFirebase();
+  db = getFirestore(app);
+  storage = getStorage(app);
+  auth = getAuth(app);
 
-export { app };
+  // Connect to emulator in development if available
+  if (
+    process.env.NODE_ENV === 'development' &&
+    process.env.NEXT_PUBLIC_USE_FIREBASE_EMULATOR === 'true'
+  ) {
+    try {
+      connectFirestoreEmulator(db, 'localhost', 8080);
+    } catch (error) {
+      console.log('Could not connect to Firestore emulator:', error);
+    }
+  }
+} catch (error) {
+  console.error('Failed to initialize Firebase services:', error);
+  throw error;
+}
+
+// Export initialized services
+export { app, db, storage, auth };
 export default app;
+
+// Export types for better TypeScript support
+export type { FirebaseApp, Firestore, FirebaseStorage, Auth };

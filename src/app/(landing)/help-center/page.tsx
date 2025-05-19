@@ -9,13 +9,13 @@ const HelpCenterPage: React.FC = () => {
       title: 'User Guide',
       icon: Book,
       description: 'Learn how to use PDF Chatter effectively',
-      url: 'user-guide',
+      url: 'help-center/user-guide',
     },
     {
       title: 'FAQs',
       icon: FileQuestion,
       description: 'Find answers to commonly asked questions',
-      url: 'faq',
+      url: 'help-center/faq',
     },
     {
       title: 'Discord Community',
@@ -27,7 +27,7 @@ const HelpCenterPage: React.FC = () => {
       title: 'Contact Support',
       icon: MessageCircle,
       description: 'Get in touch with our support team',
-      url: 'support',
+      url: 'help-center/support',
     },
   ];
 
