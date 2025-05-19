@@ -9,6 +9,7 @@ import { FirebaseProvider } from '@/providers/FirebaseContext'; // Add this impo
 import { Toaster } from 'react-hot-toast';
 import { Analytics } from '@vercel/analytics/react';
 import { SpeedInsights } from '@vercel/speed-insights/next';
+import { GoogleTagManager } from '@next/third-parties/google';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -27,6 +28,11 @@ export default function RootLayout({
       <body
         className={`${inter.className} flex min-h-screen flex-col bg-light-500 dark:bg-dark-500`}
       >
+        {process.env.NODE_ENV === 'production' && process.env.GTM_ID && (
+          <>
+            <GoogleTagManager gtmId={process.env.GTM_ID} />
+          </>
+        )}
         <ErrorBoundary>
           <ClerkProvider>
             <FirebaseProvider>
