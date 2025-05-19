@@ -1,8 +1,8 @@
-// src/lib/firebase/firebase.ts - Enhanced version with better error handling
-import { initializeApp, getApps, getApp, FirebaseApp } from 'firebase/app';
-import { getFirestore, Firestore, connectFirestoreEmulator } from 'firebase/firestore';
-import { getStorage, FirebaseStorage } from 'firebase/storage';
-import { getAuth, Auth } from 'firebase/auth';
+// src/lib/firebase/firebase.ts - Compatible with existing app
+import { initializeApp, getApps, getApp } from '@firebase/app';
+import { getFirestore } from '@firebase/firestore';
+import { getStorage } from '@firebase/storage';
+import { getAuth } from '@firebase/auth';
 
 // Firebase configuration with fallbacks
 const firebaseConfig = {
@@ -33,7 +33,7 @@ function validateConfig(): void {
 }
 
 // Initialize Firebase with validation
-function initFirebase(): FirebaseApp {
+function initFirebase() {
   try {
     validateConfig();
     return getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
@@ -48,36 +48,12 @@ function initFirebase(): FirebaseApp {
 }
 
 // Initialize Firebase
-let app: FirebaseApp;
-let db: Firestore;
-let storage: FirebaseStorage;
-let auth: Auth;
+const app = initFirebase();
 
-try {
-  app = initFirebase();
-  db = getFirestore(app);
-  storage = getStorage(app);
-  auth = getAuth(app);
+// Initialize services - keeping the same export pattern as original
+export const db = getFirestore(app);
+export const storage = getStorage(app);
+export const auth = getAuth(app);
 
-  // Connect to emulator in development if available
-  if (
-    process.env.NODE_ENV === 'development' &&
-    process.env.NEXT_PUBLIC_USE_FIREBASE_EMULATOR === 'true'
-  ) {
-    try {
-      connectFirestoreEmulator(db, 'localhost', 8080);
-    } catch (error) {
-      console.log('Could not connect to Firestore emulator:', error);
-    }
-  }
-} catch (error) {
-  console.error('Failed to initialize Firebase services:', error);
-  throw error;
-}
-
-// Export initialized services
-export { app, db, storage, auth };
+export { app };
 export default app;
-
-// Export types for better TypeScript support
-export type { FirebaseApp, Firestore, FirebaseStorage, Auth };

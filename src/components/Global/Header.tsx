@@ -1,4 +1,6 @@
-import { SignedIn, SignedOut, UserButton } from '@clerk/nextjs';
+'use client';
+
+import { SignedIn, SignedOut, UserButton, useUser } from '@clerk/nextjs';
 import Image from 'next/image';
 import Link from 'next/link';
 
@@ -6,10 +8,13 @@ import DLToggle from '@/c/Global/DLToggle';
 import { dark } from '@clerk/themes';
 
 import { Button } from '../ui/button';
-import { File, FilePlus2 } from 'lucide-react';
+import { File, FilePlus2, Settings } from 'lucide-react';
 import UpgradeButton from '../Dashboard/UpgradeButton';
 
 const Header = () => {
+  const { user } = useUser();
+  const isAdmin = user?.publicMetadata?.isAdmin === true;
+
   return (
     <header className='flex items-center justify-between bg-light-600 px-5 py-3 shadow-xl shadow-dark-800/30 dark:bg-dark-800'>
       <SignedOut>
@@ -47,6 +52,17 @@ const Header = () => {
                 <span className='sr-only'>Upload Document</span>
               </Link>
             </Button>
+
+            {/* Admin Panel Link - Only visible to admins */}
+            {isAdmin && (
+              <Button asChild variant='outline'>
+                <Link href='/admin' aria-label='Access admin panel'>
+                  <Settings aria-hidden='true' />
+                  <span className='hidden md:block'>Admin Panel</span>
+                  <span className='sr-only md:hidden'>Admin Panel</span>
+                </Link>
+              </Button>
+            )}
           </nav>
         </div>
       </SignedIn>

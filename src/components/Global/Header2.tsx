@@ -2,14 +2,16 @@
 // components/Global/Header2.tsx
 import Link from 'next/link';
 import Image from 'next/image';
-import { SignedIn, SignedOut, UserButton } from '@clerk/nextjs';
+import { SignedIn, SignedOut, UserButton, useUser } from '@clerk/nextjs';
 import DLToggle from '@/components/Global/DLToggle';
 import { Button } from '@/components/ui/button';
 import { useState } from 'react';
-import { Menu, X } from 'lucide-react';
+import { Menu, X, Settings } from 'lucide-react';
 
 const Header2 = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { user } = useUser();
+  const isAdmin = user?.publicMetadata?.isAdmin === true;
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -61,6 +63,21 @@ const Header2 = () => {
               >
                 <Button variant='default'>Dashboard</Button>
               </Link>
+
+              {/* Admin Panel Link - Mobile */}
+              {isAdmin && (
+                <Link
+                  href='/admin'
+                  onClick={closeMenu}
+                  className='rounded-md focus:outline-none focus:ring-2 focus:ring-accent'
+                  aria-label='Access admin panel'
+                >
+                  <Button variant='outline'>
+                    <Settings className='mr-2 h-4 w-4' />
+                    Admin Panel
+                  </Button>
+                </Link>
+              )}
             </SignedIn>
 
             <SignedOut>
@@ -112,6 +129,20 @@ const Header2 = () => {
             >
               <Button variant='default'>Dashboard</Button>
             </Link>
+
+            {/* Admin Panel Link - Desktop */}
+            {isAdmin && (
+              <Link
+                href='/admin'
+                className='rounded-md focus:outline-none focus:ring-2 focus:ring-accent'
+                aria-label='Access admin panel'
+              >
+                <Button variant='outline'>
+                  <Settings className='mr-2 h-4 w-4' />
+                  Admin Panel
+                </Button>
+              </Link>
+            )}
           </SignedIn>
 
           <SignedOut>

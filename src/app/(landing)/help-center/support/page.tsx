@@ -7,15 +7,15 @@ import {
   CheckCircle,
   AlertCircle,
   Loader2,
-  HelpCircle,
-  Clock,
-  MessageSquare,
-  Users,
   Bug,
   CreditCard,
   Lightbulb,
-  AlertTriangle,
-  ArrowRight,
+  HelpCircle,
+  Zap,
+  Shield,
+  Info,
+  Clock,
+  MessageSquare,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -28,131 +28,129 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import Footer from '@/components/Global/Footer';
-import { submitSupportTicket, type SupportTicketData } from '@/lib/firebase/contactSupport';
-import { useUser } from '@clerk/nextjs';
+import { addDoc, collection } from '@firebase/firestore';
+import { db } from '@/lib/firebase/firebase';
 import toast from 'react-hot-toast';
+import { useUser } from '@clerk/nextjs';
+
+interface SupportFormData {
+  name: string;
+  email: string;
+  subject: string;
+  category: string;
+  priority: string;
+  deviceInfo: string;
+  steps: string;
+  message: string;
+  attachmentDescription: string;
+}
 
 interface FormErrors {
   name?: string;
   email?: string;
   subject?: string;
   category?: string;
-  priority?: string;
   message?: string;
 }
 
-const categories = [
-  {
-    value: 'technical',
-    label: 'Technical Issue',
-    icon: <Bug className='h-4 w-4' />,
-    description: 'App bugs, upload issues, or functionality problems',
-  },
-  {
-    value: 'billing',
-    label: 'Billing Inquiry',
-    icon: <CreditCard className='h-4 w-4' />,
-    description: 'Payment, subscription, or pricing questions',
-  },
-  {
-    value: 'feature',
-    label: 'Feature Request',
-    icon: <Lightbulb className='h-4 w-4' />,
-    description: 'Suggestions for new features or improvements',
-  },
-  {
-    value: 'other',
-    label: 'Other',
-    icon: <HelpCircle className='h-4 w-4' />,
-    description: 'General questions or other inquiries',
-  },
-];
-
-const priorities = [
-  {
-    value: 'low',
-    label: 'Low Priority',
-    description: 'General question or minor issue',
-    color: 'text-emerald-600 dark:text-emerald-400',
-  },
-  {
-    value: 'medium',
-    label: 'Medium Priority',
-    description: 'Issue affecting some functionality',
-    color: 'text-amber-600 dark:text-amber-400',
-  },
-  {
-    value: 'high',
-    label: 'High Priority',
-    description: 'Critical issue preventing app use',
-    color: 'text-red-600 dark:text-red-400',
-  },
-];
-
 const SupportTicketPage: React.FC = () => {
   const { user } = useUser();
-  const [formData, setFormData] = useState<SupportTicketData>({
+  const [formData, setFormData] = useState<SupportFormData>({
     name: user?.fullName || '',
     email: user?.primaryEmailAddress?.emailAddress || '',
     subject: '',
-    category: 'technical',
+    category: '',
     priority: 'medium',
+    deviceInfo: '',
+    steps: '',
     message: '',
-    userId: user?.id || undefined,
+    attachmentDescription: '',
   });
   const [errors, setErrors] = useState<FormErrors>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
-  const [ticketId, setTicketId] = useState<string>('');
+  const [ticketNumber, setTicketNumber] = useState('');
 
-  const fadeIn = {
-    hidden: { opacity: 0, y: 20 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: { duration: 0.6 },
+  const categories = [
+    {
+      value: 'technical',
+      label: 'Technical Issue',
+      icon: <Bug className='h-4 w-4' />,
+      description: 'Problems with uploading, processing, or chatting with documents',
     },
-  };
-
-  const staggerContainer = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.1,
-      },
+    {
+      value: 'billing',
+      label: 'Billing & Subscription',
+      icon: <CreditCard className='h-4 w-4' />,
+      description: 'Payment issues, subscription changes, or refund requests',
     },
-  };
+    {
+      value: 'account',
+      label: 'Account Issues',
+      icon: <Shield className='h-4 w-4' />,
+      description: 'Login problems, account settings, or security concerns',
+    },
+    {
+      value: 'feature',
+      label: 'Feature Request',
+      icon: <Lightbulb className='h-4 w-4' />,
+      description: 'Suggestions for new features or improvements',
+    },
+    {
+      value: 'performance',
+      label: 'Performance Issues',
+      icon: <Zap className='h-4 w-4' />,
+      description: 'Slow loading, timeouts, or other performance problems',
+    },
+    {
+      value: 'other',
+      label: 'Other',
+      icon: <HelpCircle className='h-4 w-4' />,
+      description: 'General questions or issues not covered above',
+    },
+  ];
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-    // Clear error when user starts typing
-    if (errors[name as keyof FormErrors]) {
-      setErrors((prev) => ({
-        ...prev,
-        [name]: undefined,
-      }));
-    }
-  };
+  const priorities = [
+    {
+      value: 'low',
+      label: 'Low',
+      description: 'General questions or minor issues',
+      color: 'text-emerald-600 dark:text-emerald-400',
+    },
+    {
+      value: 'medium',
+      label: 'Medium',
+      description: 'Standard support requests',
+      color: 'text-amber-600 dark:text-amber-400',
+    },
+    {
+      value: 'high',
+      label: 'High',
+      description: 'Urgent issues affecting your work',
+      color: 'text-red-600 dark:text-red-400',
+    },
+  ];
 
-  const handleSelectChange = (name: keyof SupportTicketData, value: string) => {
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-    // Clear error when user makes selection
-    if (errors[name as keyof FormErrors]) {
-      setErrors((prev) => ({
-        ...prev,
-        [name]: undefined,
-      }));
-    }
-  };
+  const supportFeatures = [
+    {
+      icon: <Clock className='h-6 w-6 text-accent2 dark:text-accent' />,
+      title: 'Fast Response',
+      description: 'We respond to all tickets within 24 hours',
+    },
+    {
+      icon: <MessageSquare className='h-6 w-6 text-accent2 dark:text-accent' />,
+      title: 'Expert Support',
+      description: 'Our team knows DocuBot inside and out',
+    },
+    {
+      icon: <Shield className='h-6 w-6 text-accent2 dark:text-accent' />,
+      title: 'Secure & Private',
+      description: 'Your information is always protected',
+    },
+  ];
 
   const validateForm = (): boolean => {
     const newErrors: FormErrors = {};
@@ -175,12 +173,8 @@ const SupportTicketPage: React.FC = () => {
       newErrors.category = 'Please select a category';
     }
 
-    if (!formData.priority) {
-      newErrors.priority = 'Please select a priority level';
-    }
-
     if (!formData.message.trim()) {
-      newErrors.message = 'Message is required';
+      newErrors.message = 'Please describe your issue';
     } else if (formData.message.trim().length < 20) {
       newErrors.message = 'Please provide more details (at least 20 characters)';
     }
@@ -189,383 +183,471 @@ const SupportTicketPage: React.FC = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+
+    // Clear error when user starts typing
+    if (errors[name as keyof FormErrors]) {
+      setErrors((prev) => ({ ...prev, [name]: undefined }));
+    }
+  };
+
+  const handleSelectChange = (name: string) => (value: string) => {
+    setFormData((prev) => ({ ...prev, [name]: value }));
+    if (name === 'category' && errors.category) {
+      setErrors((prev) => ({ ...prev, category: undefined }));
+    }
+  };
+
+  const generateTicketNumber = (): string => {
+    const prefix = 'DOCUB';
+    const timestamp = Date.now().toString().slice(-6);
+    const random = Math.floor(Math.random() * 1000)
+      .toString()
+      .padStart(3, '0');
+    return `${prefix}-${timestamp}-${random}`;
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!validateForm()) {
+      toast.error('Please fix the errors in the form');
       return;
     }
 
     setIsSubmitting(true);
 
     try {
-      const result = await submitSupportTicket(formData);
+      const ticketNum = generateTicketNumber();
 
-      if (result.success && result.ticketId) {
-        setTicketId(result.ticketId);
-        setIsSubmitted(true);
-        toast.success('Support ticket created successfully!');
-      } else {
-        toast.error(result.error || 'Failed to create support ticket. Please try again.');
-      }
+      // Add document to Firebase
+      await addDoc(collection(db, 'support-tickets'), {
+        ...formData,
+        ticketNumber: ticketNum,
+        timestamp: new Date(),
+        status: 'open',
+        source: 'support-page',
+        userId: user?.id || null,
+        userAgent: navigator.userAgent,
+        url: window.location.href,
+      });
+
+      setTicketNumber(ticketNum);
+      setIsSubmitted(true);
+      toast.success(`Support ticket created successfully! Ticket #${ticketNum}`);
+
+      // Reset form after successful submission
+      setTimeout(() => {
+        setFormData({
+          name: user?.fullName || '',
+          email: user?.primaryEmailAddress?.emailAddress || '',
+          subject: '',
+          category: '',
+          priority: 'medium',
+          deviceInfo: '',
+          steps: '',
+          message: '',
+          attachmentDescription: '',
+        });
+        setIsSubmitted(false);
+        setTicketNumber('');
+      }, 5000);
     } catch (error) {
       console.error('Error submitting support ticket:', error);
-      toast.error('An unexpected error occurred. Please try again later.');
+      toast.error('Failed to create support ticket. Please try again.');
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const selectedCategory = categories.find((cat) => cat.value === formData.category);
-  const selectedPriority = priorities.find((pri) => pri.value === formData.priority);
+  const fadeIn = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.6 } },
+  };
 
-  if (isSubmitted) {
-    return (
-      <div className='flex min-h-screen flex-col items-center justify-center bg-gradient-to-br from-accent2/20 to-accent/20 dark:from-accent3/20 dark:to-accent4/20'>
-        <motion.div
-          className='mx-auto max-w-lg text-center'
-          initial='hidden'
-          animate='visible'
-          variants={fadeIn}
-        >
-          <div className='rounded-full bg-emerald-100 p-6 dark:bg-emerald-900/30'>
-            <CheckCircle className='mx-auto h-16 w-16 text-emerald-600 dark:text-emerald-400' />
-          </div>
-          <h1 className='mt-6 text-2xl font-bold text-dark-800 dark:text-light-300'>
-            Support Ticket Created!
-          </h1>
-          <div className='mt-4 rounded-lg border border-accent2/20 bg-light-100/80 p-4 dark:border-accent/20 dark:bg-dark-700/80'>
-            <p className='text-sm text-dark-600 dark:text-light-400'>Your ticket ID:</p>
-            <p className='font-mono text-lg font-semibold text-accent2 dark:text-accent'>
-              {ticketId}
-            </p>
-          </div>
-          <p className='mt-4 text-dark-600 dark:text-light-400'>
-            We&apos;ve received your support request and will respond according to the priority
-            level you selected. You&apos;ll receive email updates on the progress.
-          </p>
-          <div className='mt-6 flex flex-col gap-3 sm:flex-row sm:justify-center'>
-            <Button
-              asChild
-              className='bg-accent2 hover:bg-accent2/90 dark:bg-accent dark:hover:bg-accent/90'
-            >
-              <a href='/help-center'>Browse Help Center</a>
-            </Button>
-            <Button variant='outline' asChild>
-              <a href='/dashboard'>Back to Dashboard</a>
-            </Button>
-          </div>
-        </motion.div>
-        <Footer />
-      </div>
-    );
-  }
+  const staggerContainer = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: { staggerChildren: 0.1 },
+    },
+  };
 
   return (
     <div className='flex min-h-screen flex-col overflow-x-hidden bg-gradient-to-br from-accent2/20 to-accent/20 dark:from-accent3/20 dark:to-accent4/20'>
-      <div className='mx-auto w-full max-w-6xl px-4 py-16 sm:px-6 sm:py-24 lg:px-8'>
-        {/* Header */}
-        <motion.div className='text-center' initial='hidden' animate='visible' variants={fadeIn}>
-          <h1 className='text-4xl font-extrabold tracking-tight text-dark-800 dark:text-light-300 sm:text-5xl'>
-            Create Support Ticket
-          </h1>
-          <p className='mx-auto mt-6 max-w-2xl text-xl text-dark-600 dark:text-light-400'>
-            Describe your issue and we&apos;ll help you resolve it as quickly as possible.
-          </p>
-        </motion.div>
+      <div className='flex-grow'>
+        <div className='mx-auto max-w-4xl px-4 py-16 sm:px-6 sm:py-24 lg:px-8'>
+          {/* Header */}
+          <motion.div className='text-center' initial='hidden' animate='visible' variants={fadeIn}>
+            <h1 className='text-4xl font-extrabold tracking-tight text-dark-800 dark:text-light-300 sm:text-5xl'>
+              Submit a Support Ticket
+            </h1>
+            <p className='mx-auto mt-6 max-w-2xl text-xl text-dark-600 dark:text-light-400'>
+              Need help with DocuBot? Our support team is here to assist you. Please provide as
+              much detail as possible to help us resolve your issue quickly.
+            </p>
+          </motion.div>
 
-        <div className='mt-16 grid gap-16 lg:grid-cols-3'>
-          {/* Sidebar Information */}
+          {/* Support Features */}
           <motion.div
-            className='lg:col-span-1'
+            className='mt-12 grid gap-6 sm:grid-cols-3'
             initial='hidden'
             animate='visible'
             variants={staggerContainer}
           >
-            <h2 className='text-2xl font-bold text-dark-800 dark:text-light-300'>
-              Before You Submit
-            </h2>
-            <div className='mt-6 space-y-6'>
-              <motion.div
-                variants={fadeIn}
-                className='rounded-lg border border-accent2/20 bg-light-100/80 p-6 dark:border-accent/20 dark:bg-dark-700/80'
-              >
-                <div className='flex items-center space-x-3'>
-                  <HelpCircle className='h-6 w-6 text-accent2 dark:text-accent' />
-                  <h3 className='text-lg font-semibold text-dark-800 dark:text-light-300'>
-                    Check our Help Center
-                  </h3>
+            {supportFeatures.map((feature, index) => (
+              <motion.div key={index} variants={fadeIn} className='text-center'>
+                <div className='mx-auto flex h-12 w-12 items-center justify-center rounded-lg bg-accent2/10 dark:bg-accent/10'>
+                  {feature.icon}
                 </div>
-                <p className='mt-3 text-dark-600 dark:text-light-400'>
-                  Many common questions are already answered in our FAQ and user guide.
+                <h3 className='mt-4 text-lg font-medium text-dark-800 dark:text-light-300'>
+                  {feature.title}
+                </h3>
+                <p className='mt-2 text-sm text-dark-600 dark:text-light-400'>
+                  {feature.description}
                 </p>
-                <Button variant='outline' size='sm' asChild className='mt-4'>
-                  <a href='/help-center'>
-                    Browse Help Center <ArrowRight className='ml-2 h-4 w-4' />
-                  </a>
-                </Button>
               </motion.div>
-
-              <motion.div
-                variants={fadeIn}
-                className='rounded-lg border border-accent2/20 bg-light-100/80 p-6 dark:border-accent/20 dark:bg-dark-700/80'
-              >
-                <div className='flex items-center space-x-3'>
-                  <Clock className='h-6 w-6 text-accent2 dark:text-accent' />
-                  <h3 className='text-lg font-semibold text-dark-800 dark:text-light-300'>
-                    Response Times
-                  </h3>
-                </div>
-                <div className='mt-3 space-y-2'>
-                  <div className='flex justify-between'>
-                    <span className='text-emerald-600 dark:text-emerald-400'>Low Priority:</span>
-                    <span className='text-dark-800 dark:text-light-300'>3-5 business days</span>
-                  </div>
-                  <div className='flex justify-between'>
-                    <span className='text-amber-600 dark:text-amber-400'>Medium Priority:</span>
-                    <span className='text-dark-800 dark:text-light-300'>1-2 business days</span>
-                  </div>
-                  <div className='flex justify-between'>
-                    <span className='text-red-600 dark:text-red-400'>High Priority:</span>
-                    <span className='text-dark-800 dark:text-light-300'>Within 24 hours</span>
-                  </div>
-                </div>
-              </motion.div>
-
-              <motion.div
-                variants={fadeIn}
-                className='rounded-lg border border-accent2/20 bg-light-100/80 p-6 dark:border-accent/20 dark:bg-dark-700/80'
-              >
-                <div className='flex items-center space-x-3'>
-                  <MessageSquare className='h-6 w-6 text-accent2 dark:text-accent' />
-                  <h3 className='text-lg font-semibold text-dark-800 dark:text-light-300'>
-                    Tips for Better Support
-                  </h3>
-                </div>
-                <ul className='mt-3 space-y-2 text-sm text-dark-600 dark:text-light-400'>
-                  <li className='flex items-start'>
-                    <span className='mr-2'>•</span>
-                    Include specific error messages
-                  </li>
-                  <li className='flex items-start'>
-                    <span className='mr-2'>•</span>
-                    Describe steps to reproduce the issue
-                  </li>
-                  <li className='flex items-start'>
-                    <span className='mr-2'>•</span>
-                    Mention your browser and device type
-                  </li>
-                  <li className='flex items-start'>
-                    <span className='mr-2'>•</span>
-                    Attach screenshots if helpful
-                  </li>
-                </ul>
-              </motion.div>
-            </div>
+            ))}
           </motion.div>
 
           {/* Support Form */}
+          <motion.div className='mt-16' initial='hidden' animate='visible' variants={fadeIn}>
+            <Card className='border-accent2/20 bg-light-100/80 shadow-xl dark:border-accent/20 dark:bg-dark-700/80'>
+              <CardHeader>
+                <CardTitle className='text-2xl text-dark-800 dark:text-light-300'>
+                  Create Support Ticket
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                {isSubmitted ? (
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    className='flex flex-col items-center py-12 text-center'
+                  >
+                    <CheckCircle className='h-16 w-16 text-emerald-500' />
+                    <h3 className='mt-4 text-xl font-semibold text-dark-800 dark:text-light-300'>
+                      Support Ticket Created!
+                    </h3>
+                    <p className='mt-2 text-dark-600 dark:text-light-400'>
+                      Your ticket number is:{' '}
+                      <span className='font-mono font-semibold text-accent2 dark:text-accent'>
+                        #{ticketNumber}
+                      </span>
+                    </p>
+                    <p className='mt-2 text-sm text-dark-500 dark:text-light-500'>
+                      We&apos;ll respond within 24 hours. You&apos;ll receive an email confirmation
+                      shortly.
+                    </p>
+                  </motion.div>
+                ) : (
+                  <form onSubmit={handleSubmit} className='space-y-6'>
+                    {/* Basic Information */}
+                    <div className='grid gap-6 sm:grid-cols-2'>
+                      <div className='space-y-2'>
+                        <Label htmlFor='name'>
+                          Full Name <span className='text-red-500'>*</span>
+                        </Label>
+                        <Input
+                          id='name'
+                          name='name'
+                          type='text'
+                          value={formData.name}
+                          onChange={handleInputChange}
+                          className={errors.name ? 'border-red-500' : ''}
+                          disabled={isSubmitting}
+                        />
+                        {errors.name && (
+                          <div className='flex items-center text-sm text-red-500'>
+                            <AlertCircle className='mr-1 h-4 w-4' />
+                            {errors.name}
+                          </div>
+                        )}
+                      </div>
+
+                      <div className='space-y-2'>
+                        <Label htmlFor='email'>
+                          Email Address <span className='text-red-500'>*</span>
+                        </Label>
+                        <Input
+                          id='email'
+                          name='email'
+                          type='email'
+                          value={formData.email}
+                          onChange={handleInputChange}
+                          className={errors.email ? 'border-red-500' : ''}
+                          disabled={isSubmitting}
+                        />
+                        {errors.email && (
+                          <div className='flex items-center text-sm text-red-500'>
+                            <AlertCircle className='mr-1 h-4 w-4' />
+                            {errors.email}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Issue Details */}
+                    <div className='space-y-2'>
+                      <Label htmlFor='subject'>
+                        Subject <span className='text-red-500'>*</span>
+                      </Label>
+                      <Input
+                        id='subject'
+                        name='subject'
+                        type='text'
+                        value={formData.subject}
+                        onChange={handleInputChange}
+                        className={errors.subject ? 'border-red-500' : ''}
+                        disabled={isSubmitting}
+                        placeholder='Brief description of your issue'
+                      />
+                      {errors.subject && (
+                        <div className='flex items-center text-sm text-red-500'>
+                          <AlertCircle className='mr-1 h-4 w-4' />
+                          {errors.subject}
+                        </div>
+                      )}
+                    </div>
+
+                    <div className='grid gap-6 sm:grid-cols-2'>
+                      <div className='space-y-2'>
+                        <Label htmlFor='category'>
+                          Category <span className='text-red-500'>*</span>
+                        </Label>
+                        <Select
+                          onValueChange={handleSelectChange('category')}
+                          disabled={isSubmitting}
+                        >
+                          <SelectTrigger className={errors.category ? 'border-red-500' : ''}>
+                            <SelectValue placeholder='Select category...' />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {categories.map((category) => (
+                              <SelectItem key={category.value} value={category.value}>
+                                <div className='flex items-center space-x-2'>
+                                  {category.icon}
+                                  <div>
+                                    <div className='font-medium'>{category.label}</div>
+                                    <div className='text-xs text-muted-foreground'>
+                                      {category.description}
+                                    </div>
+                                  </div>
+                                </div>
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        {errors.category && (
+                          <div className='flex items-center text-sm text-red-500'>
+                            <AlertCircle className='mr-1 h-4 w-4' />
+                            {errors.category}
+                          </div>
+                        )}
+                      </div>
+
+                      <div className='space-y-2'>
+                        <div className='flex items-center space-x-2'>
+                          <Label htmlFor='priority'>Priority</Label>
+                          <TooltipProvider>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Info className='h-4 w-4 text-dark-500 dark:text-light-500' />
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                <p className='w-64 text-sm'>
+                                  Higher priority tickets are processed faster. Choose based on how
+                                  urgently you need assistance.
+                                </p>
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
+                        </div>
+                        <Select
+                          onValueChange={handleSelectChange('priority')}
+                          defaultValue='medium'
+                          disabled={isSubmitting}
+                        >
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {priorities.map((priority) => (
+                              <SelectItem key={priority.value} value={priority.value}>
+                                <div className='flex items-center justify-between'>
+                                  <span className={priority.color}>{priority.label}</span>
+                                  <span className='ml-2 text-xs text-muted-foreground'>
+                                    {priority.description}
+                                  </span>
+                                </div>
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+
+                    {/* Additional Details */}
+                    <div className='space-y-2'>
+                      <Label htmlFor='deviceInfo'>Device & Browser Information</Label>
+                      <Input
+                        id='deviceInfo'
+                        name='deviceInfo'
+                        type='text'
+                        value={formData.deviceInfo}
+                        onChange={handleInputChange}
+                        disabled={isSubmitting}
+                        placeholder='e.g., Chrome on Windows 11, Safari on iPhone'
+                      />
+                      <p className='text-xs text-dark-500 dark:text-light-500'>
+                        This helps us reproduce and solve technical issues faster
+                      </p>
+                    </div>
+
+                    <div className='space-y-2'>
+                      <Label htmlFor='steps'>Steps to Reproduce (for technical issues)</Label>
+                      <Textarea
+                        id='steps'
+                        name='steps'
+                        rows={3}
+                        value={formData.steps}
+                        onChange={handleInputChange}
+                        disabled={isSubmitting}
+                        placeholder='1. I uploaded a PDF document&#10;2. I asked a question&#10;3. The error occurred...'
+                      />
+                    </div>
+
+                    <div className='space-y-2'>
+                      <Label htmlFor='message'>
+                        Detailed Description <span className='text-red-500'>*</span>
+                      </Label>
+                      <Textarea
+                        id='message'
+                        name='message'
+                        rows={6}
+                        value={formData.message}
+                        onChange={handleInputChange}
+                        className={errors.message ? 'border-red-500' : ''}
+                        disabled={isSubmitting}
+                        placeholder="Please provide a detailed description of your issue, including any error messages you've seen..."
+                      />
+                      {errors.message && (
+                        <div className='flex items-center text-sm text-red-500'>
+                          <AlertCircle className='mr-1 h-4 w-4' />
+                          {errors.message}
+                        </div>
+                      )}
+                      <p className='text-sm text-dark-500 dark:text-light-500'>
+                        {formData.message.length}/1000 characters
+                      </p>
+                    </div>
+
+                    <div className='space-y-2'>
+                      <Label htmlFor='attachmentDescription'>Attachments or Screenshots</Label>
+                      <Textarea
+                        id='attachmentDescription'
+                        name='attachmentDescription'
+                        rows={2}
+                        value={formData.attachmentDescription}
+                        onChange={handleInputChange}
+                        disabled={isSubmitting}
+                        placeholder="Describe any screenshots or files you'd like to include (you can email them to us after submitting)"
+                      />
+                    </div>
+
+                    <div className='border-t border-accent2/20 pt-6 dark:border-accent/20'>
+                      <Button
+                        type='submit'
+                        className='w-full bg-accent2 hover:bg-accent2/90 dark:bg-accent dark:hover:bg-accent/90'
+                        disabled={isSubmitting}
+                      >
+                        {isSubmitting ? (
+                          <>
+                            <Loader2 className='mr-2 h-4 w-4 animate-spin' />
+                            Creating Ticket...
+                          </>
+                        ) : (
+                          <>
+                            <Send className='mr-2 h-4 w-4' />
+                            Submit Support Ticket
+                          </>
+                        )}
+                      </Button>
+                    </div>
+                  </form>
+                )}
+              </CardContent>
+            </Card>
+          </motion.div>
+
+          {/* Alternative Support Options */}
           <motion.div
-            className='lg:col-span-2'
+            className='mt-16'
             initial='hidden'
-            animate='visible'
+            whileInView='visible'
+            viewport={{ once: true }}
             variants={fadeIn}
           >
-            <form
-              onSubmit={handleSubmit}
-              className='rounded-lg border border-accent2/20 bg-light-100/80 p-8 shadow-lg dark:border-accent/20 dark:bg-dark-700/80'
-            >
-              <h2 className='text-2xl font-bold text-dark-800 dark:text-light-300'>
-                Support Ticket Details
-              </h2>
-
-              <div className='mt-8 space-y-6'>
-                <div className='grid gap-6 sm:grid-cols-2'>
-                  <div className='space-y-2'>
-                    <Label htmlFor='name'>
-                      Full Name <span className='text-red-500'>*</span>
-                    </Label>
-                    <Input
-                      id='name'
-                      name='name'
-                      type='text'
-                      value={formData.name}
-                      onChange={handleInputChange}
-                      className={errors.name ? 'border-red-500' : ''}
-                      aria-describedby={errors.name ? 'name-error' : undefined}
-                    />
-                    {errors.name && (
-                      <p id='name-error' className='text-sm text-red-600'>
-                        {errors.name}
-                      </p>
-                    )}
-                  </div>
-                  <div className='space-y-2'>
-                    <Label htmlFor='email'>
-                      Email <span className='text-red-500'>*</span>
-                    </Label>
-                    <Input
-                      id='email'
-                      name='email'
-                      type='email'
-                      value={formData.email}
-                      onChange={handleInputChange}
-                      className={errors.email ? 'border-red-500' : ''}
-                      aria-describedby={errors.email ? 'email-error' : undefined}
-                    />
-                    {errors.email && (
-                      <p id='email-error' className='text-sm text-red-600'>
-                        {errors.email}
-                      </p>
-                    )}
-                  </div>
-                </div>
-
-                <div className='space-y-2'>
-                  <Label htmlFor='subject'>
-                    Subject <span className='text-red-500'>*</span>
-                  </Label>
-                  <Input
-                    id='subject'
-                    name='subject'
-                    type='text'
-                    placeholder='Brief description of your issue'
-                    value={formData.subject}
-                    onChange={handleInputChange}
-                    className={errors.subject ? 'border-red-500' : ''}
-                    aria-describedby={errors.subject ? 'subject-error' : undefined}
-                  />
-                  {errors.subject && (
-                    <p id='subject-error' className='text-sm text-red-600'>
-                      {errors.subject}
+            <Card className='border-accent2/20 bg-light-100/50 dark:border-accent/20 dark:bg-dark-700/50'>
+              <CardHeader>
+                <CardTitle className='text-center text-xl text-dark-800 dark:text-light-300'>
+                  Other Ways to Get Help
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className='grid gap-6 sm:grid-cols-3'>
+                  <div className='text-center'>
+                    <div className='mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-accent2/10 dark:bg-accent/10'>
+                      <HelpCircle className='h-6 w-6 text-accent2 dark:text-accent' />
+                    </div>
+                    <h3 className='font-medium text-dark-800 dark:text-light-300'>Browse FAQ</h3>
+                    <p className='mt-1 text-sm text-dark-600 dark:text-light-400'>
+                      Find quick answers to common questions
                     </p>
-                  )}
-                </div>
-
-                <div className='grid gap-6 sm:grid-cols-2'>
-                  <div className='space-y-2'>
-                    <Label htmlFor='category'>
-                      Category <span className='text-red-500'>*</span>
-                    </Label>
-                    <Select
-                      onValueChange={(value) =>
-                        handleSelectChange('category', value as SupportTicketData['category'])
-                      }
-                      defaultValue={formData.category}
-                    >
-                      <SelectTrigger className={errors.category ? 'border-red-500' : ''}>
-                        <SelectValue placeholder='Select a category' />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {categories.map((category) => (
-                          <SelectItem key={category.value} value={category.value}>
-                            <div className='flex items-center space-x-2'>
-                              {category.icon}
-                              <span>{category.label}</span>
-                            </div>
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    {selectedCategory && (
-                      <p className='text-xs text-dark-600 dark:text-light-400'>
-                        {selectedCategory.description}
-                      </p>
-                    )}
-                    {errors.category && <p className='text-sm text-red-600'>{errors.category}</p>}
+                    <Button asChild variant='outline' size='sm' className='mt-3'>
+                      <a href='/help-center/faq'>Visit FAQ</a>
+                    </Button>
                   </div>
 
-                  <div className='space-y-2'>
-                    <Label htmlFor='priority'>
-                      Priority <span className='text-red-500'>*</span>
-                    </Label>
-                    <Select
-                      onValueChange={(value) =>
-                        handleSelectChange('priority', value as SupportTicketData['priority'])
-                      }
-                      defaultValue={formData.priority}
-                    >
-                      <SelectTrigger className={errors.priority ? 'border-red-500' : ''}>
-                        <SelectValue placeholder='Select priority' />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {priorities.map((priority) => (
-                          <SelectItem key={priority.value} value={priority.value}>
-                            <div className='flex items-center space-x-2'>
-                              <div
-                                className={`h-2 w-2 rounded-full ${priority.color.replace('text-', 'bg-')}`}
-                              />
-                              <span>{priority.label}</span>
-                            </div>
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    {selectedPriority && (
-                      <p className={`text-xs ${selectedPriority.color}`}>
-                        {selectedPriority.description}
-                      </p>
-                    )}
-                    {errors.priority && <p className='text-sm text-red-600'>{errors.priority}</p>}
-                  </div>
-                </div>
-
-                <div className='space-y-2'>
-                  <Label htmlFor='message'>
-                    Detailed Description <span className='text-red-500'>*</span>
-                  </Label>
-                  <Textarea
-                    id='message'
-                    name='message'
-                    rows={8}
-                    placeholder='Please provide as much detail as possible about your issue. Include any error messages, steps to reproduce the problem, and what you expected to happen.'
-                    value={formData.message}
-                    onChange={handleInputChange}
-                    className={errors.message ? 'border-red-500' : ''}
-                    aria-describedby={errors.message ? 'message-error' : undefined}
-                  />
-                  <div className='flex justify-between text-xs text-dark-600 dark:text-light-400'>
-                    <span>{formData.message.length} characters</span>
-                    <span>Minimum 20 characters</span>
-                  </div>
-                  {errors.message && (
-                    <p id='message-error' className='text-sm text-red-600'>
-                      {errors.message}
+                  <div className='text-center'>
+                    <div className='mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-accent2/10 dark:bg-accent/10'>
+                      <MessageSquare className='h-6 w-6 text-accent2 dark:text-accent' />
+                    </div>
+                    <h3 className='font-medium text-dark-800 dark:text-light-300'>Join Discord</h3>
+                    <p className='mt-1 text-sm text-dark-600 dark:text-light-400'>
+                      Get help from our community
                     </p>
-                  )}
-                </div>
+                    <Button asChild variant='outline' size='sm' className='mt-3'>
+                      <a
+                        href='https://discord.gg/mWvD5HHfTz'
+                        target='_blank'
+                        rel='noopener noreferrer'
+                      >
+                        Join Discord
+                      </a>
+                    </Button>
+                  </div>
 
-                <div className='flex items-start space-x-3 rounded-lg bg-amber-50 p-4 dark:bg-amber-900/20'>
-                  <AlertTriangle className='h-5 w-5 text-amber-600 dark:text-amber-400' />
-                  <div className='text-sm'>
-                    <p className='font-medium text-amber-800 dark:text-amber-200'>
-                      Important Notice
+                  <div className='text-center'>
+                    <div className='mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-accent2/10 dark:bg-accent/10'>
+                      <Send className='h-6 w-6 text-accent2 dark:text-accent' />
+                    </div>
+                    <h3 className='font-medium text-dark-800 dark:text-light-300'>Direct Email</h3>
+                    <p className='mt-1 text-sm text-dark-600 dark:text-light-400'>
+                      Email us directly for general inquiries
                     </p>
-                    <p className='mt-1 text-amber-700 dark:text-amber-300'>
-                      Please do not include sensitive information like passwords, credit card
-                      numbers, or personal documents in your message.
-                    </p>
+                    <Button asChild variant='outline' size='sm' className='mt-3'>
+                      <a href='mailto:support@docubot.app'>Send Email</a>
+                    </Button>
                   </div>
                 </div>
-
-                <Button
-                  type='submit'
-                  disabled={isSubmitting}
-                  className='w-full bg-accent2 hover:bg-accent2/90 dark:bg-accent dark:hover:bg-accent/90'
-                >
-                  {isSubmitting ? (
-                    <Loader2 className='mr-2 h-4 w-4 animate-spin' />
-                  ) : (
-                    <Send className='mr-2 h-4 w-4' />
-                  )}
-                  {isSubmitting ? 'Creating Ticket...' : 'Create Support Ticket'}
-                </Button>
-              </div>
-            </form>
+              </CardContent>
+            </Card>
           </motion.div>
         </div>
       </div>
-
       <Footer />
     </div>
   );
