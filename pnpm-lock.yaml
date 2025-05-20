@@ -36,8 +36,8 @@ importers:
         specifier: ^2.2.0
         version: 2.2.0(react@18.3.1)
       '@langchain/community':
-        specifier: ^0.2.33
-        version: 0.2.33(@google-cloud/storage@7.16.0(encoding@0.1.13))(@pinecone-database/pinecone@3.0.3)(crypto-js@4.2.0)(encoding@0.1.13)(fast-xml-parser@4.5.3)(firebase-admin@13.4.0(encoding@0.1.13))(google-auth-library@9.15.1(encoding@0.1.13))(ignore@5.3.2)(jsdom@20.0.3)(jsonwebtoken@9.0.2)(lodash@4.17.21)(openai@4.100.0(encoding@0.1.13)(ws@8.18.2)(zod@3.25.7))(pdf-parse@1.1.1)(ws@8.18.2)
+        specifier: ^0.3.3
+        version: 0.3.3(@google-cloud/storage@7.16.0(encoding@0.1.13))(@langchain/core@0.2.36(openai@4.100.0(encoding@0.1.13)(ws@8.18.2)(zod@3.25.7)))(@pinecone-database/pinecone@3.0.3)(crypto-js@4.2.0)(encoding@0.1.13)(fast-xml-parser@4.5.3)(firebase-admin@13.4.0(encoding@0.1.13))(google-auth-library@9.15.1(encoding@0.1.13))(ignore@5.3.2)(jsdom@20.0.3)(jsonwebtoken@9.0.2)(lodash@4.17.21)(openai@4.100.0(encoding@0.1.13)(ws@8.18.2)(zod@3.25.7))(pdf-parse@1.1.1)(ws@8.18.2)
       '@langchain/core':
         specifier: ^0.2.36
         version: 0.2.36(openai@4.100.0(encoding@0.1.13)(ws@8.18.2)(zod@3.25.7))
@@ -1047,8 +1047,8 @@ packages:
   '@js-sdsl/ordered-map@4.4.2':
     resolution: {integrity: sha512-iUKgm52T8HOE/makSxjqoWhe95ZJA1/G1sYsGev2JDKUSS14KAgg1LHb+Ba+IPow0xflbnSkOsZcO08C7w1gYw==}
 
-  '@langchain/community@0.2.33':
-    resolution: {integrity: sha512-YsytROnBYoPqtUcV2In+afyLACzxwFrYRn7EBKYL7XWl3XNwrT85U1+nLM5b+MOjXvg9YfJSjrs1Tlbfy4st8g==}
+  '@langchain/community@0.3.3':
+    resolution: {integrity: sha512-445g9hBeBNndNC8ruQIO/sNbHYBL3jjrPuDW+/S6e/RAXo8whJA/02CWRcSMDYX3o4+1Brrg6rFimipOuM9M9w==}
     engines: {node: '>=18'}
     peerDependencies:
       '@arcjet/redact': ^v1.0.0-alpha.23
@@ -1078,7 +1078,7 @@ packages:
       '@google-cloud/storage': ^6.10.1 || ^7.7.0
       '@gradientai/nodejs-sdk': ^1.2.0
       '@huggingface/inference': ^2.6.4
-      '@langchain/langgraph': '*'
+      '@langchain/core': '>=0.2.21 <0.4.0'
       '@layerup/layerup-security': ^1.5.12
       '@mendable/firecrawl-js': ^0.0.13
       '@mlc-ai/web-llm': '*'
@@ -1101,7 +1101,7 @@ packages:
       '@tensorflow-models/universal-sentence-encoder': '*'
       '@tensorflow/tfjs-converter': '*'
       '@tensorflow/tfjs-core': '*'
-      '@upstash/ratelimit': ^1.1.3
+      '@upstash/ratelimit': ^1.1.3 || ^2.0.3
       '@upstash/redis': ^1.20.6
       '@upstash/vector': ^1.1.1
       '@vercel/kv': ^0.2.3
@@ -1158,6 +1158,7 @@ packages:
       playwright: ^1.32.1
       portkey-ai: ^0.1.11
       puppeteer: '*'
+      pyodide: '>=0.24.1 <0.27.0'
       redis: '*'
       replicate: ^0.29.4
       sonix-speech-recognition: ^2.1.1
@@ -1226,8 +1227,6 @@ packages:
       '@gradientai/nodejs-sdk':
         optional: true
       '@huggingface/inference':
-        optional: true
-      '@langchain/langgraph':
         optional: true
       '@layerup/layerup-security':
         optional: true
@@ -1386,6 +1385,8 @@ packages:
       portkey-ai:
         optional: true
       puppeteer:
+        optional: true
+      pyodide:
         optional: true
       redis:
         optional: true
@@ -8273,7 +8274,7 @@ snapshots:
   '@js-sdsl/ordered-map@4.4.2':
     optional: true
 
-  '@langchain/community@0.2.33(@google-cloud/storage@7.16.0(encoding@0.1.13))(@pinecone-database/pinecone@3.0.3)(crypto-js@4.2.0)(encoding@0.1.13)(fast-xml-parser@4.5.3)(firebase-admin@13.4.0(encoding@0.1.13))(google-auth-library@9.15.1(encoding@0.1.13))(ignore@5.3.2)(jsdom@20.0.3)(jsonwebtoken@9.0.2)(lodash@4.17.21)(openai@4.100.0(encoding@0.1.13)(ws@8.18.2)(zod@3.25.7))(pdf-parse@1.1.1)(ws@8.18.2)':
+  '@langchain/community@0.3.3(@google-cloud/storage@7.16.0(encoding@0.1.13))(@langchain/core@0.2.36(openai@4.100.0(encoding@0.1.13)(ws@8.18.2)(zod@3.25.7)))(@pinecone-database/pinecone@3.0.3)(crypto-js@4.2.0)(encoding@0.1.13)(fast-xml-parser@4.5.3)(firebase-admin@13.4.0(encoding@0.1.13))(google-auth-library@9.15.1(encoding@0.1.13))(ignore@5.3.2)(jsdom@20.0.3)(jsonwebtoken@9.0.2)(lodash@4.17.21)(openai@4.100.0(encoding@0.1.13)(ws@8.18.2)(zod@3.25.7))(pdf-parse@1.1.1)(ws@8.18.2)':
     dependencies:
       '@langchain/core': 0.2.36(openai@4.100.0(encoding@0.1.13)(ws@8.18.2)(zod@3.25.7))
       '@langchain/openai': 0.2.11(encoding@0.1.13)(ws@8.18.2)
@@ -8314,7 +8315,6 @@ snapshots:
       - handlebars
       - openai
       - peggy
-      - pyodide
 
   '@langchain/core@0.2.36(openai@4.100.0(encoding@0.1.13)(ws@8.18.2)(zod@3.25.7))':
     dependencies:

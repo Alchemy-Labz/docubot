@@ -27,7 +27,7 @@
     "@firebase/firestore": "^4.7.14",
     "@firebase/storage": "^0.13.10",
     "@heroicons/react": "^2.2.0",
-    "@langchain/community": "^0.2.33",
+    "@langchain/community": "^0.3.3",
     "@langchain/core": "^0.2.36",
     "@langchain/openai": "^0.2.11",
     "@langchain/pinecone": "^0.0.8",
