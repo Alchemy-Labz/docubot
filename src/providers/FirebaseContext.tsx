@@ -1,4 +1,4 @@
-// src/contexts/FirebaseContext.tsx - Improved version
+// src/providers/FirebaseContext.tsx - Fixed version
 'use client';
 
 import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
@@ -68,38 +68,46 @@ export const FirebaseProvider: React.FC<FirebaseProviderProps> = ({ children }) 
         );
       }
 
-      const response = await fetch('/api/firebase-token', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId: clerkUser.id }),
-      });
+      // Make sure we wait for the token fetch to complete
+      try {
+        console.log('Fetching Firebase token for user:', clerkUser.id);
+        const response = await fetch('/api/firebase-token', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ userId: clerkUser.id }),
+        });
 
-      if (!response.ok) {
-        throw new Error(`Token refresh failed: ${response.status}`);
+        if (!response.ok) {
+          throw new Error(`Token refresh failed: ${response.status}`);
+        }
+
+        const data = await response.json();
+
+        if (!data.firebaseToken) {
+          throw new Error('No Firebase token received');
+        }
+
+        // Sign in with the token
+        const credential = await signInWithCustomToken(auth, data.firebaseToken);
+
+        // Calculate token expiry using app constants
+        const tokenExpiry = new Date(Date.now() + FIREBASE_CONFIG.TOKEN_SAFETY_MARGIN);
+
+        setState((prev) => ({
+          ...prev,
+          user: credential.user,
+          isAuthenticated: true,
+          isLoading: false,
+          token: data.firebaseToken,
+          tokenExpiry,
+          error: null,
+        }));
+
+        console.log('🔥 Firebase authentication successful');
+      } catch (tokenError) {
+        console.error('Token fetch/signin error:', tokenError);
+        throw tokenError; // Re-throw to be caught by the outer try/catch
       }
-
-      const data = await response.json();
-
-      if (!data.firebaseToken) {
-        throw new Error('No Firebase token received');
-      }
-
-      const credential = await signInWithCustomToken(auth, data.firebaseToken);
-
-      // Calculate token expiry using app constants
-      const tokenExpiry = new Date(Date.now() + FIREBASE_CONFIG.TOKEN_SAFETY_MARGIN);
-
-      setState((prev) => ({
-        ...prev,
-        user: credential.user,
-        isAuthenticated: true,
-        isLoading: false,
-        token: data.firebaseToken,
-        tokenExpiry,
-        error: null,
-      }));
-
-      console.log('🔥 Firebase authentication successful');
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Authentication failed';
       setState((prev) => ({
@@ -125,8 +133,14 @@ export const FirebaseProvider: React.FC<FirebaseProviderProps> = ({ children }) 
 
   // Initial authentication
   const authenticate = useCallback(async (): Promise<void> => {
+    if (!clerkUser?.id) {
+      setState((prev) => ({ ...prev, isLoading: false }));
+      return;
+    }
+
+    console.log('Starting authentication for user:', clerkUser.id);
     await refreshToken();
-  }, [refreshToken]);
+  }, [clerkUser?.id, refreshToken]);
 
   // Sign out
   const signOut = useCallback(async (): Promise<void> => {
@@ -147,32 +161,49 @@ export const FirebaseProvider: React.FC<FirebaseProviderProps> = ({ children }) 
     // Only proceed if Clerk has finished loading
     if (!isClerkLoaded) return;
 
-    if (clerkUser?.id && !state.isAuthenticated && !state.isLoading) {
+    // If there's a Clerk user but not authenticated in Firebase yet
+    if (clerkUser?.id && !state.isAuthenticated) {
+      console.log('Clerk user detected, beginning authentication flow');
       // Add a small delay to ensure webhook has time to process
       const timer = setTimeout(() => {
         authenticate();
-      }, 500);
+      }, 800); // Increased delay for better reliability
       return () => clearTimeout(timer);
     } else if (!clerkUser?.id && state.isAuthenticated) {
       // Clerk user logged out, clear Firebase state
+      console.log('Clerk user logged out, clearing Firebase state');
       setState({
         ...INITIAL_STATE,
         isLoading: false,
       });
     } else if (!clerkUser?.id && !state.isAuthenticated) {
       // No user at all
+      console.log('No user detected, setting loading to false');
       setState((prev) => ({ ...prev, isLoading: false }));
     }
-  }, [clerkUser?.id, state.isAuthenticated, state.isLoading, authenticate, isClerkLoaded]);
+  }, [clerkUser?.id, state.isAuthenticated, authenticate, isClerkLoaded]);
 
   // Listen to Firebase auth state changes
   useEffect(() => {
+    console.log('Setting up Firebase auth state listener');
     const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
-      if (!firebaseUser && state.isAuthenticated) {
+      if (firebaseUser) {
+        console.log('Firebase auth state updated: User is signed in');
+        if (!state.isAuthenticated) {
+          setState((prev) => ({
+            ...prev,
+            isAuthenticated: true,
+            isLoading: false,
+            user: firebaseUser,
+          }));
+        }
+      } else if (state.isAuthenticated) {
+        console.log('Firebase auth state updated: User is signed out');
         // Firebase user signed out but our state thinks we're authenticated
         setState((prev) => ({
           ...prev,
           isAuthenticated: false,
+          isLoading: false,
           user: null,
           token: null,
           tokenExpiry: null,
@@ -191,10 +222,12 @@ export const FirebaseProvider: React.FC<FirebaseProviderProps> = ({ children }) 
       state.tokenExpiry.getTime() - Date.now() - FIREBASE_CONFIG.TOKEN_REFRESH_BUFFER;
 
     if (timeUntilRefresh <= 0) {
+      console.log('Token expired or about to expire, refreshing...');
       refreshToken();
       return;
     }
 
+    console.log(`Setting up token refresh in ${timeUntilRefresh}ms`);
     const refreshTimer = setTimeout(() => {
       refreshToken();
     }, timeUntilRefresh);
