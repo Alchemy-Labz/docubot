@@ -68,8 +68,8 @@ export default function SignUpPage() {
             <SignUp.Root
               routing='path'
               path='/sign-up'
-              afterSignUpUrl='/dashboard'
-              redirectUrl='/dashboard'
+              // afterSignUpUrl='/dashboard'
+              // redirectUrl='/dashboard'
             >
               <Clerk.Loading>
                 {(isGlobalLoading) => (
