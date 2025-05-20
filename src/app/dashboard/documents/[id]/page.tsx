@@ -9,7 +9,7 @@ interface DocumentPageProps {
 }
 
 const DocumentPage = async ({ params: { id } }: DocumentPageProps) => {
-  auth().protect();
+  auth.protect();
   const { userId } = await auth();
 
   try {

@@ -15,7 +15,7 @@ export const maxDuration = async () => {
 
 export async function askQuestion(id: string, question: string) {
   try {
-    auth().protect();
+    auth.protect();
     const { userId } = await auth();
 
     if (!userId) {

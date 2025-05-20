@@ -7,11 +7,21 @@ import { revalidatePath } from 'next/cache';
 import { PINECONE_CONFIG, ERROR_MESSAGES } from '@/lib/constants/appConstants';
 
 export async function deleteDocument(docId: string) {
-  auth().protect();
+  auth.protect();
   const { userId } = await auth();
   if (!userId) {
     throw new Error(ERROR_MESSAGES.UNAUTHORIZED);
   }
+
+  // Get user's subscription status
+  const userDoc = await adminDb.collection('users').doc(userId).get();
+  const hasActiveMembership = userDoc.data()?.hasActiveMembership ?? false;
+  
+  // Check if user has Pro subscription
+  if (!hasActiveMembership) {
+    throw new Error("Deleting documents requires a Pro subscription");
+  }
+  
   await adminDb.collection('users').doc(userId!).collection('files').doc(docId).delete();
 
   await adminStorage

@@ -9,7 +9,7 @@ import { ERROR_MESSAGES } from '@/lib/constants/appConstants';
 
 export async function createStripePortal() {
   // Protect the endpoint
-  auth().protect();
+  auth.protect();
 
   // Get the authenticated user ID
   const { userId } = await auth();

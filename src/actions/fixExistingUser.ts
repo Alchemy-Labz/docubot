@@ -13,7 +13,7 @@ import { FIREBASE_CONFIG } from '@/lib/constants/appConstants';
 export async function fixExistingUser() {
   try {
     // Protect this route
-    auth().protect();
+    auth.protect();
     const { userId } = await auth();
 
     if (!userId) {

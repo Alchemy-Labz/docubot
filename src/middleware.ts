@@ -13,7 +13,7 @@ export default clerkMiddleware((auth, req) => {
     return;
   }
 
-  if (isProtectedRoute(req)) auth().protect();
+  if (isProtectedRoute(req)) auth.protect();
 });
 
 export const config = {
