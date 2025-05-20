@@ -48,7 +48,11 @@ export async function createCheckoutSession(userDetails: UserDetails) {
         quantity: 1,
       },
     ],
+    allow_promotion_codes: true,
     mode: 'subscription',
+    metadata: {
+      business_name: 'DocuBot',
+    },
     customer: stripecustomerId,
     // getBaseURL works and the function runs past here
     success_url: `${getBaseURL()}dashboard?upgrade=true`,
