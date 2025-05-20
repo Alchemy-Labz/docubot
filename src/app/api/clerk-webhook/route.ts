@@ -62,7 +62,7 @@ export async function POST(req: Request) {
     if (eventType === 'user.created' || eventType === 'user.updated') {
       userId = evt.data.id;
       console.log(`Webhook with an ID of ${userId} and type of ${eventType}`);
-    } else if (eventType === 'session.created') {
+    } else if (eventType === 'session.created' || eventType === 'session.removed') {
       userId = evt.data.user_id;
       console.log(`Webhook with an ID of ${userId} and type of ${eventType}`);
     }
