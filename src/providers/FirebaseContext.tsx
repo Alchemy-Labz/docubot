@@ -1,4 +1,4 @@
-// src/contexts/FirebaseContext.tsx
+// src/contexts/FirebaseContext.tsx - Improved version
 'use client';
 
 import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
@@ -9,6 +9,8 @@ import {
 } from '@firebase/auth';
 import { useUser } from '@clerk/nextjs';
 import { auth } from '@/lib/firebase/firebase';
+import { doc, getDoc, setDoc } from '@firebase/firestore';
+import { db } from '@/lib/firebase/firebase';
 import type {
   FirebaseAuthContextProps,
   FirebaseAuthState,
@@ -29,7 +31,7 @@ const INITIAL_STATE: FirebaseAuthState = {
 };
 
 export const FirebaseProvider: React.FC<FirebaseProviderProps> = ({ children }) => {
-  const { user: clerkUser } = useUser();
+  const { user: clerkUser, isLoaded: isClerkLoaded } = useUser();
   const [state, setState] = useState<FirebaseAuthState>(INITIAL_STATE);
 
   // Token refresh mechanism
@@ -41,6 +43,30 @@ export const FirebaseProvider: React.FC<FirebaseProviderProps> = ({ children }) 
 
     try {
       setState((prev) => ({ ...prev, isLoading: true, error: null }));
+
+      // Check if user exists in Firestore first
+      const userDocRef = doc(db, 'users', clerkUser.id);
+      const userDoc = await getDoc(userDocRef);
+
+      // If user doesn't exist in Firestore yet, we need to set up minimal data
+      // This acts as a fallback in case the webhook didn't trigger properly
+      if (!userDoc.exists()) {
+        console.log('User document not found in Firestore, creating minimal initialization');
+        // Set minimal data to prevent loading issues
+        await setDoc(
+          userDocRef,
+          {
+            hasActiveMembership: false,
+            email: clerkUser.primaryEmailAddress?.emailAddress || '',
+            name: clerkUser.fullName || '',
+            username: clerkUser.username || undefined, // Convert null to undefined
+            clerkId: clerkUser.id, // Explicitly include Clerk ID
+            createdAt: new Date(),
+            lastUpdated: new Date(),
+          },
+          { merge: true }
+        );
+      }
 
       const response = await fetch('/api/firebase-token', {
         method: 'POST',
@@ -86,8 +112,16 @@ export const FirebaseProvider: React.FC<FirebaseProviderProps> = ({ children }) 
         tokenExpiry: null,
       }));
       console.error('🔥 Firebase authentication error:', error);
+
+      // Show a toast to the user so they know something went wrong
+      toast.error('Authentication error. Please refresh the page or try again later.');
     }
-  }, [clerkUser?.id]);
+  }, [
+    clerkUser?.id,
+    clerkUser?.primaryEmailAddress?.emailAddress,
+    clerkUser?.fullName,
+    clerkUser?.username,
+  ]);
 
   // Initial authentication
   const authenticate = useCallback(async (): Promise<void> => {
@@ -110,8 +144,15 @@ export const FirebaseProvider: React.FC<FirebaseProviderProps> = ({ children }) 
 
   // Auto-authenticate when Clerk user becomes available
   useEffect(() => {
+    // Only proceed if Clerk has finished loading
+    if (!isClerkLoaded) return;
+
     if (clerkUser?.id && !state.isAuthenticated && !state.isLoading) {
-      authenticate();
+      // Add a small delay to ensure webhook has time to process
+      const timer = setTimeout(() => {
+        authenticate();
+      }, 500);
+      return () => clearTimeout(timer);
     } else if (!clerkUser?.id && state.isAuthenticated) {
       // Clerk user logged out, clear Firebase state
       setState({
@@ -122,7 +163,7 @@ export const FirebaseProvider: React.FC<FirebaseProviderProps> = ({ children }) 
       // No user at all
       setState((prev) => ({ ...prev, isLoading: false }));
     }
-  }, [clerkUser?.id, state.isAuthenticated, state.isLoading, authenticate]);
+  }, [clerkUser?.id, state.isAuthenticated, state.isLoading, authenticate, isClerkLoaded]);
 
   // Listen to Firebase auth state changes
   useEffect(() => {
