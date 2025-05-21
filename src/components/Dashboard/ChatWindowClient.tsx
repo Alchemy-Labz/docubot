@@ -158,12 +158,11 @@ const ChatWindowClient = ({ docId, userId, viewType = 'split' }: ChatWindowClien
     }
   };
 
-  // Get container classes based on view type - optimized for scrollbar position
+  // Get container classes based on view type - with right-aligned scrollbar
   const getContainerClasses = () => {
-    // Base classes with right-aligned scroll bar
-    const baseClasses = 'flex-1 overflow-y-auto py-4 pr-0 pl-1';
+    let baseClasses = 'flex-1 overflow-y-auto py-4 pr-0 pl-1';
 
-    // Adjustments based on view type
+    // Adjust width based on view type
     if (viewType === 'chat') {
       return `${baseClasses} w-full max-w-6xl mx-auto`;
     } else if (viewType === 'split') {
@@ -173,19 +172,9 @@ const ChatWindowClient = ({ docId, userId, viewType = 'split' }: ChatWindowClien
     }
   };
 
-  // Calculate extra spacing for messages based on view type
-  const getMessageExtraSpace = () => {
-    if (viewType === 'chat') {
-      return 'px-6';
-    } else if (viewType === 'split') {
-      return 'px-2';
-    }
-    return 'px-4';
-  };
-
   return (
     <div className='flex h-full flex-col bg-light-400/40 dark:bg-dark-800/40'>
-      {/* Chat Messages Container */}
+      {/* Chat Messages Container - with right-aligned scrollbar */}
       <div
         ref={chatContainerRef}
         className={getContainerClasses()}
@@ -200,7 +189,7 @@ const ChatWindowClient = ({ docId, userId, viewType = 'split' }: ChatWindowClien
           Chat conversation with DocuBot about your document. New messages will be announced.
         </div>
 
-        <div className={`space-y-4 ${getMessageExtraSpace()}`}>
+        <div className='space-y-4 px-2'>
           {loading || authLoading ? (
             <div
               className='flex h-full items-center justify-center py-12'

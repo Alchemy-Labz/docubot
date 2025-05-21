@@ -25,48 +25,46 @@ const ChatMessage = ({ message, viewType = 'split' }: ChatMessageProps) => {
     });
   };
 
-  // Get positioning classes based on viewType and sender
-  const getPositioningClasses = () => {
-    const classes = {
-      container: '',
-      wrapper: '',
-      bubble: '',
-    };
+  // Get container classes based on viewType and sender
+  const getContainerClasses = () => {
+    let containerClasses = 'mb-4 flex w-full ';
+    containerClasses += isHuman ? 'justify-end pr-1' : 'justify-start pl-1';
+    return containerClasses;
+  };
 
-    // Container classes - base positioning with extreme justification
-    classes.container = `mb-4 flex w-full ${isHuman ? 'justify-end' : 'justify-start'}`;
+  // Get message wrapper classes based on viewType
+  const getWrapperClasses = () => {
+    let wrapperClasses = 'flex ';
+    wrapperClasses += isHuman ? 'flex-row-reverse' : 'flex-row';
 
-    // Wrapper classes - width control and direction
-    classes.wrapper = `flex ${isHuman ? 'flex-row-reverse' : 'flex-row'}`;
-
-    // Different widths based on view type
+    // Adjust width based on view type
     if (viewType === 'chat') {
-      classes.wrapper += ' max-w-3xl'; // Very wide for chat view
+      wrapperClasses += ' max-w-3xl'; // Wider for chat view
     } else if (viewType === 'split') {
-      classes.wrapper += ' max-w-full w-11/12'; // Almost full width for split view
+      wrapperClasses += ' max-w-full w-11/12'; // Almost full width for split view
     } else {
-      classes.wrapper += ' max-w-2xl'; // Medium width for document view
+      wrapperClasses += ' max-w-2xl'; // Default
     }
 
-    // Message bubble styling with enhanced visuals
-    classes.bubble = `prose rounded-2xl p-4 shadow-md ${
+    return wrapperClasses;
+  };
+
+  // Get message bubble classes
+  const getBubbleClasses = () => {
+    return `chat-bubble prose rounded-2xl p-4 shadow-md ${
       isHuman
         ? 'rounded-br-none bg-dark-700/80 text-light-300 shadow-dark-900/20'
         : 'rounded-bl-none bg-light-800/70 text-light-300 shadow-dark-800/15'
     }`;
-
-    return classes;
   };
-
-  const classes = getPositioningClasses();
 
   return (
     <div
-      className={classes.container}
+      className={getContainerClasses()}
       role='group'
       aria-labelledby={`message-${message.id || 'temp'}-sender`}
     >
-      <div className={classes.wrapper}>
+      <div className={getWrapperClasses()}>
         {/* Avatar */}
         <div
           className={`chat-image-avatar flex items-end ${isHuman ? 'ml-2' : 'mr-2'}`}
@@ -99,7 +97,7 @@ const ChatMessage = ({ message, viewType = 'split' }: ChatMessageProps) => {
 
         {/* Message Content */}
         <div
-          className={classes.bubble}
+          className={getBubbleClasses()}
           role='article'
           aria-labelledby={`message-${message.id || 'temp'}-sender`}
           aria-describedby={`message-${message.id || 'temp'}-time`}

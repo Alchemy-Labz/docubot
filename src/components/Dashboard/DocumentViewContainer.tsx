@@ -1,8 +1,7 @@
 // src/components/Dashboard/DocumentViewContainer.tsx
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { useState, useEffect } from 'react';
 import PDFViewer from './PDFViewer';
 import TextDocumentViewer from './TextDocumentViewer';
 import ChatWindowClient from './ChatWindowClient';
@@ -37,7 +36,6 @@ const DocumentViewContainer = ({ id, userId, url, fileName }: DocumentViewContai
   const [loading, setLoading] = useState(true);
   const [isSwapped, setIsSwapped] = useState(false);
   const { isAuthenticated, isLoading: authLoading } = useFirebaseAuth();
-  const swapCountRef = useRef(0); // Use a ref to track swap operations
 
   // Fetch file type after authentication
   useEffect(() => {
@@ -87,12 +85,6 @@ const DocumentViewContainer = ({ id, userId, url, fileName }: DocumentViewContai
     }
   }, [currentView]);
 
-  // Handler for swap button click - increments counter for stable component keys
-  const handleSwapClick = () => {
-    setIsSwapped((prev) => !prev);
-    swapCountRef.current += 1;
-  };
-
   // Determine if we should use vertical layout (mobile/tablet)
   const useVerticalLayout = isMobile || isTablet;
 
@@ -127,33 +119,6 @@ const DocumentViewContainer = ({ id, userId, url, fileName }: DocumentViewContai
   // Render chat component
   const renderChatComponent = () => {
     return <ChatWindowClient docId={id} userId={userId} viewType={currentView} />;
-  };
-
-  // Define container styles based on current view
-  const getContainerStyles = (component: 'document' | 'chat') => {
-    // For document-only view
-    if (currentView === 'document' && component === 'document') {
-      return { width: '100%', height: '100%' };
-    }
-
-    // For chat-only view
-    if (currentView === 'chat' && component === 'chat') {
-      return { width: '100%', height: '100%' };
-    }
-
-    // For split view
-    if (currentView === 'split') {
-      if (!useVerticalLayout) {
-        // Horizontal split (desktop)
-        return { width: '50%', height: '100%' };
-      } else {
-        // Vertical split (mobile/tablet)
-        return { width: '100%', height: '50%' };
-      }
-    }
-
-    // Hidden component
-    return { width: '0%', height: '0%' };
   };
 
   return (
@@ -209,7 +174,7 @@ const DocumentViewContainer = ({ id, userId, url, fileName }: DocumentViewContai
               <Button
                 variant='outline'
                 size='sm'
-                onClick={handleSwapClick}
+                onClick={() => setIsSwapped(!isSwapped)}
                 aria-label={`Swap ${useVerticalLayout ? 'top and bottom' : 'left and right'} panels`}
                 className='flex items-center gap-1'
               >
@@ -225,80 +190,44 @@ const DocumentViewContainer = ({ id, userId, url, fileName }: DocumentViewContai
         </div>
       </div>
 
-      {/* Main Content Area - Using a simplified approach */}
-      <div
-        className={`relative flex flex-1 overflow-hidden ${useVerticalLayout ? 'flex-col' : 'flex-row'}`}
-      >
-        {/* Use direct rendering and positioning for more predictable behavior */}
-        <AnimatePresence initial={false}>
-          {/* First component (document or chat based on swap state) */}
-          <motion.div
-            key={`first-${swapCountRef.current}`}
-            className={`relative overflow-hidden`}
-            initial={false}
-            animate={
-              useVerticalLayout
-                ? {
-                    height: getContainerStyles(isSwapped ? 'chat' : 'document').height,
-                    width: '100%',
-                  }
-                : {
-                    width: getContainerStyles(isSwapped ? 'chat' : 'document').width,
-                    height: '100%',
-                  }
-            }
-            transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-            style={{
-              order: 0,
-              opacity:
-                (currentView === 'chat' && !isSwapped) || (currentView === 'document' && isSwapped)
-                  ? 0
-                  : 1,
-            }}
-          >
-            {isSwapped
-              ? (currentView === 'document' || currentView === 'split') && renderChatComponent()
-              : (currentView === 'document' || currentView === 'split') && renderDocumentViewer()}
-          </motion.div>
+      {/* Main Content Area - Simpler Layout */}
+      <div className='relative flex-1 overflow-hidden'>
+        {/* Using direct conditional rendering instead of component order logic */}
+        {currentView === 'chat' && <div className='h-full w-full'>{renderChatComponent()}</div>}
 
-          {/* Divider for split view */}
-          {currentView === 'split' && (
-            <div
-              className={`${useVerticalLayout ? 'h-1 w-full bg-border' : 'h-full w-1 bg-border'} flex-shrink-0`}
-              style={{ order: 1 }}
-            />
-          )}
+        {currentView === 'document' && (
+          <div className='h-full w-full'>{renderDocumentViewer()}</div>
+        )}
 
-          {/* Second component (chat or document based on swap state) */}
-          <motion.div
-            key={`second-${swapCountRef.current}`}
-            className={`relative overflow-hidden`}
-            initial={false}
-            animate={
-              useVerticalLayout
-                ? {
-                    height: getContainerStyles(isSwapped ? 'document' : 'chat').height,
-                    width: '100%',
-                  }
-                : {
-                    width: getContainerStyles(isSwapped ? 'document' : 'chat').width,
-                    height: '100%',
-                  }
-            }
-            transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-            style={{
-              order: 2,
-              opacity:
-                (currentView === 'chat' && isSwapped) || (currentView === 'document' && !isSwapped)
-                  ? 0
-                  : 1,
-            }}
-          >
-            {isSwapped
-              ? (currentView === 'document' || currentView === 'split') && renderDocumentViewer()
-              : (currentView === 'chat' || currentView === 'split') && renderChatComponent()}
-          </motion.div>
-        </AnimatePresence>
+        {currentView === 'split' && (
+          <div className={`flex h-full w-full ${useVerticalLayout ? 'flex-col' : 'flex-row'}`}>
+            {isSwapped ? (
+              <>
+                <div className={`${useVerticalLayout ? 'h-1/2' : 'w-1/2'}`}>
+                  {renderChatComponent()}
+                </div>
+                <div
+                  className={`${useVerticalLayout ? 'h-1 w-full' : 'h-full w-1'} flex-shrink-0 bg-border`}
+                />
+                <div className={`${useVerticalLayout ? 'h-1/2' : 'w-1/2'}`}>
+                  {renderDocumentViewer()}
+                </div>
+              </>
+            ) : (
+              <>
+                <div className={`${useVerticalLayout ? 'h-1/2' : 'w-1/2'}`}>
+                  {renderDocumentViewer()}
+                </div>
+                <div
+                  className={`${useVerticalLayout ? 'h-1 w-full' : 'h-full w-1'} flex-shrink-0 bg-border`}
+                />
+                <div className={`${useVerticalLayout ? 'h-1/2' : 'w-1/2'}`}>
+                  {renderChatComponent()}
+                </div>
+              </>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );
