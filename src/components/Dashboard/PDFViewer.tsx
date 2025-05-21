@@ -7,8 +7,17 @@ import 'react-pdf/dist/Page/TextLayer.css';
 import { Document, Page, pdfjs } from 'react-pdf';
 import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { ChevronLeft, ChevronRight, Loader2, RotateCw, ZoomIn, ZoomOut } from 'lucide-react';
+import {
+  ChevronLeft,
+  ChevronRight,
+  Loader2,
+  RotateCw,
+  ZoomIn,
+  ZoomOut,
+  Download,
+} from 'lucide-react';
 import { Input } from '../ui/input';
+import Link from 'next/link';
 import { ERROR_MESSAGES } from '@/lib/constants/appConstants';
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
@@ -188,6 +197,19 @@ const PDFViewer = ({ url, fileName = 'Document' }: PDFViewerProps) => {
             aria-label={`Zoom out. Current zoom: ${Math.round(scale * 100)}%`}
           >
             <ZoomOut className='h-4 w-4' aria-hidden='true' />
+          </Button>
+
+          {/* Download Button */}
+          <Button
+            asChild
+            variant='outline'
+            className='ml-1 flex items-center space-x-1'
+            aria-label={`Download ${fileName}`}
+          >
+            <Link href={url} download={fileName}>
+              <Download className='mr-1 h-4 w-4 md:mr-2' aria-hidden='true' />
+              <span className='hidden md:inline'>Download</span>
+            </Link>
           </Button>
         </div>
       </div>

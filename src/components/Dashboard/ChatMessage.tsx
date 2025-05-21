@@ -1,11 +1,17 @@
+// src/components/Dashboard/ChatMessage.tsx
 import React from 'react';
-import { Message } from './ChatWindow';
 import { useUser } from '@clerk/nextjs';
 import Image from 'next/image';
 import { BotMessageSquare } from 'lucide-react';
 import MarkdownRenderer from './Markdown';
+import { Message } from '@/models/types/chatTypes';
 
-const ChatMessage = ({ message }: { message: Message }) => {
+interface ChatMessageProps {
+  message: Message;
+  viewType?: 'split' | 'document' | 'chat';
+}
+
+const ChatMessage = ({ message, viewType = 'split' }: ChatMessageProps) => {
   const isHuman = message.role === 'human';
   const { user } = useUser();
 
@@ -19,13 +25,48 @@ const ChatMessage = ({ message }: { message: Message }) => {
     });
   };
 
+  // Get positioning classes based on viewType and sender
+  const getPositioningClasses = () => {
+    const classes = {
+      container: '',
+      wrapper: '',
+      bubble: '',
+    };
+
+    // Container classes - base positioning with extreme justification
+    classes.container = `mb-4 flex w-full ${isHuman ? 'justify-end' : 'justify-start'}`;
+
+    // Wrapper classes - width control and direction
+    classes.wrapper = `flex ${isHuman ? 'flex-row-reverse' : 'flex-row'}`;
+
+    // Different widths based on view type
+    if (viewType === 'chat') {
+      classes.wrapper += ' max-w-3xl'; // Very wide for chat view
+    } else if (viewType === 'split') {
+      classes.wrapper += ' max-w-full w-11/12'; // Almost full width for split view
+    } else {
+      classes.wrapper += ' max-w-2xl'; // Medium width for document view
+    }
+
+    // Message bubble styling with enhanced visuals
+    classes.bubble = `prose rounded-2xl p-4 shadow-md ${
+      isHuman
+        ? 'rounded-br-none bg-dark-700/80 text-light-300 shadow-dark-900/20'
+        : 'rounded-bl-none bg-light-800/70 text-light-300 shadow-dark-800/15'
+    }`;
+
+    return classes;
+  };
+
+  const classes = getPositioningClasses();
+
   return (
     <div
-      className={`chat mb-4 flex ${isHuman ? 'justify-end' : 'justify-start'}`}
+      className={classes.container}
       role='group'
       aria-labelledby={`message-${message.id || 'temp'}-sender`}
     >
-      <div className={`flex max-w-3xl ${isHuman ? 'flex-row-reverse' : 'flex-row'}`}>
+      <div className={classes.wrapper}>
         {/* Avatar */}
         <div
           className={`chat-image-avatar flex items-end ${isHuman ? 'ml-2' : 'mr-2'}`}
@@ -58,11 +99,7 @@ const ChatMessage = ({ message }: { message: Message }) => {
 
         {/* Message Content */}
         <div
-          className={`chat-bubble prose rounded-2xl p-4 ${
-            isHuman
-              ? 'rounded-br-none bg-dark-700/60 text-light-300'
-              : 'rounded-bl-none bg-light-800/60 text-light-300'
-          }`}
+          className={classes.bubble}
           role='article'
           aria-labelledby={`message-${message.id || 'temp'}-sender`}
           aria-describedby={`message-${message.id || 'temp'}-time`}

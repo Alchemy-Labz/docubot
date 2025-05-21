@@ -1,8 +1,8 @@
 // src/components/Dashboard/DocumentViewContainer.tsx
 'use client';
 
-import { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
+import { useState, useEffect, useRef } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import PDFViewer from './PDFViewer';
 import TextDocumentViewer from './TextDocumentViewer';
 import ChatWindowClient from './ChatWindowClient';
@@ -37,6 +37,7 @@ const DocumentViewContainer = ({ id, userId, url, fileName }: DocumentViewContai
   const [loading, setLoading] = useState(true);
   const [isSwapped, setIsSwapped] = useState(false);
   const { isAuthenticated, isLoading: authLoading } = useFirebaseAuth();
+  const swapCountRef = useRef(0); // Use a ref to track swap operations
 
   // Fetch file type after authentication
   useEffect(() => {
@@ -86,70 +87,14 @@ const DocumentViewContainer = ({ id, userId, url, fileName }: DocumentViewContai
     }
   }, [currentView]);
 
+  // Handler for swap button click - increments counter for stable component keys
+  const handleSwapClick = () => {
+    setIsSwapped((prev) => !prev);
+    swapCountRef.current += 1;
+  };
+
   // Determine if we should use vertical layout (mobile/tablet)
   const useVerticalLayout = isMobile || isTablet;
-
-  // Determine component order for split view
-  const getComponentOrder = () => {
-    if (!useVerticalLayout) {
-      // Desktop: left-right, swap means right-left
-      return isSwapped
-        ? { first: 'chat', second: 'document' }
-        : { first: 'document', second: 'chat' };
-    } else {
-      // Mobile/Tablet: top-bottom, swap means bottom-top
-      return isSwapped
-        ? { first: 'chat', second: 'document' }
-        : { first: 'document', second: 'chat' };
-    }
-  };
-
-  // Animation variants for different layouts
-  const getAnimationProps = (component: 'first' | 'second') => {
-    if (!useVerticalLayout) {
-      // Desktop horizontal layout
-      if (component === 'first') {
-        return {
-          initial: { width: currentView === 'split' ? '50%' : '100%', height: '100%' },
-          animate: {
-            width: currentView === 'document' ? '100%' : currentView === 'split' ? '50%' : '0%',
-            opacity: currentView === 'chat' ? 0 : 1,
-            x: isSwapped && currentView === 'split' ? '100%' : '0%',
-          },
-        };
-      } else {
-        return {
-          initial: { width: currentView === 'split' ? '50%' : '0%', height: '100%' },
-          animate: {
-            width: currentView === 'chat' ? '100%' : currentView === 'split' ? '50%' : '0%',
-            opacity: currentView === 'document' ? 0 : 1,
-            x: isSwapped && currentView === 'split' ? '-100%' : '0%',
-          },
-        };
-      }
-    } else {
-      // Mobile/Tablet vertical layout
-      if (component === 'first') {
-        return {
-          initial: { height: currentView === 'split' ? '50%' : '100%', width: '100%' },
-          animate: {
-            height: currentView === 'document' ? '100%' : currentView === 'split' ? '50%' : '0%',
-            opacity: currentView === 'chat' ? 0 : 1,
-            y: isSwapped && currentView === 'split' ? '100%' : '0%',
-          },
-        };
-      } else {
-        return {
-          initial: { height: currentView === 'split' ? '50%' : '0%', width: '100%' },
-          animate: {
-            height: currentView === 'chat' ? '100%' : currentView === 'split' ? '50%' : '0%',
-            opacity: currentView === 'document' ? 0 : 1,
-            y: isSwapped && currentView === 'split' ? '-100%' : '0%',
-          },
-        };
-      }
-    }
-  };
 
   // Render document viewer based on file type
   const renderDocumentViewer = () => {
@@ -179,7 +124,37 @@ const DocumentViewContainer = ({ id, userId, url, fileName }: DocumentViewContai
     return <PDFViewer url={url} fileName={fileName} />;
   };
 
-  const componentOrder = getComponentOrder();
+  // Render chat component
+  const renderChatComponent = () => {
+    return <ChatWindowClient docId={id} userId={userId} viewType={currentView} />;
+  };
+
+  // Define container styles based on current view
+  const getContainerStyles = (component: 'document' | 'chat') => {
+    // For document-only view
+    if (currentView === 'document' && component === 'document') {
+      return { width: '100%', height: '100%' };
+    }
+
+    // For chat-only view
+    if (currentView === 'chat' && component === 'chat') {
+      return { width: '100%', height: '100%' };
+    }
+
+    // For split view
+    if (currentView === 'split') {
+      if (!useVerticalLayout) {
+        // Horizontal split (desktop)
+        return { width: '50%', height: '100%' };
+      } else {
+        // Vertical split (mobile/tablet)
+        return { width: '100%', height: '50%' };
+      }
+    }
+
+    // Hidden component
+    return { width: '0%', height: '0%' };
+  };
 
   return (
     <div className='flex h-[calc(100vh-64px)] w-full flex-col'>
@@ -234,7 +209,7 @@ const DocumentViewContainer = ({ id, userId, url, fileName }: DocumentViewContai
               <Button
                 variant='outline'
                 size='sm'
-                onClick={() => setIsSwapped(!isSwapped)}
+                onClick={handleSwapClick}
                 aria-label={`Swap ${useVerticalLayout ? 'top and bottom' : 'left and right'} panels`}
                 className='flex items-center gap-1'
               >
@@ -250,54 +225,80 @@ const DocumentViewContainer = ({ id, userId, url, fileName }: DocumentViewContai
         </div>
       </div>
 
-      {/* Main Content Area */}
+      {/* Main Content Area - Using a simplified approach */}
       <div
         className={`relative flex flex-1 overflow-hidden ${useVerticalLayout ? 'flex-col' : 'flex-row'}`}
       >
-        {/* First Component (Document or Chat based on order) */}
-        <motion.div
-          className={`${useVerticalLayout ? 'w-full' : 'h-full'} relative overflow-hidden`}
-          {...getAnimationProps('first')}
-          transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-        >
-          {componentOrder.first === 'document' ? (
-            <div className='h-full w-full'>
-              {(currentView === 'document' || currentView === 'split') && renderDocumentViewer()}
-            </div>
-          ) : (
-            <div className='h-full w-full'>
-              {(currentView === 'chat' || currentView === 'split') && (
-                <ChatWindowClient docId={id} userId={userId} />
-              )}
-            </div>
-          )}
-        </motion.div>
+        {/* Use direct rendering and positioning for more predictable behavior */}
+        <AnimatePresence initial={false}>
+          {/* First component (document or chat based on swap state) */}
+          <motion.div
+            key={`first-${swapCountRef.current}`}
+            className={`relative overflow-hidden`}
+            initial={false}
+            animate={
+              useVerticalLayout
+                ? {
+                    height: getContainerStyles(isSwapped ? 'chat' : 'document').height,
+                    width: '100%',
+                  }
+                : {
+                    width: getContainerStyles(isSwapped ? 'chat' : 'document').width,
+                    height: '100%',
+                  }
+            }
+            transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+            style={{
+              order: 0,
+              opacity:
+                (currentView === 'chat' && !isSwapped) || (currentView === 'document' && isSwapped)
+                  ? 0
+                  : 1,
+            }}
+          >
+            {isSwapped
+              ? (currentView === 'document' || currentView === 'split') && renderChatComponent()
+              : (currentView === 'document' || currentView === 'split') && renderDocumentViewer()}
+          </motion.div>
 
-        {/* Divider for split view */}
-        {currentView === 'split' && (
-          <div
-            className={`${useVerticalLayout ? 'h-1 w-full bg-border' : 'h-full w-1 bg-border'} flex-shrink-0`}
-          />
-        )}
-
-        {/* Second Component (Chat or Document based on order) */}
-        <motion.div
-          className={`${useVerticalLayout ? 'w-full' : 'h-full'} relative overflow-hidden`}
-          {...getAnimationProps('second')}
-          transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-        >
-          {componentOrder.second === 'document' ? (
-            <div className='h-full w-full'>
-              {(currentView === 'document' || currentView === 'split') && renderDocumentViewer()}
-            </div>
-          ) : (
-            <div className='h-full w-full'>
-              {(currentView === 'chat' || currentView === 'split') && (
-                <ChatWindowClient docId={id} userId={userId} />
-              )}
-            </div>
+          {/* Divider for split view */}
+          {currentView === 'split' && (
+            <div
+              className={`${useVerticalLayout ? 'h-1 w-full bg-border' : 'h-full w-1 bg-border'} flex-shrink-0`}
+              style={{ order: 1 }}
+            />
           )}
-        </motion.div>
+
+          {/* Second component (chat or document based on swap state) */}
+          <motion.div
+            key={`second-${swapCountRef.current}`}
+            className={`relative overflow-hidden`}
+            initial={false}
+            animate={
+              useVerticalLayout
+                ? {
+                    height: getContainerStyles(isSwapped ? 'document' : 'chat').height,
+                    width: '100%',
+                  }
+                : {
+                    width: getContainerStyles(isSwapped ? 'document' : 'chat').width,
+                    height: '100%',
+                  }
+            }
+            transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+            style={{
+              order: 2,
+              opacity:
+                (currentView === 'chat' && isSwapped) || (currentView === 'document' && !isSwapped)
+                  ? 0
+                  : 1,
+            }}
+          >
+            {isSwapped
+              ? (currentView === 'document' || currentView === 'split') && renderDocumentViewer()
+              : (currentView === 'chat' || currentView === 'split') && renderChatComponent()}
+          </motion.div>
+        </AnimatePresence>
       </div>
     </div>
   );

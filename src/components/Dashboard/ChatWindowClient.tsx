@@ -19,9 +19,10 @@ import { Message } from '@/models/types/chatTypes';
 interface ChatWindowClientProps {
   docId: string;
   userId: string; // This is the Clerk user ID passed from parent
+  viewType?: 'split' | 'document' | 'chat';
 }
 
-const ChatWindowClient = ({ docId, userId }: ChatWindowClientProps) => {
+const ChatWindowClient = ({ docId, userId, viewType = 'split' }: ChatWindowClientProps) => {
   const { user: clerkUser } = useUser();
   const { isAuthenticated, isLoading: authLoading } = useFirebaseAuth();
   const [messages, setMessages] = useState<Message[]>([]);
@@ -30,6 +31,7 @@ const ChatWindowClient = ({ docId, userId }: ChatWindowClientProps) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const bottomOfChatRef = useRef<HTMLDivElement>(null);
+  const chatContainerRef = useRef<HTMLDivElement>(null);
 
   // Set up listener for messages - use the passed userId (Clerk ID)
   useEffect(() => {
@@ -156,55 +158,126 @@ const ChatWindowClient = ({ docId, userId }: ChatWindowClientProps) => {
     }
   };
 
+  // Get container classes based on view type - optimized for scrollbar position
+  const getContainerClasses = () => {
+    // Base classes with right-aligned scroll bar
+    const baseClasses = 'flex-1 overflow-y-auto py-4 pr-0 pl-1';
+
+    // Adjustments based on view type
+    if (viewType === 'chat') {
+      return `${baseClasses} w-full max-w-6xl mx-auto`;
+    } else if (viewType === 'split') {
+      return `${baseClasses} w-full`;
+    } else {
+      return `${baseClasses} w-full max-w-5xl mx-auto`;
+    }
+  };
+
+  // Calculate extra spacing for messages based on view type
+  const getMessageExtraSpace = () => {
+    if (viewType === 'chat') {
+      return 'px-6';
+    } else if (viewType === 'split') {
+      return 'px-2';
+    }
+    return 'px-4';
+  };
+
   return (
     <div className='flex h-full flex-col bg-light-400/40 dark:bg-dark-800/40'>
-      <div className='mx-auto w-full max-w-3xl flex-1 space-y-4 overflow-y-auto p-4'>
-        {loading || authLoading ? (
-          <div className='flex h-full items-center justify-center'>
-            <Loader2 className='h-8 w-8 animate-spin text-accent' />
-          </div>
-        ) : error ? (
-          <div className='flex h-full flex-col items-center justify-center p-6 text-center text-destructive'>
-            <p className='mb-2 text-lg font-medium'>Error loading messages</p>
-            <p>{error}</p>
-          </div>
-        ) : messages.length === 0 ? (
-          <div className='flex h-full flex-col items-center justify-center p-6 text-center text-muted-foreground'>
-            <p className='mb-2 text-lg font-medium'>Chat with your document</p>
-            <p>Ask questions about your document and get AI-powered answers.</p>
-          </div>
-        ) : (
-          <>
-            {messages.map((message, index) => (
-              <ChatMessage key={message.id || index} message={message} />
-            ))}
-            <div ref={bottomOfChatRef} />
-          </>
-        )}
+      {/* Chat Messages Container */}
+      <div
+        ref={chatContainerRef}
+        className={getContainerClasses()}
+        role='log'
+        aria-label='Chat conversation'
+        aria-describedby='chat-description'
+        aria-live='polite'
+        aria-atomic='false'
+        style={{ scrollbarGutter: 'stable both-edges' }}
+      >
+        <div id='chat-description' className='sr-only'>
+          Chat conversation with DocuBot about your document. New messages will be announced.
+        </div>
+
+        <div className={`space-y-4 ${getMessageExtraSpace()}`}>
+          {loading || authLoading ? (
+            <div
+              className='flex h-full items-center justify-center py-12'
+              role='status'
+              aria-label='Loading chat messages'
+            >
+              <Loader2 className='h-8 w-8 animate-spin text-accent' aria-hidden='true' />
+              <span className='sr-only'>Loading chat messages...</span>
+            </div>
+          ) : error ? (
+            <div
+              className='flex h-full flex-col items-center justify-center p-6 text-center text-destructive'
+              role='alert'
+              aria-labelledby='error-title'
+            >
+              <h3 id='error-title' className='mb-2 text-lg font-medium'>
+                Error loading messages
+              </h3>
+              <p>{error}</p>
+            </div>
+          ) : messages.length === 0 ? (
+            <div
+              className='flex h-full flex-col items-center justify-center p-6 text-center text-muted-foreground'
+              role='status'
+              aria-labelledby='empty-chat-title'
+            >
+              <h3 id='empty-chat-title' className='mb-2 text-lg font-medium'>
+                Chat with your document
+              </h3>
+              <p>Ask questions about your document and get AI-powered answers.</p>
+            </div>
+          ) : (
+            <>
+              {messages.map((message, index) => (
+                <ChatMessage key={message.id || index} message={message} viewType={viewType} />
+              ))}
+              <div ref={bottomOfChatRef} aria-hidden='true' />
+            </>
+          )}
+        </div>
       </div>
 
+      {/* Chat Input Form */}
       <form
         onSubmit={handleSubmit}
         className='border-accent-200 dark:border-accent-700 border-t bg-light-600/40 p-4 dark:bg-dark-600/40'
       >
-        <div className='flex space-x-2'>
+        <div className='mx-auto flex max-w-6xl space-x-2'>
+          <label htmlFor='chat-input' className='sr-only'>
+            Type your question about the document
+          </label>
           <Input
+            id='chat-input'
             value={input}
             onChange={(e) => setInput(e.target.value)}
             placeholder={isAuthenticated ? 'Type your question...' : 'Connecting to database...'}
             className='flex-1 bg-light-500 dark:bg-dark-700/40'
             disabled={isSubmitting || !clerkUser || !isAuthenticated}
+            aria-describedby='chat-input-help'
+            autoComplete='off'
           />
+          <div id='chat-input-help' className='sr-only'>
+            Type your question about the document and press enter or click send to get an AI
+            response
+          </div>
+
           <Button
             type='submit'
             disabled={!input.trim() || isSubmitting || !clerkUser || !isAuthenticated}
             className='flex items-center justify-center bg-accent hover:bg-accent2'
           >
             {isSubmitting ? (
-              <Loader2 className='h-4 w-4 animate-spin' />
+              <Loader2 className='h-4 w-4 animate-spin' aria-hidden='true' />
             ) : (
-              <Send className='h-5 w-5' />
+              <Send className='h-5 w-5' aria-hidden='true' />
             )}
+            <span className='sr-only'>{isSubmitting ? 'Sending...' : 'Send'}</span>
           </Button>
         </div>
       </form>
