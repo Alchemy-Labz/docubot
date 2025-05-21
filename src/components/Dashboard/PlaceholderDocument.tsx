@@ -67,7 +67,7 @@ const PlaceholderDocument = ({ className = '' }: PlaceholderDocumentProps) => {
           </div>
           <div className='space-y-2'>
             <h3 className='text-lg font-semibold text-red-400'>File Limit Reached</h3>
-            <p className='max-w-xs text-sm text-dark-600 dark:text-light-400'>
+            <p className='max-w-xs text-sm text-dark-600 dark:text-light-400 text-wrap'>
               Upgrade to Pro to add unlimited documents and unlock premium features
             </p>
             <div className='mt-4 rounded-lg bg-accent/10 p-3'>
