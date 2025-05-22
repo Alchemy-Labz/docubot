@@ -3,7 +3,7 @@
 const nextConfig = {
   reactStrictMode: true,
   swcMinify: true,
-  trailingSlash: false, // Ensure no trailing slashes
+  trailingSlash: true,
   images: {
     remotePatterns: [
       {
@@ -23,22 +23,6 @@ const nextConfig = {
         hostname: 'source.unsplash.com',
       },
     ],
-  },
-  // Add redirects to handle webhook URLs consistently
-  async redirects() {
-    return [
-      // Redirect webhook URLs with trailing slash to without trailing slash
-      {
-        source: '/api/stripe-webhook/',
-        destination: '/api/stripe-webhook',
-        permanent: true,
-      },
-      {
-        source: '/api/clerk-webhook/',
-        destination: '/api/clerk-webhook',
-        permanent: true,
-      },
-    ];
   },
   // These could cause issue may remove
   typescript: {

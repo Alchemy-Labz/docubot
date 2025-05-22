@@ -1,19 +1,60 @@
+// src/middleware.ts
 import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server';
+import { NextResponse } from 'next/server';
 
-// This example protects all routes including api/trpc routes
-// Please edit this to allow other routes to be public as needed.
-// See https://clerk.com/docs/references/nextjs/auth-middleware for more information about configuring your Middleware
+const isProtectedRoute = createRouteMatcher([
+  '/dashboard(.*)',
+  '/admin(.*)',
+  '/settings(.*)',
+  '/upload(.*)',
+]);
 
-const isProtectedRoute = createRouteMatcher(['/dashboard(.*)']);
-const isWebhookRoute = createRouteMatcher(['/api/stripe-webhook', '/api/clerk-webhook']);
+const isPublicRoute = createRouteMatcher([
+  '/',
+  '/sign-in(.*)',
+  '/sign-up(.*)',
+  '/about(.*)',
+  '/pricing(.*)',
+  '/roadmap(.*)',
+  '/help-center(.*)',
+  '/contact(.*)',
+  '/policies(.*)',
+  '/api/webhook(.*)',
+  '/api/health(.*)',
+]);
 
-export default clerkMiddleware((auth, req) => {
-  // Skip authentication for webhook routes
-  if (isWebhookRoute(req)) {
-    return;
+export default clerkMiddleware(async (auth, req) => {
+  try {
+    // Allow public routes to pass through without authentication
+    if (isPublicRoute(req)) {
+      return NextResponse.next();
+    }
+
+    // Protect all other routes
+    if (isProtectedRoute(req)) {
+      const { userId } = await auth();
+
+      if (!userId) {
+        // Redirect to sign-in page if not authenticated
+        const signInUrl = new URL('/sign-in', req.url);
+        signInUrl.searchParams.set('redirect_url', req.url);
+        return NextResponse.redirect(signInUrl);
+      }
+    }
+
+    return NextResponse.next();
+  } catch (error) {
+    console.error('Middleware error:', error);
+
+    // If there's an error and it's a protected route, redirect to sign-in
+    if (isProtectedRoute(req)) {
+      const signInUrl = new URL('/sign-in', req.url);
+      return NextResponse.redirect(signInUrl);
+    }
+
+    // For public routes, let them continue even if there's an auth error
+    return NextResponse.next();
   }
-
-  if (isProtectedRoute(req)) auth.protect();
 });
 
 export const config = {

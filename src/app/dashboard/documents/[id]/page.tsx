@@ -5,12 +5,15 @@ import { auth } from '@clerk/nextjs/server';
 import { notFound } from 'next/navigation';
 
 interface DocumentPageProps {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }
 
-const DocumentPage = async ({ params: { id } }: DocumentPageProps) => {
+const DocumentPage = async ({ params }: DocumentPageProps) => {
   auth.protect();
   const { userId } = await auth();
+
+  // Await the params since they're now async in Next.js 15
+  const { id } = await params;
 
   try {
     const docRef = await adminDb

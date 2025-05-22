@@ -17,8 +17,16 @@ import {
 
 export default function ModeToggle() {
   const { setTheme, theme } = useTheme();
+  const [mounted, setMounted] = React.useState(false);
+
+  // useEffect only runs on the client, so now we can safely show the UI
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const getThemeLabel = (currentTheme: string | undefined) => {
+    if (!mounted) return 'Toggle theme';
+
     switch (currentTheme) {
       case 'light':
         return 'Light theme active';
@@ -27,9 +35,19 @@ export default function ModeToggle() {
       case 'system':
         return 'System theme active';
       default:
-        return 'Theme selector';
+        return 'Toggle theme';
     }
   };
+
+  // Prevent hydration mismatch by not rendering theme-dependent content until mounted
+  if (!mounted) {
+    return (
+      <Button variant='default' size='icon' aria-label='Toggle theme' suppressHydrationWarning>
+        <MdOutlineWbSunny className='h-[1.2rem] w-[1.2rem]' aria-hidden='true' />
+        <span className='sr-only'>Toggle theme</span>
+      </Button>
+    );
+  }
 
   return (
     <DropdownMenu>

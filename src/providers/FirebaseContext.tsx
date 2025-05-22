@@ -1,258 +1,90 @@
-// src/providers/FirebaseContext.tsx - Fixed version
+// src/providers/FirebaseContext.tsx
 'use client';
 
-import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
-import {
-  signInWithCustomToken,
-  signOut as firebaseSignOut,
-  onAuthStateChanged,
-} from '@firebase/auth';
-import { useUser } from '@clerk/nextjs';
+import React, { createContext, useContext, useEffect, useState, useRef } from 'react';
+import { User, onAuthStateChanged } from 'firebase/auth';
 import { auth } from '@/lib/firebase/firebase';
-import { doc, getDoc, setDoc } from '@firebase/firestore';
-import { db } from '@/lib/firebase/firebase';
-import type {
-  FirebaseAuthContextProps,
-  FirebaseAuthState,
-  FirebaseProviderProps,
-} from '@/models/types/firebaseTypes';
-import toast from 'react-hot-toast';
-import { FIREBASE_CONFIG } from '@/lib/constants/appConstants';
 
-const FirebaseAuthContext = createContext<FirebaseAuthContextProps | null>(null);
+interface FirebaseContextType {
+  user: User | null;
+  loading: boolean;
+}
 
-const INITIAL_STATE: FirebaseAuthState = {
+const FirebaseContext = createContext<FirebaseContextType>({
   user: null,
-  isAuthenticated: false,
-  isLoading: true,
-  error: null,
-  token: null,
-  tokenExpiry: null,
-};
+  loading: true,
+});
 
-export const FirebaseProvider: React.FC<FirebaseProviderProps> = ({ children }) => {
-  const { user: clerkUser, isLoaded: isClerkLoaded } = useUser();
-  const [state, setState] = useState<FirebaseAuthState>(INITIAL_STATE);
-
-  // Token refresh mechanism
-  const refreshToken = useCallback(async (): Promise<void> => {
-    if (!clerkUser?.id) {
-      setState((prev) => ({ ...prev, error: 'No Clerk user available', isLoading: false }));
-      return;
-    }
-
-    try {
-      setState((prev) => ({ ...prev, isLoading: true, error: null }));
-
-      // Check if user exists in Firestore first
-      const userDocRef = doc(db, 'users', clerkUser.id);
-      const userDoc = await getDoc(userDocRef);
-
-      // If user doesn't exist in Firestore yet, we need to set up minimal data
-      // This acts as a fallback in case the webhook didn't trigger properly
-      if (!userDoc.exists()) {
-        console.log('User document not found in Firestore, creating minimal initialization');
-        // Set minimal data to prevent loading issues
-        await setDoc(
-          userDocRef,
-          {
-            hasActiveMembership: false,
-            email: clerkUser.primaryEmailAddress?.emailAddress || '',
-            name: clerkUser.fullName || '',
-            username: clerkUser.username || undefined, // Convert null to undefined
-            clerkId: clerkUser.id, // Explicitly include Clerk ID
-            createdAt: new Date(),
-            lastUpdated: new Date(),
-          },
-          { merge: true }
-        );
-      }
-
-      // Make sure we wait for the token fetch to complete
-      try {
-        console.log('Fetching Firebase token for user:', clerkUser.id);
-        const response = await fetch('/api/firebase-token', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ userId: clerkUser.id }),
-        });
-
-        if (!response.ok) {
-          throw new Error(`Token refresh failed: ${response.status}`);
-        }
-
-        const data = await response.json();
-
-        if (!data.firebaseToken) {
-          throw new Error('No Firebase token received');
-        }
-
-        // Sign in with the token
-        const credential = await signInWithCustomToken(auth, data.firebaseToken);
-
-        // Calculate token expiry using app constants
-        const tokenExpiry = new Date(Date.now() + FIREBASE_CONFIG.TOKEN_SAFETY_MARGIN);
-
-        setState((prev) => ({
-          ...prev,
-          user: credential.user,
-          isAuthenticated: true,
-          isLoading: false,
-          token: data.firebaseToken,
-          tokenExpiry,
-          error: null,
-        }));
-
-        console.log('🔥 Firebase authentication successful');
-      } catch (tokenError) {
-        console.error('Token fetch/signin error:', tokenError);
-        throw tokenError; // Re-throw to be caught by the outer try/catch
-      }
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Authentication failed';
-      setState((prev) => ({
-        ...prev,
-        isLoading: false,
-        error: errorMessage,
-        isAuthenticated: false,
-        user: null,
-        token: null,
-        tokenExpiry: null,
-      }));
-      console.error('🔥 Firebase authentication error:', error);
-
-      // Show a toast to the user so they know something went wrong
-      toast.error('Authentication error. Please refresh the page or try again later.');
-    }
-  }, [
-    clerkUser?.id,
-    clerkUser?.primaryEmailAddress?.emailAddress,
-    clerkUser?.fullName,
-    clerkUser?.username,
-  ]);
-
-  // Initial authentication
-  const authenticate = useCallback(async (): Promise<void> => {
-    if (!clerkUser?.id) {
-      setState((prev) => ({ ...prev, isLoading: false }));
-      return;
-    }
-
-    console.log('Starting authentication for user:', clerkUser.id);
-    await refreshToken();
-  }, [clerkUser?.id, refreshToken]);
-
-  // Sign out
-  const signOut = useCallback(async (): Promise<void> => {
-    try {
-      await firebaseSignOut(auth);
-      setState({
-        ...INITIAL_STATE,
-        isLoading: false,
-      });
-    } catch (error) {
-      console.error('Error signing out:', error);
-      toast.error('Error signing out');
-    }
-  }, []);
-
-  // Auto-authenticate when Clerk user becomes available
-  useEffect(() => {
-    // Only proceed if Clerk has finished loading
-    if (!isClerkLoaded) return;
-
-    // If there's a Clerk user but not authenticated in Firebase yet
-    if (clerkUser?.id && !state.isAuthenticated) {
-      console.log('Clerk user detected, beginning authentication flow');
-      // Add a small delay to ensure webhook has time to process
-      const timer = setTimeout(() => {
-        authenticate();
-      }, 800); // Increased delay for better reliability
-      return () => clearTimeout(timer);
-    } else if (!clerkUser?.id && state.isAuthenticated) {
-      // Clerk user logged out, clear Firebase state
-      console.log('Clerk user logged out, clearing Firebase state');
-      setState({
-        ...INITIAL_STATE,
-        isLoading: false,
-      });
-    } else if (!clerkUser?.id && !state.isAuthenticated) {
-      // No user at all
-      console.log('No user detected, setting loading to false');
-      setState((prev) => ({ ...prev, isLoading: false }));
-    }
-  }, [clerkUser?.id, state.isAuthenticated, authenticate, isClerkLoaded]);
-
-  // Listen to Firebase auth state changes
-  useEffect(() => {
-    console.log('Setting up Firebase auth state listener');
-    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
-      if (firebaseUser) {
-        console.log('Firebase auth state updated: User is signed in');
-        if (!state.isAuthenticated) {
-          setState((prev) => ({
-            ...prev,
-            isAuthenticated: true,
-            isLoading: false,
-            user: firebaseUser,
-          }));
-        }
-      } else if (state.isAuthenticated) {
-        console.log('Firebase auth state updated: User is signed out');
-        // Firebase user signed out but our state thinks we're authenticated
-        setState((prev) => ({
-          ...prev,
-          isAuthenticated: false,
-          isLoading: false,
-          user: null,
-          token: null,
-          tokenExpiry: null,
-        }));
-      }
-    });
-
-    return unsubscribe;
-  }, [state.isAuthenticated]);
-
-  // Auto token refresh
-  useEffect(() => {
-    if (!state.tokenExpiry || !state.isAuthenticated) return;
-
-    const timeUntilRefresh =
-      state.tokenExpiry.getTime() - Date.now() - FIREBASE_CONFIG.TOKEN_REFRESH_BUFFER;
-
-    if (timeUntilRefresh <= 0) {
-      console.log('Token expired or about to expire, refreshing...');
-      refreshToken();
-      return;
-    }
-
-    console.log(`Setting up token refresh in ${timeUntilRefresh}ms`);
-    const refreshTimer = setTimeout(() => {
-      refreshToken();
-    }, timeUntilRefresh);
-
-    return () => clearTimeout(refreshTimer);
-  }, [state.tokenExpiry, state.isAuthenticated, refreshToken]);
-
-  const contextValue: FirebaseAuthContextProps = {
-    ...state,
-    authenticate,
-    signOut,
-    refreshToken,
-  };
-
-  return (
-    <FirebaseAuthContext.Provider value={contextValue}>{children}</FirebaseAuthContext.Provider>
-  );
-};
-
-export const useFirebaseAuth = (): FirebaseAuthContextProps => {
-  const context = useContext(FirebaseAuthContext);
-  if (!context) {
+export const useFirebaseAuth = () => {
+  const context = useContext(FirebaseContext);
+  if (context === undefined) {
     throw new Error('useFirebaseAuth must be used within a FirebaseProvider');
   }
   return context;
 };
 
-export default FirebaseProvider;
+interface FirebaseProviderProps {
+  children: React.ReactNode;
+}
+
+export const FirebaseProvider: React.FC<FirebaseProviderProps> = ({ children }) => {
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [mounted, setMounted] = useState(false);
+  const unsubscribeRef = useRef<(() => void) | null>(null);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (!mounted) return;
+
+    // Prevent multiple listeners
+    if (unsubscribeRef.current) {
+      return;
+    }
+
+    console.log('Setting up Firebase auth state listener');
+
+    const unsubscribe = onAuthStateChanged(
+      auth,
+      (authUser) => {
+        console.log('Firebase auth state updated: User is', authUser ? 'signed in' : 'signed out');
+        setUser(authUser);
+        setLoading(false);
+      },
+      (error) => {
+        console.error('Firebase auth error:', error);
+        setUser(null);
+        setLoading(false);
+      }
+    );
+
+    unsubscribeRef.current = unsubscribe;
+
+    return () => {
+      if (unsubscribeRef.current) {
+        console.log('Cleaning up Firebase auth state listener');
+        unsubscribeRef.current();
+        unsubscribeRef.current = null;
+      }
+    };
+  }, [mounted]);
+
+  // Don't render the auth-dependent content until mounted to prevent hydration issues
+  if (!mounted) {
+    return (
+      <FirebaseContext.Provider value={{ user: null, loading: true }}>
+        <div suppressHydrationWarning>{children}</div>
+      </FirebaseContext.Provider>
+    );
+  }
+
+  const value: FirebaseContextType = {
+    user,
+    loading,
+  };
+
+  return <FirebaseContext.Provider value={value}>{children}</FirebaseContext.Provider>;
+};
