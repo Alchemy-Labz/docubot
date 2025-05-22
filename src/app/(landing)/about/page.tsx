@@ -76,13 +76,15 @@ const AboutPage: React.FC = () => {
             </div>
           </motion.div>
         </div>
-
         {/* Curved separator */}
-        <div className='absolute bottom-0 left-0 right-0'>
+        {/* Curved separator */}{' '}
+        <div className='absolute bottom-0 left-0 right-0 w-full overflow-hidden'>
           <svg
             xmlns='http://www.w3.org/2000/svg'
             viewBox='0 0 1440 64'
-            className='h-16 w-full fill-light-400/30 dark:fill-dark-700/30'
+            className='h-16 w-screen fill-light-400/30 dark:fill-dark-700/30'
+            preserveAspectRatio='none'
+            aria-hidden='true'
           >
             <path d='M0,32L60,37.3C120,43,240,53,360,53.3C480,53,600,43,720,37.3C840,32,960,32,1080,37.3C1200,43,1320,53,1380,58.7L1440,64L1440,64L1380,64C1320,64,1200,64,1080,64C960,64,840,64,720,64C600,64,480,64,360,64C240,64,120,64,60,64L0,64Z' />
           </svg>
