@@ -1,6 +1,6 @@
 import React from 'react';
 import Footer from '@/components/Global/Footer';
-import { Book, FileQuestion, Users, MessageCircle } from 'lucide-react';
+import { Book, FileQuestion, Users, MessageCircle, BookOpen } from 'lucide-react';
 import Link from 'next/link';
 
 const HelpCenterPage: React.FC = () => {
@@ -9,25 +9,25 @@ const HelpCenterPage: React.FC = () => {
       title: 'User Guide',
       icon: Book,
       description: 'Learn how to use PDF Chatter effectively',
-      url: 'help-center/user-guide',
+      url: '/help-center/user-guide',
     },
     {
       title: 'FAQs',
       icon: FileQuestion,
       description: 'Find answers to commonly asked questions',
-      url: 'help-center/faq',
+      url: '/help-center/faq',
     },
     {
-      title: 'Discord Community',
-      icon: Users,
-      description: 'Connect with other users and share tips',
-      url: 'https://discord.gg/mWvD5HHfTz',
+      title: 'Documentation',
+      icon: BookOpen,
+      description: 'Browse our User Documentation',
+      url: '/help-center/documentation'
     },
     {
       title: 'Contact Support',
       icon: MessageCircle,
       description: 'Get in touch with our support team',
-      url: 'help-center/support',
+      url: '/help-center/support',
     },
   ];
 
@@ -56,6 +56,21 @@ const HelpCenterPage: React.FC = () => {
                   <p className='text-dark-600 dark:text-light-400'>{category.description}</p>
                 </Link>
               ))}
+
+
+
+            </div>
+            <div className='mt-8 flex justify-center'>
+              <Link
+                href='https://discord.gg/mWvD5HHfTz'
+                className='rounded-lg bg-indigo-500/20 p-8 shadow-lg shadow-dark-900/30 ring-1 ring-indigo-500/80 drop-shadow-md dark:bg-indigo-900/30 dark:ring-indigo-400/80 w-96'
+              >
+                <Users className='mb-4 h-8 w-8 text-indigo-500' />
+                <h3 className='mb-2 text-xl font-semibold text-dark-800 dark:text-light-300'>
+                  Discord Community
+                </h3>
+                <p className='text-dark-600 dark:text-light-400'>Connect with other users and share tips</p>
+              </Link>
             </div>
           </div>
         </div>
