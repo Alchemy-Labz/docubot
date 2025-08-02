@@ -162,33 +162,33 @@ const LandingPage = () => {
               </p>
             </div>
           </div>
-          <div className='mx-auto grid max-w-5xl grid-cols-1 gap-6 py-12 md:grid-cols-3 lg:gap-12'>
-            <div className='flex flex-col items-center space-y-2 rounded-lg border border-accent2/60 bg-light-500/70 p-6 shadow-xl dark:border-accent/40 dark:bg-dark-700/85'>
+            <div className='mx-auto grid max-w-5xl grid-cols-1 gap-6 py-12 md:grid-cols-3 lg:gap-12'>
+              <div className='flex flex-col items-center space-y-2 rounded-lg border border-accent2/60 bg-light-500/70 p-6 shadow-xl dark:border-accent/40 dark:bg-dark-700/85'>
               <Rocket className='h-12 w-12 text-accent dark:text-accent4' />
-              <h3 className='text-xl font-bold text-dark-800 dark:text-light-200'>1. Upload</h3>
+              <h3 className='text-xl font-bold text-dark-800 dark:text-light-200'>1. Upload & Ingest</h3>
               <p className='text-center text-dark-700 dark:text-light-300'>
-                Securely upload your PDF documents to DocuBot&apos;s platform
+                Securely upload your PDF documents to DocuBot. Each document is automatically split, parsed, and converted into vector embeddings for fast, intelligent retrieval.
               </p>
-            </div>
-            <div className='flex flex-col items-center space-y-2 rounded-lg border border-accent2/60 bg-light-500/70 p-6 shadow-xl dark:border-accent/40 dark:bg-dark-700/85'>
+              </div>
+              <div className='flex flex-col items-center space-y-2 rounded-lg border border-accent2/60 bg-light-500/70 p-6 shadow-xl dark:border-accent/40 dark:bg-dark-700/85'>
               <Puzzle className='h-12 w-12 text-accent2 dark:text-accent' />
               <h3 className='text-xl font-bold text-dark-800 dark:text-light-200'>
-                2. AI Analysis
+                2. RAG & Reranking
               </h3>
               <p className='text-center text-dark-700 dark:text-light-300'>
-                Our AI analyzes and understands your document content using vector embeddings
+                DocuBot uses Retrieval-Augmented Generation (RAG) and Pinecone-powered results reranking to find the most relevant information from your documents.
               </p>
-            </div>
-            <div className='flex flex-col items-center space-y-2 rounded-lg border border-accent2/60 bg-light-500/70 p-6 shadow-xl dark:border-accent/40 dark:bg-dark-700/85'>
+              </div>
+              <div className='flex flex-col items-center space-y-2 rounded-lg border border-accent2/60 bg-light-500/70 p-6 shadow-xl dark:border-accent/40 dark:bg-dark-700/85'>
               <Zap className='h-12 w-12 text-accent dark:text-accent4' />
               <h3 className='text-xl font-bold text-dark-800 dark:text-light-200'>
-                3. Chat & Extract
+                3. Chat & Extract Insights
               </h3>
               <p className='text-center text-dark-700 dark:text-light-300'>
-                Ask questions and get accurate answers directly from your document content
+                Ask questions in natural language and receive instant, context-aware answers. Extract summaries, key facts, and actionable insights directly from your document content.
               </p>
+              </div>
             </div>
-          </div>
           <div className='flex justify-center'>
             <Button asChild size='lg' className='bg-accent2 text-light-100 hover:bg-accent'>
               <Link href='/dashboard'>Start Using DocuBot Now</Link>

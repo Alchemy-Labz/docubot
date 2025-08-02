@@ -2,7 +2,7 @@
   "features": [
     {
       "title": "Store and Chat with your PDFs & documents",
-      "description": "Store your documents and chat with them in real-time. Ask questions, perform data analysis, edit your documents, and more.",
+      "description": "Store your documents and chat with them in real-time. Supported file types: PDF, TXT, MD, JSON, RTF. Ask questions, perform data analysis, edit your documents, and more.",
       "icon": "FilePlus2"
     },
     {
