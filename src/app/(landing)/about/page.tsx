@@ -66,7 +66,7 @@ const AboutPage: React.FC = () => {
           >
             <div className='relative overflow-hidden rounded-2xl shadow-2xl'>
               <Image
-                src='/screencap.webp'
+                src='/screenshots/Markdown Chat.png'
                 alt='DocuBot interface'
                 width={1600}
                 height={800}

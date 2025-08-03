@@ -100,3 +100,29 @@ body.dark {
 .cl-button {
   color: #ecf0f1;
 }
+
+@keyframes banner-scroll {
+  0% {
+    transform: translateY(0);
+  }
+  33.33% {
+    transform: translateY(0);
+  }
+  36.66% {
+    transform: translateY(-2rem); /* -32px (h-8) */
+  }
+  66.66% {
+    transform: translateY(-2rem);
+  }
+  69.99% {
+    transform: translateY(-4rem); /* -64px (2 * h-8) */
+  }
+  100% {
+    transform: translateY(-4rem);
+  }
+}
+
+.animate-banner-scroll {
+  animation: banner-scroll 12s infinite;
+  /* 2 seconds per message, 3 messages = 6 seconds total */
+}

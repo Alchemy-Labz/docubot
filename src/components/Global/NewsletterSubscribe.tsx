@@ -1,12 +1,26 @@
 'use client';
 import { useState } from 'react';
 
+
 const NewsletterSubscribe = () => {
   const [email, setEmail] = useState('');
-
-  const handleSubmit = (e: React.FormEvent) => {
+  // Remove direct API key usage on client for security and CORS reasons
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Add your subscription logic here
+    try {
+      // Call your own backend API route to handle Beehiiv subscription
+      const res = await fetch('/api/newsletter-subscribe', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email }),
+      });
+      const data = await res.json();
+      console.log('Subscription response:', data);
+    } catch (err) {
+      console.error('Subscription error:', err);
+    }
     console.log('Subscribed with email:', email);
   };
 

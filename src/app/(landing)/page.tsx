@@ -59,24 +59,56 @@ const LandingPage = () => {
     <div className='flex flex-col items-center overflow-x-auto bg-gradient-to-br from-accent2/40 to-accent/40 dark:from-accent3/30 dark:to-accent4/30'>
       {/* Hero Section */}
       <section className='relative w-full py-12 md:py-24 md:pl-8 lg:py-32'>
-        <div className='container flex max-w-7xl flex-col items-center justify-center space-y-4 px-4 md:px-6'>
-          <div className='grid gap-6 lg:grid-cols-2 lg:gap-12 xl:gap-16'>
+        <div className='container flex max-w-[1400px] flex-col items-center justify-center space-y-4 px-4 md:px-6'>
+          <div className='grid gap-3 lg:grid-cols-2 lg:gap-6 xl:gap-8'>
             <div className='flex flex-col justify-center space-y-4'>
               <div className='flex items-center space-x-2 overflow-hidden'>
                 <div className='rounded bg-accent px-2 py-1 text-sm font-bold text-light-100'>
                   NEW
                 </div>
-                <div className='relative h-8 w-full'>
-                  <div className='animate-banner-scroll absolute'>
+                <div className='relative h-8 w-full overflow-hidden'>
+                  <div className='animate-banner-scroll absolute w-full'>
                     <div className='flex h-8 items-center whitespace-nowrap text-dark-700 dark:text-light-300'>
                       Enhanced Document Support
                     </div>
                     <div className='flex h-8 items-center whitespace-nowrap text-dark-700 dark:text-light-300'>
                       Multi-language Support Added
                     </div>
-                    {/* <div className='h-8 flex items-center whitespace-nowrap text-dark-700 dark:text-light-300'>Advanced Search Capabilities</div> */}
+                    <div className='flex h-8 items-center whitespace-nowrap text-dark-700 dark:text-light-300'>
+                      Advanced Search Reranking
+                    </div>
                   </div>
                 </div>
+              </div>
+              <div className='flex w-full justify-start'>
+                <Link
+                  href='https://www.producthunt.com/products/docubot-2?embed=true&utm_source=badge-featured&utm_medium=badge&utm_source=badge-docubot&#0045;2'
+                  target='_blank'
+                  className='group'
+                  aria-label='View DocuBot on Product Hunt'
+                >
+                  <div className='flex flex-col items-start gap-2 rounded-lg border border-accent2/60 bg-light-500 px-3 py-2 shadow-md transition hover:shadow-xl dark:border-accent/40 dark:bg-dark-600 sm:flex-row sm:items-center sm:gap-3 sm:py-1'>
+                    <span className='whitespace-nowrap text-sm font-semibold text-accent2 dark:text-accent'>
+                      Discount Code on Product Hunt
+                    </span>
+                    <Image
+                      src='https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=996701&theme=light&t=1754161931882'
+                      alt='DocuBot on Product Hunt'
+                      width={200}
+                      height={42}
+                      className='block rounded-lg border border-accent/60 dark:hidden'
+                      style={{ filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.08))' }}
+                    />
+                    <Image
+                      src='https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=996701&theme=dark&t=1754161931882'
+                      alt='DocuBot on Product Hunt'
+                      width={200}
+                      height={42}
+                      className='hidden rounded-lg border border-accent2/60 dark:block'
+                      style={{ filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.18))' }}
+                    />
+                  </div>
+                </Link>
               </div>
               <div className='space-y-2'>
                 <h1 className='text-4xl font-bold tracking-tighter text-gradient-lime-violet sm:text-5xl md:text-6xl'>
@@ -116,15 +148,13 @@ const LandingPage = () => {
               </div>
             </div>
             <div className='flex items-center justify-center'>
-              <div className='relative flex h-[350px] w-[350px] items-center justify-center rounded-full bg-gradient-to-b from-accent/20 to-accent2/20 p-4 sm:h-[375px] sm:w-[375px]'>
-                <Image
-                  src='/logo.png'
-                  alt='DocuBot'
-                  width={300}
-                  height={300}
-                  className='rounded-full'
-                />
-              </div>
+              <Image
+                src='/screenshots/Tailwind.png'
+                alt='DocuBot'
+                width={900}
+                height={650}
+                className='flex h-auto max-w-full object-cover'
+              />
             </div>
           </div>
         </div>
@@ -162,33 +192,40 @@ const LandingPage = () => {
               </p>
             </div>
           </div>
-            <div className='mx-auto grid max-w-5xl grid-cols-1 gap-6 py-12 md:grid-cols-3 lg:gap-12'>
-              <div className='flex flex-col items-center space-y-2 rounded-lg border border-accent2/60 bg-light-500/70 p-6 shadow-xl dark:border-accent/40 dark:bg-dark-700/85'>
+          <div className='mx-auto grid max-w-5xl grid-cols-1 gap-6 py-12 md:grid-cols-3 lg:gap-12'>
+            <div className='flex flex-col items-center space-y-2 rounded-lg border border-accent2/60 bg-light-500/70 p-6 shadow-xl dark:border-accent/40 dark:bg-dark-700/85'>
               <Rocket className='h-12 w-12 text-accent dark:text-accent4' />
-              <h3 className='text-xl font-bold text-dark-800 dark:text-light-200'>1. Upload & Ingest</h3>
+              <h3 className='text-xl font-bold text-dark-800 dark:text-light-200'>
+                1. Upload & Ingest
+              </h3>
               <p className='text-center text-dark-700 dark:text-light-300'>
-                Securely upload your PDF documents to DocuBot. Each document is automatically split, parsed, and converted into vector embeddings for fast, intelligent retrieval.
+                Securely upload your PDF documents to DocuBot. Each document is automatically
+                split, parsed, and converted into vector embeddings for fast, intelligent
+                retrieval.
               </p>
-              </div>
-              <div className='flex flex-col items-center space-y-2 rounded-lg border border-accent2/60 bg-light-500/70 p-6 shadow-xl dark:border-accent/40 dark:bg-dark-700/85'>
+            </div>
+            <div className='flex flex-col items-center space-y-2 rounded-lg border border-accent2/60 bg-light-500/70 p-6 shadow-xl dark:border-accent/40 dark:bg-dark-700/85'>
               <Puzzle className='h-12 w-12 text-accent2 dark:text-accent' />
               <h3 className='text-xl font-bold text-dark-800 dark:text-light-200'>
                 2. RAG & Reranking
               </h3>
               <p className='text-center text-dark-700 dark:text-light-300'>
-                DocuBot uses Retrieval-Augmented Generation (RAG) and Pinecone-powered results reranking to find the most relevant information from your documents.
+                DocuBot uses Retrieval-Augmented Generation (RAG) and Pinecone-powered results
+                reranking to find the most relevant information from your documents.
               </p>
-              </div>
-              <div className='flex flex-col items-center space-y-2 rounded-lg border border-accent2/60 bg-light-500/70 p-6 shadow-xl dark:border-accent/40 dark:bg-dark-700/85'>
+            </div>
+            <div className='flex flex-col items-center space-y-2 rounded-lg border border-accent2/60 bg-light-500/70 p-6 shadow-xl dark:border-accent/40 dark:bg-dark-700/85'>
               <Zap className='h-12 w-12 text-accent dark:text-accent4' />
               <h3 className='text-xl font-bold text-dark-800 dark:text-light-200'>
                 3. Chat & Extract Insights
               </h3>
               <p className='text-center text-dark-700 dark:text-light-300'>
-                Ask questions in natural language and receive instant, context-aware answers. Extract summaries, key facts, and actionable insights directly from your document content.
+                Ask questions in natural language and receive instant, context-aware answers.
+                Extract summaries, key facts, and actionable insights directly from your document
+                content.
               </p>
-              </div>
             </div>
+          </div>
           <div className='flex justify-center'>
             <Button asChild size='lg' className='bg-accent2 text-light-100 hover:bg-accent'>
               <Link href='/dashboard'>Start Using DocuBot Now</Link>
@@ -350,7 +387,7 @@ const LandingPage = () => {
                 <h3 className='text-xl font-bold text-dark-800 dark:text-light-200'>Pro</h3>
               </div>
               <div className='mb-4'>
-                <span className='text-3xl font-bold text-dark-800 dark:text-light-200'>$7.99</span>
+                <span className='text-3xl font-bold text-dark-800 dark:text-light-200'>$9.99</span>
                 <span className='text-dark-600 dark:text-light-400'>/month</span>
               </div>
               <ul className='mb-6 flex flex-col gap-2'>

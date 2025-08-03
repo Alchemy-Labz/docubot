@@ -16,6 +16,38 @@ const Footer = () => {
           <div className='space-y-2'>
             <h3 className='text-lg font-bold'>DocuBot</h3>
             <ul className='space-y-2'>
+              <li>
+                <a
+                  href='https://docubot.indiereq.com/'
+                  target='_blank'
+                  rel='noopener noreferrer'
+                  className='border-primary-600 text-primary-700 hover:bg-primary-50 hover:border-primary-700 dark:text-primary-400 dark:border-primary-400 inline-flex items-center gap-2 rounded-md border bg-white px-3 py-1 text-sm font-medium shadow-sm transition-colors dark:bg-dark-800'
+                  aria-label='Request a feature on IndieReq'
+                >
+                  <svg width='32' height='32' viewBox='0 0 24 24' fill='none' aria-hidden='true'>
+                    <polygon points='12,5 21,21 3,21' fill='currentColor' />
+                    <rect
+                      x='11'
+                      y='11'
+                      width='2'
+                      height='6'
+                      rx='1'
+                      fill='#fff'
+                      className='dark:fill-black'
+                    />
+                    <rect
+                      x='11'
+                      y='18'
+                      width='2'
+                      height='2'
+                      rx='1'
+                      fill='#fff'
+                      className='dark:fill-black'
+                    />
+                  </svg>
+                  Request a Feature
+                </a>
+              </li>
               {/* <li>
               <Link href='/desktop-app'>Desktop app</Link>
               </li>
@@ -36,7 +68,55 @@ const Footer = () => {
                 <Link href='/help-center' className='hover:text-primary-600 transition-colors'>
                   Help center
                 </Link>
+                <ul className='mt-2 space-y-1 text-sm font-light text-dark-500 dark:text-light-500'>
+                  <li>
+                    <Link
+                      href='/help-center/documentation'
+                      className='hover:text-primary-600 transition-colors'
+                    >
+                      Documentation
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      href='/help-center/faq'
+                      className='hover:text-primary-600 transition-colors'
+                    >
+                      FAQs
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      href='/help-center/user-guide'
+                      className='hover:text-primary-600 transition-colors'
+                    >
+                      User Guide
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      href='/help-center/support'
+                      className='hover:text-primary-600 transition-colors'
+                    >
+                      Contact Support
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      href='https://docubot.indiereq.com/'
+                      className='hover:text-primary-600 transition-colors'
+                    >
+                      Report a Bug
+                    </Link>
+                  </li>
+                </ul>
               </li>
+            </ul>
+          </div>
+          {/* Legal Links */}
+          <div className='space-y-2'>
+            <h3 className='text-lg font-bold'>Legal</h3>
+            <ul className='space-y-2'>
               <li>
                 <Link
                   href='/policies/privacy'
@@ -50,12 +130,12 @@ const Footer = () => {
                   href='/policies/cookies'
                   className='hover:text-primary-600 transition-colors'
                 >
-                  Cookie policy
+                  Cookie Policy
                 </Link>
               </li>
               <li>
                 <Link href='/policies/terms' className='hover:text-primary-600 transition-colors'>
-                  Terms of service
+                  Terms of Service
                 </Link>
               </li>
             </ul>
@@ -71,16 +151,16 @@ const Footer = () => {
                 </Link>
               </li>
               <li>
+                <Link href='/jobs'>Jobs</Link>
+              </li>
+              <li>
+                <Link href='/investor-relations'>Investor relations</Link>
+              </li>
+              <li>
                 <Link href='/contact' className='hover:text-primary-600 transition-colors'>
                   Contact Us
                 </Link>
               </li>
-              {/* <li>
-              <Link href='/jobs'>Jobs</Link>
-              </li>
-              <li>
-              <Link href='/investor-relations'>Investor relations</Link>
-              </li> */}
             </ul>
           </div>
         </div>
