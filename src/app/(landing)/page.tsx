@@ -84,7 +84,7 @@ const LandingPage = () => {
                 </h1>
                 <p className='max-w-[600px] text-dark-700 dark:text-light-300 md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed'>
                   Upload your documents and let DocuBot answer all your questions using advanced
-                  AI. Get instant insights without reading hundreds of pages.
+                  AI with RAG Re-Ranking. Get instant insights using natural language without reading hundreds of pages.
                 </p>
               </div>
               <div className='flex flex-col gap-2 min-[400px]:flex-row'>
