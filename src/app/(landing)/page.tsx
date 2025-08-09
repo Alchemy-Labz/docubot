@@ -1,10 +1,13 @@
 // app/page.tsx or app/landing-page/page.tsx (depending on your routing preference)
+import React, { useState, useEffect } from 'react';
 import FeatureCards from '@/components/Cards/FeatureCards';
 import Footer from '@/components/Global/Footer';
 import { Button } from '@/components/ui/button';
 import {
   ChevronRight,
   Rocket,
+  ChevronLeft,
+  Quote,
   Star,
   Puzzle,
   Zap,
@@ -17,51 +20,16 @@ import {
 } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
-
-// Helper components
-const CheckIcon = ({ className }: { className?: string }) => (
-  <svg
-    xmlns='http://www.w3.org/2000/svg'
-    className={className}
-    viewBox='0 0 24 24'
-    fill='none'
-    stroke='currentColor'
-    strokeWidth='2'
-    strokeLinecap='round'
-    strokeLinejoin='round'
-    aria-hidden='true'
-  >
-    <polyline points='20 6 9 17 4 12' />
-  </svg>
-);
-
-const PackageIcon = ({ className }: { className?: string }) => (
-  <svg
-    xmlns='http://www.w3.org/2000/svg'
-    className={className}
-    viewBox='0 0 24 24'
-    fill='none'
-    stroke='currentColor'
-    strokeWidth='2'
-    strokeLinecap='round'
-    strokeLinejoin='round'
-    aria-hidden='true'
-  >
-    <path d='M16.5 9.4l-9-5.19' />
-    <path d='M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z' />
-    <polyline points='3.27 6.96 12 12.01 20.73 6.96' />
-    <line x1='12' y1='22.08' x2='12' y2='12' />
-  </svg>
-);
+import TestimonialsCarousel from '@/components/Landing/Testimonials';
 
 const LandingPage = () => {
   return (
     <div className='flex flex-col items-center overflow-x-auto bg-gradient-to-br from-accent2/40 to-accent/40 dark:from-accent3/30 dark:to-accent4/30'>
       {/* Hero Section */}
-      <section className='relative w-full py-12 md:py-24 md:pl-8 lg:py-32'>
-        <div className='container flex max-w-[1400px] flex-col items-center justify-center space-y-4 px-4 md:px-6'>
+      <section className='relative w-full py-12 md:py-18 md:pl-8 lg:py-24'>
+        <div className='container flex max-w-[1500px] flex-col items-center justify-center space-y-4 px-4 md:px-6'>
           <div className='grid gap-3 lg:grid-cols-2 lg:gap-6 xl:gap-8'>
-            <div className='flex flex-col justify-center space-y-4'>
+            <div className='flex max-w-xl flex-col justify-center space-y-4'>
               <div className='flex items-center space-x-2 overflow-hidden'>
                 <div className='rounded bg-accent px-2 py-1 text-sm font-bold text-light-100'>
                   NEW
@@ -151,8 +119,8 @@ const LandingPage = () => {
               <Image
                 src='/screenshots/Tailwind.png'
                 alt='DocuBot'
-                width={900}
-                height={650}
+                width={1200}
+                height={720}
                 className='flex h-auto max-w-full object-cover'
               />
             </div>
@@ -172,10 +140,32 @@ const LandingPage = () => {
         </div>
       </section>
 
+      {/* Feature card section */}
+      <section className='w-full bg-light-500/70 py-12 dark:bg-dark-800/70 md:py-18 lg:py-24'>
+        <div className='mx-auto max-w-7xl space-y-4 px-4 sm:px-6 lg:px-8'>
+          <div className='mx-auto flex w-64 items-center justify-center rounded-lg bg-accent px-3 py-1 text-sm text-light-100'>
+            AI-Powered Document Analysis
+          </div>
+          <div className='space-y-4 text-center'>
+            <h2 className='text-3xl font-bold tracking-tight text-dark-800 dark:text-light-200 sm:text-4xl'>
+              Powerful Features
+            </h2>
+            <p className='mx-auto mt-4 max-w-2xl text-lg text-dark-700 dark:text-light-300'>
+              Everything you need to extract knowledge from your documents
+            </p>
+          </div>
+
+          <FeatureCards />
+        </div>
+      </section>
+
+      {/* Testimonials */}
+      <TestimonialsCarousel />
+
       {/* Feature Highlights */}
       <section
         id='how-it-works'
-        className='w-full bg-light-500/70 py-12 dark:bg-dark-700/50 md:py-24 lg:py-32'
+        className='w-full bg-light-500/70 py-12 dark:bg-dark-700/50 md:py-18 lg:py-24'
       >
         <div className='container px-4 md:px-6'>
           <div className='flex flex-col items-center justify-center space-y-4 text-center'>
@@ -234,192 +224,8 @@ const LandingPage = () => {
         </div>
       </section>
 
-      {/* Product Showcase */}
-      <section className='w-full py-12 md:py-24 lg:py-32'>
-        <div className='container px-4 md:px-6'>
-          <div className='grid gap-6 lg:grid-cols-2 lg:gap-12'>
-            <div className='flex flex-col justify-center space-y-4'>
-              <div className='space-y-2'>
-                <h2 className='text-3xl font-bold tracking-tighter text-dark-800 dark:text-light-200 sm:text-4xl md:text-5xl'>
-                  See DocuBot in Action
-                </h2>
-                <p className='max-w-[600px] text-dark-700 dark:text-light-300 md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed'>
-                  Upload your PDFs and start asking questions. DocuBot will analyze your documents
-                  and provide accurate, context-aware answers instantly.
-                </p>
-              </div>
-              <ul className='grid gap-2'>
-                <li className='flex items-center gap-2'>
-                  <CheckIcon className='h-5 w-5 text-accent dark:text-accent4' />
-                  <span className='text-dark-700 dark:text-light-300'>
-                    Advanced document analysis with vector embeddings
-                  </span>
-                </li>
-                <li className='flex items-center gap-2'>
-                  <CheckIcon className='h-5 w-5 text-accent dark:text-accent4' />
-                  <span className='text-dark-700 dark:text-light-300'>
-                    Natural language conversation with your documents
-                  </span>
-                </li>
-                <li className='flex items-center gap-2'>
-                  <CheckIcon className='h-5 w-5 text-accent dark:text-accent4' />
-                  <span className='text-dark-700 dark:text-light-300'>
-                    Extract insights without reading hundreds of pages
-                  </span>
-                </li>
-                <li className='flex items-center gap-2'>
-                  <CheckIcon className='h-5 w-5 text-accent dark:text-accent4' />
-                  <span className='text-dark-700 dark:text-light-300'>
-                    Compatible with any PDF document type
-                  </span>
-                </li>
-              </ul>
-            </div>
-            <div className='relative rounded-xl border border-accent2/60 bg-light-500/70 p-2 shadow-xl dark:border-accent/40 dark:bg-dark-700/85'>
-              <Image
-                src='/screencap.webp'
-                alt='DocuBot interface screenshot'
-                width={900}
-                height={506}
-                className='rounded-lg shadow-lg'
-              />
-              {/* Play button overlay */}
-              <div className='absolute inset-0 flex items-center justify-center'>
-                <button
-                  className='cursor-pointer rounded-full bg-accent2/90 p-4 shadow-lg transition-transform hover:scale-105 dark:bg-accent/90'
-                  aria-label='Play demo video'
-                >
-                  <svg
-                    xmlns='http://www.w3.org/2000/svg'
-                    width='48'
-                    height='48'
-                    fill='none'
-                    viewBox='0 0 24 24'
-                    stroke='currentColor'
-                    className='text-light-100'
-                    aria-hidden='true'
-                  >
-                    <path
-                      strokeLinecap='round'
-                      strokeLinejoin='round'
-                      strokeWidth={2}
-                      d='M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z'
-                    />
-                    <path
-                      strokeLinecap='round'
-                      strokeLinejoin='round'
-                      strokeWidth={2}
-                      d='M21 12a9 9 0 11-18 0 9 9 0 0118 0z'
-                    />
-                  </svg>
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Feature card section */}
-      <section className='w-full bg-light-500/70 py-20 dark:bg-dark-800/70'>
-        <div className='mx-auto max-w-7xl px-4 sm:px-6 lg:px-8'>
-          <div className='mb-12 text-center'>
-            <h2 className='text-3xl font-bold tracking-tight text-dark-800 dark:text-light-200 sm:text-4xl'>
-              Powerful Features
-            </h2>
-            <p className='mx-auto mt-4 max-w-2xl text-lg text-dark-700 dark:text-light-300'>
-              Everything you need to extract knowledge from your documents
-            </p>
-          </div>
-
-          <FeatureCards />
-        </div>
-      </section>
-
-      {/* Pricing Section Teaser */}
-      <section className='w-full py-12 md:py-24 lg:py-32'>
-        <div className='container px-4 md:px-6'>
-          <div className='flex flex-col items-center justify-center space-y-4 text-center'>
-            <div className='space-y-2'>
-              <h2 className='text-3xl font-bold tracking-tighter text-dark-800 dark:text-light-200 sm:text-5xl'>
-                Simple, Transparent Pricing
-              </h2>
-              <p className='max-w-[900px] text-dark-700 dark:text-light-300 md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed'>
-                Start for free, upgrade when you need more power
-              </p>
-            </div>
-          </div>
-          <div className='mx-auto flex max-w-5xl flex-col gap-6 py-12 md:flex-row md:gap-12'>
-            <div className='flex flex-1 flex-col rounded-xl border border-accent2/60 bg-light-500/70 p-6 shadow-xl dark:border-accent/40 dark:bg-dark-700/85'>
-              <div className='mb-4 flex items-center gap-2'>
-                <div className='rounded-full bg-accent/10 p-2 text-accent dark:text-accent4'>
-                  <PackageIcon className='h-6 w-6' />
-                </div>
-                <h3 className='text-xl font-bold text-dark-800 dark:text-light-200'>Free</h3>
-              </div>
-              <div className='mb-4'>
-                <span className='text-3xl font-bold text-dark-800 dark:text-light-200'>$0</span>
-                <span className='text-dark-600 dark:text-light-400'>/month</span>
-              </div>
-              <ul className='mb-6 flex flex-col gap-2'>
-                <li className='flex items-center gap-2'>
-                  <CheckIcon className='h-5 w-5 text-accent dark:text-accent4' />
-                  <span className='text-dark-700 dark:text-light-300'>Up to 5 documents</span>
-                </li>
-                <li className='flex items-center gap-2'>
-                  <CheckIcon className='h-5 w-5 text-accent dark:text-accent4' />
-                  <span className='text-dark-700 dark:text-light-300'>
-                    3 messages per document
-                  </span>
-                </li>
-              </ul>
-              <Button asChild className='mt-auto bg-accent text-light-100 hover:bg-accent2'>
-                <Link href='/dashboard'>Get Started</Link>
-              </Button>
-            </div>
-            <div className='relative flex flex-1 flex-col rounded-xl border-2 border-accent bg-light-500/70 p-6 shadow-xl dark:border-accent dark:bg-dark-700/85'>
-              <div className='absolute -top-4 right-4 rounded-full bg-accent2 px-3 py-1 text-xs font-bold text-light-100 dark:bg-accent'>
-                MOST POPULAR
-              </div>
-              <div className='mb-4 flex items-center gap-2'>
-                <div className='rounded-full bg-accent2/10 p-2 text-accent2 dark:text-accent'>
-                  <Star className='h-6 w-6' />
-                </div>
-                <h3 className='text-xl font-bold text-dark-800 dark:text-light-200'>Pro</h3>
-              </div>
-              <div className='mb-4'>
-                <span className='text-3xl font-bold text-dark-800 dark:text-light-200'>$9.99</span>
-                <span className='text-dark-600 dark:text-light-400'>/month</span>
-              </div>
-              <ul className='mb-6 flex flex-col gap-2'>
-                <li className='flex items-center gap-2'>
-                  <CheckIcon className='h-5 w-5 text-accent2 dark:text-accent' />
-                  <span className='text-dark-700 dark:text-light-300'>Up to 12 documents</span>
-                </li>
-                <li className='flex items-center gap-2'>
-                  <CheckIcon className='h-5 w-5 text-accent2 dark:text-accent' />
-                  <span className='text-dark-700 dark:text-light-300'>
-                    15 messages per document
-                  </span>
-                </li>
-                <li className='flex items-center gap-2'>
-                  <CheckIcon className='h-5 w-5 text-accent2 dark:text-accent' />
-                  <span className='text-dark-700 dark:text-light-300'>Document deletion</span>
-                </li>
-                <li className='flex items-center gap-2'>
-                  <CheckIcon className='h-5 w-5 text-accent2 dark:text-accent' />
-                  <span className='text-dark-700 dark:text-light-300'>Priority support</span>
-                </li>
-              </ul>
-              <Button asChild className='mt-auto bg-accent2 text-light-100 hover:bg-accent'>
-                <Link href='/dashboard/upgrade'>Upgrade to Pro</Link>
-              </Button>
-            </div>
-          </div>
-        </div>
-      </section>
-
       {/* Key benefits section */}
-      <section className='w-full bg-light-200/30 py-20 dark:bg-dark-900/30'>
+      <section className='w-full bg-light-200/30 py-12 dark:bg-dark-900/30 md:py-18 lg:py-24'>
         <div className='mx-auto max-w-7xl px-4 sm:px-6 lg:px-8'>
           <div className='mb-16 text-center'>
             <h2 className='text-3xl font-bold tracking-tight text-dark-800 dark:text-light-200 sm:text-4xl'>
@@ -477,74 +283,8 @@ const LandingPage = () => {
         </div>
       </section>
 
-      {/* Testimonials */}
-      <section className='w-full bg-light-500/70 py-12 dark:bg-dark-700/50 md:py-24 lg:py-32'>
-        <div className='mx-auto max-w-7xl px-4 sm:px-6 lg:px-8'>
-          <div className='mb-14 flex flex-col items-center justify-center space-y-4 text-center'>
-            <div className='space-y-2'>
-              <h2 className='text-3xl font-bold tracking-tighter text-dark-800 dark:text-light-200 sm:text-5xl'>
-                What Our Users Say
-              </h2>
-              <p className='max-w-[900px] text-dark-700 dark:text-light-300 md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed'>
-                DocuBot is helping professionals across industries save time and gain insights
-              </p>
-            </div>
-          </div>
-
-          <div className='grid gap-8 md:grid-cols-3'>
-            {[
-              {
-                text: "Very effective way to quickly get important information from documents. An example use case for me was exporting 2 firewall configs, a working one and one that wasn't working, to quickly compare the differences",
-                author: 'George Watkins',
-                role: 'Systems Engineer',
-              },
-              {
-                text: "DocuBot has been a game-changer for my research work. I've been using it to analyze complex academic papers and research documents. The ability to quickly process and understand multiple papers simultaneously has completely transformed my workflow and research methodology",
-                author: 'Sarah Kincaid',
-                role: 'PhD Researcher',
-              },
-              {
-                text: "As a lawyer handling complex corporate cases, I deal with lengthy legal documents and contracts daily. DocuBot has revolutionized how I work by helping me extract specific clauses and legal terminology instantly. It's particularly useful when comparing multiple contract versions",
-                author: 'Michael Thackery',
-                role: 'Corporate Attorney',
-              },
-              {
-                text: "The ability to ask questions about my technical documentation has transformed our development process. My team now saves countless hours by quickly finding specific implementation details and troubleshooting information. It's like having an expert system administrator always available",
-                author: 'James Lockridge',
-                role: 'Technical Lead',
-              },
-            ].map((testimonial, index) => (
-              <div
-                key={index}
-                className='flex flex-col rounded-lg border border-l-2 border-accent2/60 bg-light-500/70 p-6 shadow-xl dark:border-l-2 dark:border-accent/40 dark:bg-dark-700/85'
-              >
-                <div className='flex-1'>
-                  <svg
-                    className='mb-4 h-8 w-8 text-accent2/60 dark:text-accent/60'
-                    fill='currentColor'
-                    viewBox='0 0 32 32'
-                    aria-hidden='true'
-                  >
-                    <path d='M9.352 4C4.456 7.456 1 13.12 1 19.36c0 5.088 3.072 8.064 6.624 8.064 3.36 0 5.856-2.688 5.856-5.856 0-3.168-2.208-5.472-5.088-5.472-.576 0-1.344.096-1.536.192.48-3.264 3.552-7.104 6.624-9.024L9.352 4zm16.512 0c-4.8 3.456-8.256 9.12-8.256 15.36 0 5.088 3.072 8.064 6.624 8.064 3.264 0 5.856-2.688 5.856-5.856 0-3.168-2.304-5.472-5.184-5.472-.576 0-1.248.096-1.44.192.48-3.264 3.456-7.104 6.528-9.024L25.864 4z' />
-                  </svg>
-                  <p className='text-dark-700 dark:text-light-300'>{testimonial.text}</p>
-                </div>
-                <div className='mt-6'>
-                  <div className='font-semibold text-dark-800 dark:text-light-200'>
-                    {testimonial.author}
-                  </div>
-                  <div className='text-sm text-dark-600 dark:text-light-400'>
-                    {testimonial.role}
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
       {/* Final CTA */}
-      <section className='w-full bg-gradient-to-r from-accent/20 to-accent2/20 py-12 dark:from-accent3/20 dark:to-accent4/20 md:py-24 lg:py-32'>
+      <section className='w-full bg-gradient-to-r from-accent/20 to-accent2/20 py-12 dark:from-accent3/20 dark:to-accent4/20 md:py-18 lg:py-24'>
         <div className='container px-4 md:px-6'>
           <div className='flex flex-col items-center justify-center space-y-4 text-center'>
             <div className='space-y-2'>

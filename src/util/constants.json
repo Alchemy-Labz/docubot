@@ -6,13 +6,13 @@
       "icon": "FilePlus2"
     },
     {
-      "title": "Chat with and analyze entire code repositories",
-      "description": "Chat with your code repositories. Find bugs, get code improvements, write tests, and more.",
+      "title": "Powerful Document Analysis",
+      "description": "Advanced document analysis capabilities. Perform data analysis, extract information, and more.",
       "icon": "Binary"
     },
     {
-      "title": "Code Search",
-      "description": "Search your code repositories. Find the code you need with a simple search.",
+      "title": "Document Search",
+      "description": "Search your documents repositories. Find the information you need with a simple search.",
       "icon": "TextSearch"
     },
     {

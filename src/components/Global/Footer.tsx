@@ -60,12 +60,54 @@ const Footer = () => {
             </ul>
           </div>
 
-          {/* Support Links */}
+          {/* Product Links */}
           <div className='space-y-2'>
-            <h3 className='text-lg font-bold'>Support</h3>
+            <h3 className='text-lg font-bold text-dark-800 dark:text-light-300'>Product</h3>
             <ul className='space-y-2'>
               <li>
-                <Link href='/help-center' className='hover:text-primary-600 transition-colors'>
+                <Link
+                  href='/dashboard'
+                  className='text-dark-600 transition-colors hover:text-accent dark:text-light-400 dark:hover:text-accent4'
+                >
+                  Dashboard
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href='/pricing'
+                  className='text-dark-600 transition-colors hover:text-accent dark:text-light-400 dark:hover:text-accent4'
+                >
+                  Pricing
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href='/roadmap'
+                  className='text-dark-600 transition-colors hover:text-accent dark:text-light-400 dark:hover:text-accent4'
+                >
+                  Roadmap
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href='/help-center'
+                  className='text-dark-600 transition-colors hover:text-accent dark:text-light-400 dark:hover:text-accent4'
+                >
+                  Help Center
+                </Link>
+              </li>
+            </ul>
+          </div>
+
+          {/* Support Links */}
+          <div className='space-y-2'>
+            <h3 className='text-lg font-bold text-dark-800 dark:text-light-300'>Support</h3>
+            <ul className='space-y-2'>
+              <li>
+                <Link
+                  href='/help-center'
+                  className='text-dark-600 transition-colors hover:text-accent dark:text-light-400 dark:hover:text-accent4'
+                >
                   Help center
                 </Link>
                 <ul className='mt-2 space-y-1 text-sm font-light text-dark-500 dark:text-light-500'>
@@ -115,12 +157,12 @@ const Footer = () => {
           </div>
           {/* Legal Links */}
           <div className='space-y-2'>
-            <h3 className='text-lg font-bold'>Legal</h3>
+            <h3 className='text-lg font-bold text-dark-800 dark:text-light-300'>Legal</h3>
             <ul className='space-y-2'>
               <li>
                 <Link
                   href='/policies/privacy'
-                  className='hover:text-primary-600 transition-colors'
+                  className='text-dark-600 transition-colors hover:text-accent dark:text-light-400 dark:hover:text-accent4'
                 >
                   Privacy Policy
                 </Link>
@@ -128,13 +170,16 @@ const Footer = () => {
               <li>
                 <Link
                   href='/policies/cookies'
-                  className='hover:text-primary-600 transition-colors'
+                  className='text-dark-600 transition-colors hover:text-accent dark:text-light-400 dark:hover:text-accent4'
                 >
                   Cookie Policy
                 </Link>
               </li>
               <li>
-                <Link href='/policies/terms' className='hover:text-primary-600 transition-colors'>
+                <Link
+                  href='/policies/terms'
+                  className='text-dark-600 transition-colors hover:text-accent dark:text-light-400 dark:hover:text-accent4'
+                >
                   Terms of Service
                 </Link>
               </li>
@@ -143,21 +188,37 @@ const Footer = () => {
 
           {/* Company Links */}
           <div className='space-y-2'>
-            <h3 className='text-lg font-bold'>Company</h3>
+            <h3 className='text-lg font-bold text-dark-800 dark:text-light-300'>Company</h3>
             <ul className='space-y-2'>
               <li>
-                <Link href='/about' className='hover:text-primary-600 transition-colors'>
+                <Link
+                  href='/about'
+                  className='text-dark-600 transition-colors hover:text-accent dark:text-light-400 dark:hover:text-accent4'
+                >
                   About us
                 </Link>
               </li>
               <li>
-                <Link href='/jobs'>Jobs</Link>
+                <Link
+                  href='/careers'
+                  className='text-dark-600 transition-colors hover:text-accent dark:text-light-400 dark:hover:text-accent4'
+                >
+                  Careers
+                </Link>
               </li>
               <li>
-                <Link href='/investor-relations'>Investor relations</Link>
+                <Link
+                  href='/investor-relations'
+                  className='text-dark-600 transition-colors hover:text-accent dark:text-light-400 dark:hover:text-accent4'
+                >
+                  Investor relations
+                </Link>
               </li>
               <li>
-                <Link href='/contact' className='hover:text-primary-600 transition-colors'>
+                <Link
+                  href='/contact'
+                  className='text-dark-600 transition-colors hover:text-accent dark:text-light-400 dark:hover:text-accent4'
+                >
                   Contact Us
                 </Link>
               </li>
