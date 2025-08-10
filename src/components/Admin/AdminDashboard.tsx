@@ -52,13 +52,9 @@ import {
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import {
-  fetchContactSubmissions,
-  fetchSupportTickets,
   updateContactSubmissionStatus,
   updateSupportTicket,
   getAdminStats,
-  type ContactSubmission,
-  type SupportTicket,
 } from '@/lib/firebase/adminQueries';
 import {
   collection,
@@ -121,6 +117,38 @@ interface InvestorInquiry {
   status: 'new' | 'contacted' | 'meeting-scheduled' | 'declined' | 'completed';
   inquiryId: string;
   source: string;
+}
+
+interface ContactSubmission {
+  id: string;
+  name: string;
+  email: string;
+  company?: string;
+  phone?: string;
+  subject: string;
+  message: string;
+  contactMethod: 'email' | 'phone' | 'both';
+  marketingOptIn: boolean;
+  createdAt: any;
+  status: 'new' | 'contacted' | 'resolved';
+  responded: boolean;
+}
+
+interface SupportTicket {
+  id: string;
+  name: string;
+  email: string;
+  subject: string;
+  category: 'technical' | 'billing' | 'feature' | 'other';
+  priority: 'low' | 'medium' | 'high';
+  message: string;
+  userId?: string;
+  ticketNumber: string;
+  createdAt: any;
+  status: 'open' | 'in-progress' | 'resolved' | 'closed';
+  lastUpdated: any;
+  assignedTo?: string;
+  resolution?: string;
 }
 
 const AdminDashboard: React.FC = () => {
@@ -221,16 +249,36 @@ const AdminDashboard: React.FC = () => {
         collection(db, 'investor-inquiries'),
         orderBy('timestamp', 'desc')
       );
+      const supportQuery = query(
+        collection(db, 'support-tickets'),
+        orderBy('timestamp', 'desc')
+      );
+      const contactQuery = query(
+        collection(db, 'contact-submissions'),
+        orderBy('timestamp', 'desc')
+      );
 
-      const [careerSnapshot, investorSnapshot] = await Promise.all([
+      const [careerSnapshot, investorSnapshot, supportSnapshot, contactSnapshot] = await Promise.all([
         getDocs(careerQuery),
         getDocs(investorQuery),
+        getDocs(supportQuery),
+        getDocs(contactQuery),
       ]);
 
       setStats({
         ...adminStats,
         careerApplications: careerSnapshot.size,
         investorInquiries: investorSnapshot.size,
+        totalTickets: supportSnapshot.size,
+        openTickets: supportSnapshot.docs.filter((doc) => {
+          const data = doc.data();
+          return data.status === 'open' || data.status === 'in-progress';
+        }).length,
+        totalContacts: contactSnapshot.size,
+        pendingContacts: contactSnapshot.docs.filter((doc) => {
+          const data = doc.data();
+          return data.status === 'new';
+        }).length,
       });
     } catch (error) {
       console.error('Error loading admin stats:', error);
@@ -241,10 +289,21 @@ const AdminDashboard: React.FC = () => {
   const loadContactSubmissions = async () => {
     try {
       setContactsLoading(true);
-      const { submissions } = await fetchContactSubmissions({
-        limitCount: 50,
-        status: contactsFilters.status === 'all' ? undefined : contactsFilters.status,
+      const q = query(
+        collection(db, 'contact-submissions'),
+        orderBy('createdAt', 'desc'),
+        limit(50)
+      );
+      const querySnapshot = await getDocs(q);
+      const submissions: ContactSubmission[] = [];
+
+      querySnapshot.forEach((doc) => {
+        submissions.push({
+          id: doc.id,
+          ...doc.data(),
+        } as ContactSubmission);
       });
+
       setContactSubmissions(submissions);
     } catch (error) {
       console.error('Error loading contact submissions:', error);
@@ -257,12 +316,17 @@ const AdminDashboard: React.FC = () => {
   const loadSupportTickets = async () => {
     try {
       setTicketsLoading(true);
-      const { tickets } = await fetchSupportTickets({
-        limitCount: 50,
-        status: ticketsFilters.status === 'all' ? undefined : ticketsFilters.status,
-        category: ticketsFilters.category === 'all' ? undefined : ticketsFilters.category,
-        priority: ticketsFilters.priority === 'all' ? undefined : ticketsFilters.priority,
+      const q = query(collection(db, 'support-tickets'), orderBy('createdAt', 'desc'), limit(50));
+      const querySnapshot = await getDocs(q);
+      const tickets: SupportTicket[] = [];
+
+      querySnapshot.forEach((doc) => {
+        tickets.push({
+          id: doc.id,
+          ...doc.data(),
+        } as SupportTicket);
       });
+
       setSupportTickets(tickets);
     } catch (error) {
       console.error('Error loading support tickets:', error);

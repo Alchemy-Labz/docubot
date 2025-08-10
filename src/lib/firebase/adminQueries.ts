@@ -89,25 +89,24 @@ export const fetchContactSubmissions = async (
     const firestore = getFirestoreInstance();
     const contactCollection = collection(firestore, 'contact-submissions');
 
-    let q = query(contactCollection, orderBy('createdAt', 'desc'), limit(limitCount));
+    // Build query constraints array
+    const constraints = [orderBy('createdAt', 'desc')];
 
+    // Add status filter if provided
     if (status) {
-      q = query(
-        contactCollection,
-        where('status', '==', status),
-        orderBy('createdAt', 'desc'),
-        limit(limitCount)
-      );
+      constraints.push(where('status', '==', status));
     }
 
+    // Add pagination if provided
     if (lastDoc) {
-      q = query(
-        contactCollection,
-        orderBy('createdAt', 'desc'),
-        startAfter(lastDoc),
-        limit(limitCount)
-      );
+      constraints.push(startAfter(lastDoc));
     }
+
+    // Add limit
+    constraints.push(limit(limitCount));
+
+    // Build the final query
+    const q = query(contactCollection, ...constraints);
 
     const querySnapshot = await getDocs(q);
     const submissions: ContactSubmission[] = [];
@@ -137,42 +136,30 @@ export const fetchSupportTickets = async (
     const firestore = getFirestoreInstance();
     const ticketsCollection = collection(firestore, 'support-tickets');
 
-    let q = query(ticketsCollection, orderBy('createdAt', 'desc'), limit(limitCount));
+    // Build query constraints array
+    const constraints = [orderBy('createdAt', 'desc')];
 
-    // Apply filters
+    // Add filters if provided
     if (status) {
-      q = query(
-        ticketsCollection,
-        where('status', '==', status),
-        orderBy('createdAt', 'desc'),
-        limit(limitCount)
-      );
+      constraints.push(where('status', '==', status));
     }
     if (category) {
-      q = query(
-        ticketsCollection,
-        where('category', '==', category),
-        orderBy('createdAt', 'desc'),
-        limit(limitCount)
-      );
+      constraints.push(where('category', '==', category));
     }
     if (priority) {
-      q = query(
-        ticketsCollection,
-        where('priority', '==', priority),
-        orderBy('createdAt', 'desc'),
-        limit(limitCount)
-      );
+      constraints.push(where('priority', '==', priority));
     }
 
+    // Add pagination if provided
     if (lastDoc) {
-      q = query(
-        ticketsCollection,
-        orderBy('createdAt', 'desc'),
-        startAfter(lastDoc),
-        limit(limitCount)
-      );
+      constraints.push(startAfter(lastDoc));
     }
+
+    // Add limit
+    constraints.push(limit(limitCount));
+
+    // Build the final query
+    const q = query(ticketsCollection, ...constraints);
 
     const querySnapshot = await getDocs(q);
     const tickets: SupportTicket[] = [];

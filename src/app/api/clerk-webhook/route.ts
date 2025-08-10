@@ -6,7 +6,8 @@ import { NextResponse } from 'next/server';
 import { getAuth } from 'firebase-admin/auth';
 import { adminApp, adminDb } from '@/lib/firebase/firebaseAdmin';
 import { FIREBASE_CONFIG, SUCCESS_MESSAGES } from '@/lib/constants/appConstants';
-import { initializeUser, initializeNewUser } from '@/actions/initializeUser';
+import { initializeUser } from '@/actions/initializeUser';
+import { clerkClient } from '@clerk/nextjs/server';
 
 // Add a GET method for testing
 export async function GET() {
@@ -179,21 +180,138 @@ export async function POST(req: Request) {
     }
 
     if (eventType === 'session.created') {
-      console.log('Session created:', evt.data);
-      try {
-        // Update last login timestamp when session is created
-        await adminDb.collection('users').doc(userId).update({
-          lastLogin: new Date(),
-          lastTokenRefresh: new Date(),
-          lastUpdated: new Date(),
-          clerkId: userId,
-        });
+      console.log(`🔐 Session created for user ${userId}`);
 
-        console.log(`Session created and login timestamp updated for user ${userId}`);
+      try {
+        // Check if user exists in database - this is critical for migration
+        const userRef = adminDb.collection('users').doc(userId);
+        const userDoc = await userRef.get();
+
+        if (!userDoc.exists) {
+          console.log(
+            `🔄 Existing Clerk user ${userId} needs database initialization (migration scenario)`
+          );
+
+          // This is an existing Clerk user who needs migration
+          try {
+            // Fetch comprehensive user data from Clerk
+            console.log(`📡 Fetching user data from Clerk for ${userId}`);
+            const client = await clerkClient();
+            const clerkUser = await client.users.getUser(userId);
+
+            // Extract user data with fallbacks
+            const email = clerkUser.emailAddresses?.[0]?.emailAddress || '';
+            const firstName = clerkUser.firstName || '';
+            const lastName = clerkUser.lastName || '';
+            const username = clerkUser.username || undefined;
+
+            console.log(`👤 Clerk user data retrieved:`, {
+              email,
+              firstName,
+              lastName,
+              username,
+              createdAt: clerkUser.createdAt,
+              lastSignInAt: clerkUser.lastSignInAt,
+            });
+
+            // Determine if this is truly an existing user (account older than 1 hour)
+            const accountAge = Date.now() - clerkUser.createdAt;
+            const isExistingUser = accountAge > 60 * 60 * 1000; // 1 hour
+
+            console.log(
+              `📅 Account age: ${Math.round(accountAge / (60 * 60 * 1000))} hours, treating as ${isExistingUser ? 'existing' : 'new'} user`
+            );
+
+            // Initialize user with migration-specific handling
+            const initResult = await initializeUser(userId, {
+              email,
+              firstName,
+              lastName,
+              username,
+              clerkId: userId,
+              isSignup: !isExistingUser, // False for existing users
+            });
+
+            if (initResult.success) {
+              console.log(`✅ Successfully migrated existing user ${userId}:`, initResult);
+
+              // Add migration metadata
+              await userRef.update({
+                migrationDate: new Date(),
+                migrationSource: 'session.created',
+                accountAge: Math.round(accountAge / (60 * 60 * 1000)), // hours
+                lastLogin: new Date(),
+                lastTokenRefresh: new Date(),
+              });
+
+              console.log(`📝 Migration metadata added for user ${userId}`);
+            } else {
+              console.error(`❌ Failed to migrate user ${userId}:`, initResult.message);
+
+              // Log migration failure for monitoring
+              await adminDb.collection('migration_failures').add({
+                userId,
+                error: initResult.message,
+                timestamp: new Date(),
+                clerkData: {
+                  email,
+                  firstName,
+                  lastName,
+                  username,
+                  createdAt: clerkUser.createdAt,
+                },
+              });
+
+              return new NextResponse(`Migration failed: ${initResult.message}`, { status: 500 });
+            }
+          } catch (clerkError) {
+            console.error(`❌ Error fetching Clerk user data for ${userId}:`, clerkError);
+
+            // Log Clerk API failure
+            await adminDb.collection('migration_failures').add({
+              userId,
+              error: `Clerk API error: ${clerkError instanceof Error ? clerkError.message : String(clerkError)}`,
+              timestamp: new Date(),
+              type: 'clerk_api_failure',
+            });
+
+            return new NextResponse(
+              `Error fetching user data from Clerk: ${clerkError instanceof Error ? clerkError.message : String(clerkError)}`,
+              { status: 500 }
+            );
+          }
+        } else {
+          // User exists, update last login and session data
+          console.log(`✅ User ${userId} exists in database, updating session data`);
+
+          await userRef.update({
+            lastLogin: new Date(),
+            lastTokenRefresh: new Date(),
+            lastUpdated: new Date(),
+            clerkId: userId,
+          });
+
+          console.log(`📝 Session data updated for existing user ${userId}`);
+        }
       } catch (error) {
-        console.error('Error updating session data:', error);
+        console.error(`❌ Error in session.created handler for user ${userId}:`, error);
+
+        // Log general session handling failure
+        try {
+          await adminDb.collection('migration_failures').add({
+            userId,
+            error: `Session handler error: ${error instanceof Error ? error.message : String(error)}`,
+            timestamp: new Date(),
+            type: 'session_handler_failure',
+            stack: error instanceof Error ? error.stack : undefined,
+          });
+        } catch (logError) {
+          console.error('Failed to log migration failure:', logError);
+        }
+
         return new NextResponse(
-          'Error processing webhook: ' + (error instanceof Error ? error.message : String(error)),
+          'Error processing session webhook: ' +
+            (error instanceof Error ? error.message : String(error)),
           { status: 500 }
         );
       }
