@@ -211,16 +211,37 @@ export async function generateDocs(docId: string) {
 
   console.log(`🔗 Download URL found: ${downloadURL}`);
 
-  // Fetch the document from the specified URL
+  // Fetch the document from the specified URL with timeout
   console.log(`🔽 Downloading document from URL...`);
-  const response = await fetch(downloadURL);
 
-  if (!response.ok) {
-    console.error(`❌ Failed to fetch document: HTTP ${response.status}`);
-    throw new Error(`${ERROR_MESSAGES.FAILED_TO_FETCH_DOCUMENT}: ${response.status}`);
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+
+  let response: Response;
+
+  try {
+    response = await fetch(downloadURL, {
+      signal: controller.signal,
+      headers: {
+        'User-Agent': 'DocuBot/1.0',
+      },
+    });
+
+    clearTimeout(timeoutId);
+
+    if (!response.ok) {
+      console.error(`❌ Failed to fetch document: HTTP ${response.status}`);
+      throw new Error(`${ERROR_MESSAGES.FAILED_TO_FETCH_PDF}: ${response.status}`);
+    }
+
+    console.log(`✅ Document download successful`);
+  } catch (error) {
+    clearTimeout(timeoutId);
+    if (error instanceof Error && error.name === 'AbortError') {
+      throw new Error('Document download timed out. Please try again.');
+    }
+    throw error;
   }
-
-  console.log(`✅ Document download successful`);
 
   // Load the document into a blob
   console.log(`🔧 Loading document data into blob...`);
@@ -369,7 +390,22 @@ export async function generateEmbeddingsWithPineconeVectorStore(
   try {
     // Generate Vector Embeddings for the split documents with Pinecone
     console.log('🧠 Initializing OpenAI embeddings...');
-    const embeddings = new OpenAIEmbeddings();
+
+    // Check for required environment variables
+    if (!process.env.OPENAI_API_KEY) {
+      throw new Error('OpenAI API key is not configured');
+    }
+
+    if (!process.env.PINECONE_API_KEY) {
+      throw new Error('Pinecone API key is not configured');
+    }
+
+    const embeddings = new OpenAIEmbeddings({
+      openAIApiKey: process.env.OPENAI_API_KEY,
+      maxRetries: 3,
+      timeout: 60000, // 60 second timeout
+    });
+
     console.log(`🔍 Getting Pinecone index: ${indexName}`);
     const index = pineconeClient.index(indexName);
 
@@ -401,12 +437,37 @@ export async function generateEmbeddingsWithPineconeVectorStore(
       );
 
       console.log('🧠 Generating embeddings and storing in Pinecone...');
-      pineconeVectorStore = await PineconeStore.fromDocuments(splitDocs, embeddings, {
-        pineconeIndex: index,
-        namespace: docId,
-      });
 
-      console.log(`✅ Successfully stored ${splitDocs.length} document chunks in Pinecone`);
+      try {
+        pineconeVectorStore = await PineconeStore.fromDocuments(splitDocs, embeddings, {
+          pineconeIndex: index,
+          namespace: docId,
+        });
+
+        console.log(`✅ Successfully stored ${splitDocs.length} document chunks in Pinecone`);
+      } catch (pineconeError) {
+        console.error('❌ Error storing embeddings in Pinecone:', pineconeError);
+
+        if (pineconeError instanceof Error) {
+          if (pineconeError.message.includes('quota') || pineconeError.message.includes('limit')) {
+            throw new Error('Pinecone storage limit reached. Please contact support.');
+          } else if (
+            pineconeError.message.includes('network') ||
+            pineconeError.message.includes('timeout')
+          ) {
+            throw new Error('Network error connecting to Pinecone. Please try again.');
+          } else if (
+            pineconeError.message.includes('unauthorized') ||
+            pineconeError.message.includes('forbidden')
+          ) {
+            throw new Error('Pinecone authentication failed. Please contact support.');
+          }
+        }
+
+        throw new Error(
+          `Failed to store embeddings: ${pineconeError instanceof Error ? pineconeError.message : 'Unknown error'}`
+        );
+      }
 
       return pineconeVectorStore;
     }

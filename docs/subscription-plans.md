@@ -12,15 +12,15 @@ DocuBot currently offers three subscription tiers:
 
 ## Plan Comparison
 
-| Feature               | Starter (Free) | Professional ($9.99/month) | Developer (Coming Soon) |
-| --------------------- | -------------- | -------------------------- | ----------------------- |
-| Document Upload Limit | 5 documents    | 12 documents               | 50 documents            |
-| Messages Per Document | 3 messages     | 15 messages                | 25 messages             |
-| Document Analytics    | Basic          | Advanced                   | Comprehensive           |
-| Delete Documents      | ❌             | ✅                         | ✅                      |
-| Data Export Options   | Limited        | All formats                | All formats + API       |
-| GitHub Repository     | ❌             | ❌                         | ✅                      |
-| Email Support         | Standard       | Priority                   | 24/7 Dedicated          |
+| Feature               | Starter (Free) | Professional ($9.99/month) | Team ($39.99/month) |
+| --------------------- | -------------- | -------------------------- | ------------------- |
+| Document Upload Limit | 3 documents    | 15 documents               | 100 documents       |
+| Messages Per Document | 5 messages     | 20 messages                | 50 messages         |
+| Document Analytics    | Basic          | Advanced                   | Comprehensive       |
+| Delete Documents      | ❌             | ✅                         | ✅                  |
+| Data Export Options   | Limited        | All formats                | All formats + API   |
+| GitHub Repository     | ❌             | ❌                         | ✅                  |
+| Email Support         | Standard       | Priority                   | 24/7 Dedicated      |
 
 ## Starter Plan (Free)
 

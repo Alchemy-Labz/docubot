@@ -92,9 +92,9 @@ For more effective document interactions:
 
 DocuBot has message limits based on your subscription plan:
 
-- **Free Plan**: 3 messages per document
-- **Professional Plan**: 15 messages per document
-- **Developer Plan**: 25 messages per document (coming soon)
+- **Starter Plan**: 5 messages per document
+- **Professional Plan**: 20 messages per document
+- **Team Plan**: 50 messages per document
 
 A counter will show how many messages you've used for each document.
 

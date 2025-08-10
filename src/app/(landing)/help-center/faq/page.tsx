@@ -92,13 +92,13 @@ const FAQPage: React.FC = () => {
     {
       question: 'Can I delete my documents after uploading?',
       answer:
-        "Yes, you can delete your documents at any time if you're on the Professional plan. Free plan users cannot delete documents once uploaded, which is one of the advantages of upgrading to our paid plan.",
+        "Yes, you can delete your documents at any time if you're on the Professional or Team plan. Starter plan users cannot delete documents once uploaded, which is one of the advantages of upgrading to our paid plans.",
       category: 'usage',
     },
     {
       question: 'How many questions can I ask about each document?',
       answer:
-        'The number of questions (messages) you can ask per document depends on your plan. Free users can ask up to 3 questions per document, while Professional users can ask up to 15 questions per document. Our upcoming Developer plan will offer unlimited questions.',
+        'The number of questions (messages) you can ask per document depends on your plan. Starter users can ask up to 5 questions per document, Professional users can ask up to 20 questions per document, and Team users can ask up to 50 questions per document.',
       category: 'plans',
     },
     {

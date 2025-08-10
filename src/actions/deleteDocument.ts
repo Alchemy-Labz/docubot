@@ -4,7 +4,7 @@ import { adminDb, adminStorage } from '@/lib/firebase/firebaseAdmin';
 import pineconeClient from '@/lib/pinecone/pinecone';
 import { auth } from '@clerk/nextjs/server';
 import { revalidatePath } from 'next/cache';
-import { PINECONE_CONFIG, ERROR_MESSAGES } from '@/lib/constants/appConstants';
+import { PINECONE_CONFIG, ERROR_MESSAGES, PLAN_TYPES } from '@/lib/constants/appConstants';
 
 export async function deleteDocument(docId: string) {
   auth.protect();
@@ -15,13 +15,13 @@ export async function deleteDocument(docId: string) {
 
   // Get user's subscription status
   const userDoc = await adminDb.collection('users').doc(userId).get();
-  const hasActiveMembership = userDoc.data()?.hasActiveMembership ?? false;
-  
-  // Check if user has Pro subscription
-  if (!hasActiveMembership) {
-    throw new Error("Deleting documents requires a Pro subscription");
+  const planType = userDoc.data()?.planType || PLAN_TYPES.STARTER;
+
+  // Check if user has a paid subscription (Pro or Team)
+  if (planType === PLAN_TYPES.STARTER) {
+    throw new Error('Deleting documents requires a Pro or Team subscription');
   }
-  
+
   await adminDb.collection('users').doc(userId!).collection('files').doc(docId).delete();
 
   await adminStorage

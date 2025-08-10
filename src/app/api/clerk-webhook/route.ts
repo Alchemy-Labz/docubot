@@ -6,19 +6,36 @@ import { NextResponse } from 'next/server';
 import { getAuth } from 'firebase-admin/auth';
 import { adminApp, adminDb } from '@/lib/firebase/firebaseAdmin';
 import { FIREBASE_CONFIG, SUCCESS_MESSAGES } from '@/lib/constants/appConstants';
-import { initializeNewUser } from '@/actions/initializeUser';
+import { initializeUser, initializeNewUser } from '@/actions/initializeUser';
+
+// Add a GET method for testing
+export async function GET() {
+  console.log('Clerk webhook GET endpoint hit - route is accessible');
+  return NextResponse.json({
+    message: 'Clerk webhook endpoint is accessible',
+    timestamp: new Date().toISOString(),
+  });
+}
 
 export async function POST(req: Request) {
+  console.log('🚀 Clerk webhook POST endpoint hit!');
+  console.log('Request URL:', req.url);
+  console.log('Request method:', req.method);
+  console.log('Request headers:', Object.fromEntries(req.headers.entries()));
+
   try {
     // 👽️ This Webhook Secret is provided by the clerks dashboard > webhooks >endpoint > signing secret
     const WEBHOOK_SECRET = process.env.WEBHOOK_SECRET;
 
     if (!WEBHOOK_SECRET) {
-      throw new Error('Please add WEBHOOK_SECRET from Clerk Dashboard to .env or .env.local');
+      console.error('WEBHOOK_SECRET not found in environment variables');
+      return new NextResponse('Webhook secret not configured', { status: 500 });
     }
 
+    console.log('WEBHOOK_SECRET found, proceeding with verification');
+
     // Get the headers and svix signature payload to verify the request is from Clerk
-    const headerPayload = headers();
+    const headerPayload = await headers();
     const svix_id = headerPayload.get('svix-id');
     const svix_timestamp = headerPayload.get('svix-timestamp');
     const svix_signature = headerPayload.get('svix-signature');
@@ -98,31 +115,57 @@ export async function POST(req: Request) {
             : '';
 
         if (eventType === 'user.created') {
-          await initializeNewUser(userId, {
-            firebaseToken,
+          console.log(`Creating new user ${userId} with data:`, {
             email: emailAddress,
-            name: name,
-            username: evt.data.username || undefined,
-            clerkId: userId,
+            firstName: firstName,
+            lastName: lastName,
+            username: evt.data.username,
           });
 
-          console.log(`New user ${userId} fully initialized with default data`);
+          // Use the new comprehensive initialization system
+          const initResult = await initializeUser(userId, {
+            email: emailAddress,
+            firstName: firstName,
+            lastName: lastName,
+            username: evt.data.username || undefined,
+            clerkId: userId,
+            isSignup: true,
+          });
+
+          console.log(`New user ${userId} initialization result:`, initResult);
+
+          if (!initResult.success) {
+            console.error(`Failed to initialize user ${userId}:`, initResult.message);
+            return new NextResponse(`Failed to initialize user: ${initResult.message}`, {
+              status: 500,
+            });
+          }
         } else {
-          // For updates, just update the token and user data
-          await adminDb
-            .collection('users')
-            .doc(userId)
-            .set(
-              {
-                firebaseToken: firebaseToken,
-                lastUpdated: new Date(),
-                email: emailAddress,
-                name: name,
-                username: evt.data.username || undefined,
-                clerkId: userId,
-              },
-              { merge: true }
-            );
+          console.log(`Updating user ${userId} with data:`, {
+            email: emailAddress,
+            firstName: firstName,
+            lastName: lastName,
+            username: evt.data.username,
+          });
+
+          // For updates, use the initialization system to update user data
+          const initResult = await initializeUser(userId, {
+            email: emailAddress,
+            firstName: firstName,
+            lastName: lastName,
+            username: evt.data.username || undefined,
+            clerkId: userId,
+            isSignup: false,
+          });
+
+          console.log(`User ${userId} update result:`, initResult);
+
+          if (!initResult.success) {
+            console.error(`Failed to update user ${userId}:`, initResult.message);
+            return new NextResponse(`Failed to update user: ${initResult.message}`, {
+              status: 500,
+            });
+          }
         }
 
         console.log(SUCCESS_MESSAGES.FIREBASE_TOKEN_GENERATED + ` for user ${userId}`);
@@ -138,24 +181,17 @@ export async function POST(req: Request) {
     if (eventType === 'session.created') {
       console.log('Session created:', evt.data);
       try {
-        const firebaseAuth = getAuth(adminApp);
-        const tokenSettings = {
-          expiresIn: FIREBASE_CONFIG.TOKEN_EXPIRY_SECONDS,
-        };
-        const firebaseToken = await firebaseAuth.createCustomToken(userId, tokenSettings);
-        console.log('🚀 ~ POST ~ firebaseToken:', firebaseToken);
+        // Update last login timestamp when session is created
+        await adminDb.collection('users').doc(userId).update({
+          lastLogin: new Date(),
+          lastTokenRefresh: new Date(),
+          lastUpdated: new Date(),
+          clerkId: userId,
+        });
 
-        await adminDb.collection('users').doc(userId).set(
-          {
-            firebaseToken: firebaseToken,
-            lastUpdated: new Date(),
-            clerkId: userId,
-          },
-          { merge: true }
-        );
-        console.log(SUCCESS_MESSAGES.FIREBASE_TOKEN_GENERATED + ` for user ${userId}`);
+        console.log(`Session created and login timestamp updated for user ${userId}`);
       } catch (error) {
-        console.error('Error generating or storing Firebase token:', error);
+        console.error('Error updating session data:', error);
         return new NextResponse(
           'Error processing webhook: ' + (error instanceof Error ? error.message : String(error)),
           { status: 500 }
@@ -163,13 +199,29 @@ export async function POST(req: Request) {
       }
     }
 
-    return new NextResponse('Webhook processed', { status: 200 });
+    console.log('✅ Webhook processed successfully');
+    return new NextResponse('Webhook processed successfully', {
+      status: 200,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
   } catch (error) {
     // Global error handler to prevent unhandled exceptions
-    console.error('Unhandled error in webhook processing:', error);
+    console.error('❌ Unhandled error in webhook processing:', error);
+    console.error('Error stack:', error instanceof Error ? error.stack : 'No stack trace');
     return new NextResponse(
-      'Error processing webhook: ' + (error instanceof Error ? error.message : String(error)),
-      { status: 500 }
+      JSON.stringify({
+        error: 'Error processing webhook',
+        message: error instanceof Error ? error.message : String(error),
+        timestamp: new Date().toISOString(),
+      }),
+      {
+        status: 500,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      }
     );
   }
 }

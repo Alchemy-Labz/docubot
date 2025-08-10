@@ -67,9 +67,9 @@ You can perform several actions on your documents:
 
 DocuBot has document limits based on your subscription plan:
 
-- **Free Plan**: Up to 5 documents
-- **Professional Plan**: Up to 12 documents
-- **Developer Plan**: Up to 50 documents (coming soon)
+- **Starter Plan**: Up to 3 documents
+- **Professional Plan**: Up to 15 documents
+- **Team Plan**: Up to 100 documents
 
 When you reach your document limit:
 

@@ -1,0 +1,61 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+    
+    function isAdmin() {
+      return isAuthenticated() && 
+             exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+             get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true;
+    }
+
+    // Users collection - users can read/write their own data
+    match /users/{userId} {
+      allow read, write: if isOwner(userId);
+      allow read: if isAdmin(); // Admins can read all user data
+      
+      // User's files subcollection
+      match /files/{fileId} {
+        allow read, write: if isOwner(userId);
+        
+        // Chat messages within files
+        match /chat/{messageId} {
+          allow read, write: if isOwner(userId);
+        }
+      }
+    }
+    
+    // Contact submissions - allow creation by anyone, read/write by admins
+    match /contact-submissions/{submissionId} {
+      allow create: if true; // Anyone can submit contact forms
+      allow read, write: if isAdmin();
+    }
+    
+    // Support tickets - allow creation by authenticated users, read/write by admins
+    match /support-tickets/{ticketId} {
+      allow create: if isAuthenticated();
+      allow read: if isAuthenticated() && 
+                     (resource.data.userId == request.auth.uid || isAdmin());
+      allow write: if isAdmin();
+    }
+    
+    // Admin-only collections
+    match /admin/{document=**} {
+      allow read, write: if isAdmin();
+    }
+    
+    // Public read-only collections (if any)
+    match /public/{document=**} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+  }
+}

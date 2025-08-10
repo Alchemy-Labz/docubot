@@ -5,6 +5,7 @@ import React from 'react';
 import { Button } from '../ui/button';
 import { useRouter } from 'next/navigation';
 import useSubscription from '@/hooks/useSubscription';
+import { PLAN_TYPES } from '@/lib/constants/appConstants';
 
 interface PlaceholderDocumentProps {
   className?: string;
@@ -12,7 +13,7 @@ interface PlaceholderDocumentProps {
 
 const PlaceholderDocument = ({ className = '' }: PlaceholderDocumentProps) => {
   const router = useRouter();
-  const { isOverFileLimit } = useSubscription();
+  const { isOverFileLimit, planType } = useSubscription();
 
   const handleClick = () => {
     if (isOverFileLimit) {
@@ -67,22 +68,43 @@ const PlaceholderDocument = ({ className = '' }: PlaceholderDocumentProps) => {
           </div>
           <div className='space-y-2'>
             <h3 className='text-lg font-semibold text-red-400'>File Limit Reached</h3>
-            <p className='max-w-xs text-sm text-dark-600 dark:text-light-400 text-wrap'>
-              Upgrade to Pro to add unlimited documents and unlock premium features
+            <p className='max-w-xs text-wrap text-sm text-dark-600 dark:text-light-400'>
+              {planType === PLAN_TYPES.STARTER
+                ? 'Upgrade to Pro to add more documents and unlock premium features'
+                : planType === PLAN_TYPES.PRO
+                  ? 'Upgrade to Team for more documents and advanced team features'
+                  : 'You have reached your plan limit. Contact support for assistance.'}
             </p>
             <div className='mt-4 rounded-lg bg-accent/10 p-3'>
-              <p className='text-xs font-medium text-accent'>Pro Benefits:</p>
+              <p className='text-xs font-medium text-accent'>
+                {planType === PLAN_TYPES.STARTER ? 'Pro Benefits:' : 'Team Benefits:'}
+              </p>
               <ul className='mt-1 space-y-1 text-xs text-dark-600 dark:text-light-400'>
-                <li>• Unlimited documents</li>
-                <li>• More AI conversations</li>
-                <li>• Delete documents</li>
-                <li>• Priority support</li>
+                {planType === PLAN_TYPES.STARTER ? (
+                  <>
+                    <li>• Up to 15 documents</li>
+                    <li>• More AI conversations</li>
+                    <li>• Delete documents</li>
+                    <li>• Priority support</li>
+                  </>
+                ) : (
+                  <>
+                    <li>• Up to 100 documents</li>
+                    <li>• Team collaboration</li>
+                    <li>• Advanced analytics</li>
+                    <li>• Dedicated support</li>
+                  </>
+                )}
               </ul>
             </div>
           </div>
           <div id='placeholder-description' className='sr-only'>
             You have reached the maximum number of documents for your current plan. Click to
-            upgrade to Pro and upload unlimited documents with additional features.
+            {planType === PLAN_TYPES.STARTER
+              ? ' upgrade to Pro and upload more documents with additional features.'
+              : planType === PLAN_TYPES.PRO
+                ? ' upgrade to Team and upload more documents with advanced team features.'
+                : ' contact support for assistance with your plan limits.'}
           </div>
         </>
       ) : (

@@ -9,7 +9,8 @@ import { generateVectorEmbeddings } from '@/actions/generateVectorEmbeddings';
 import { useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { useFirebaseAuth } from '@/providers/FirebaseContext';
-import { FILE_TYPE_ICONS, DEFAULT_FILE_ICON } from '@/lib/constants/appConstants';
+import { FILE_TYPE_ICONS, DEFAULT_FILE_ICON, FILE_UPLOAD } from '@/lib/constants/appConstants';
+import useSubscription from '@/hooks/useSubscription';
 
 export enum UploadStatusText {
   AUTHENTICATING = 'Authenticating...',
@@ -26,8 +27,9 @@ function useUpload() {
   const [progress, setProgress] = useState<number | null>(null);
   const [status, setStatus] = useState<string | null>(null);
   const [docId, setDocId] = useState<string | null>(null);
-  const { user } = useUser();
+  const { user, isLoaded } = useUser();
   const { isAuthenticated, authenticate } = useFirebaseAuth(); // Use context
+  const { planType } = useSubscription();
 
   const getFileTypeIcon = (fileType: string): string => {
     return FILE_TYPE_ICONS[fileType as keyof typeof FILE_TYPE_ICONS] || DEFAULT_FILE_ICON;
@@ -35,9 +37,19 @@ function useUpload() {
 
   const handleUploadDocument = async (file: File) => {
     console.log('handleUploadDocument called with file:', file);
-    if (!file || !user) {
-      console.log('No file or user, returning early');
+    if (!file || !isLoaded || !user) {
+      console.log('No file, user not loaded, or no user, returning early');
       return;
+    }
+
+    // Validate file size based on user's plan
+    const maxFileSize = FILE_UPLOAD.getMaxFileSizeForPlan(planType);
+    if (file.size > maxFileSize) {
+      const maxSizeDisplay = FILE_UPLOAD.formatFileSize(maxFileSize);
+      const fileSizeDisplay = FILE_UPLOAD.formatFileSize(file.size);
+      throw new Error(
+        `File size (${fileSizeDisplay}) exceeds the maximum allowed size (${maxSizeDisplay}) for your ${planType} plan.`
+      );
     }
 
     try {
@@ -97,11 +109,33 @@ function useUpload() {
           console.log('Generating AI embeddings');
           setStatus(UploadStatusText.GENERATING);
 
-          await generateVectorEmbeddings(fileToUploadToDB);
+          try {
+            await generateVectorEmbeddings(fileToUploadToDB);
+            console.log('Process completed successfully');
+            setDocId(fileToUploadToDB);
+            setStatus(null);
+          } catch (embeddingError) {
+            console.error('Error generating embeddings:', embeddingError);
+            setStatus(UploadStatusText.ERROR);
 
-          console.log('Process completed');
-          setDocId(fileToUploadToDB);
-          setStatus(null);
+            // Provide user-friendly error message
+            let errorMessage = 'Failed to process document';
+            if (embeddingError instanceof Error) {
+              if (embeddingError.message.includes('timeout')) {
+                errorMessage =
+                  'Document processing timed out. Please try again with a smaller file.';
+              } else if (embeddingError.message.includes('network')) {
+                errorMessage =
+                  'Network error during processing. Please check your connection and try again.';
+              } else if (embeddingError.message.includes('API')) {
+                errorMessage = 'Service temporarily unavailable. Please try again later.';
+              } else {
+                errorMessage = embeddingError.message;
+              }
+            }
+
+            throw new Error(errorMessage);
+          }
         }
       );
     } catch (error) {

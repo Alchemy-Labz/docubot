@@ -6,14 +6,33 @@ import { UserDetails } from '@/app/dashboard/upgrade/page';
 import { stripe } from '@/lib/stripe/stripe';
 import { auth } from '@clerk/nextjs/server';
 import { getBaseURL } from '@/util/getBaseURL';
-import { STRIPE_CONFIG, ERROR_MESSAGES } from '@/lib/constants/appConstants';
+import { STRIPE_CONFIG, ERROR_MESSAGES, PLAN_TYPES } from '@/lib/constants/appConstants';
 
-export async function createCheckoutSession(userDetails: UserDetails) {
+export async function createCheckoutSession(
+  userDetails: UserDetails,
+  planType: string = PLAN_TYPES.PRO,
+  isAnnual: boolean = false
+) {
   const { userId } = await auth();
 
   if (!userId) {
     throw new Error(ERROR_MESSAGES.UNAUTHORIZED);
   }
+
+  // Determine the correct price ID based on plan type and billing frequency
+  let priceId: string = STRIPE_CONFIG.PRICE_ID; // Default fallback - explicitly typed as string
+
+  if (planType === PLAN_TYPES.PRO) {
+    priceId = isAnnual ? STRIPE_CONFIG.PRICE_IDS.PRO_YEARLY : STRIPE_CONFIG.PRICE_IDS.PRO_MONTHLY;
+  } else if (planType === PLAN_TYPES.TEAM) {
+    priceId = isAnnual
+      ? STRIPE_CONFIG.PRICE_IDS.TEAM_YEARLY
+      : STRIPE_CONFIG.PRICE_IDS.TEAM_MONTHLY;
+  }
+
+  console.log(
+    `Creating checkout session for plan: ${planType}, annual: ${isAnnual}, priceId: ${priceId}`
+  );
 
   // Check if the user already has a stripecustomerId in our database
   let stripecustomerId;
@@ -44,7 +63,7 @@ export async function createCheckoutSession(userDetails: UserDetails) {
   const session = await stripe.checkout.sessions.create({
     line_items: [
       {
-        price: STRIPE_CONFIG.PRICE_ID,
+        price: priceId,
         quantity: 1,
       },
     ],

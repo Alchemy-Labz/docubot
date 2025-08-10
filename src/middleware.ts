@@ -7,6 +7,7 @@ const isProtectedRoute = createRouteMatcher([
   '/admin(.*)',
   '/settings(.*)',
   '/upload(.*)',
+  '/onboarding(.*)',
 ]);
 
 const isPublicRoute = createRouteMatcher([
@@ -19,12 +20,25 @@ const isPublicRoute = createRouteMatcher([
   '/help-center(.*)',
   '/contact(.*)',
   '/policies(.*)',
-  '/api/webhook(.*)',
+  '/api/clerk-webhook(.*)',
+  '/api/stripe-webhook(.*)',
+  '/api/firebase-token(.*)',
   '/api/health(.*)',
 ]);
 
 export default clerkMiddleware(async (auth, req) => {
   try {
+    // Special handling for webhook routes - bypass all middleware
+    if (
+      req.nextUrl.pathname.startsWith('/api/clerk-webhook') ||
+      req.nextUrl.pathname.startsWith('/api/stripe-webhook') ||
+      req.nextUrl.pathname.startsWith('/api/firebase-token') ||
+      req.nextUrl.pathname.startsWith('/api/test-webhook')
+    ) {
+      console.log('Webhook route detected, bypassing middleware:', req.nextUrl.pathname);
+      return NextResponse.next();
+    }
+
     // Allow public routes to pass through without authentication
     if (isPublicRoute(req)) {
       return NextResponse.next();

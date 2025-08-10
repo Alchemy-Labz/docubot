@@ -9,7 +9,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
 const UpgradeButton = () => {
-  const { hasActiveMembership, loading } = useSubscription();
+  const { hasPaidPlan, loading } = useSubscription();
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
 
@@ -29,7 +29,7 @@ const UpgradeButton = () => {
     );
   }
 
-  if (!hasActiveMembership) {
+  if (!hasPaidPlan) {
     return (
       <Button asChild variant='default' className='flex items-center justify-center space-x-2'>
         <Link href='/dashboard/upgrade'>

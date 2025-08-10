@@ -178,8 +178,11 @@ Before you begin, ensure your system meets the following requirements:
 
 ## Supported File Formats and Sizes
 
-- **Supported Formats**: PDF
-- **Maximum File Size**: 50MB
+- **Supported Formats**: PDF, TXT, MD, RTF
+- **Maximum File Size**: Varies by plan
+  - **Starter plan**: 25MB per document
+  - **Pro plan**: 50MB per document
+  - **Team plan**: 100MB per document
 
 ## Troubleshooting Upload Issues
 

@@ -16,7 +16,10 @@ DocuBot currently supports the following file formats:
 
 ## File Size Limitations
 
-- **Maximum file size**: 15MB per document
+- **Maximum file size**: Varies by plan
+  - **Starter plan**: 25MB per document
+  - **Pro plan**: 50MB per document
+  - **Team plan**: 100MB per document
 - **Free plan**: Up to 5 documents total
 - **Professional plan**: Up to 12 documents total
 - **Developer plan**: Up to 50 documents (coming soon)

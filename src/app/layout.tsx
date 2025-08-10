@@ -34,6 +34,7 @@ export default function RootLayout({
         )}
         <ErrorBoundary>
           <ClerkProvider
+            dynamic
             appearance={{
               baseTheme: undefined, // Let it adapt to system theme
               variables: {

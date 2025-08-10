@@ -5,7 +5,7 @@ import { headers } from 'next/headers';
 import { stripe } from '@/lib/stripe/stripe';
 import Stripe from 'stripe';
 import { adminDb } from '@/lib/firebase/firebaseAdmin';
-import { STRIPE_CONFIG, SUCCESS_MESSAGES } from '@/lib/constants/appConstants';
+import { STRIPE_CONFIG, SUCCESS_MESSAGES, PLAN_TYPES } from '@/lib/constants/appConstants';
 
 // Initialize Sentry (ensure this is done at the start of your application)
 if (!process.env.NEXT_PUBLIC_SENTRY_DSN) {
@@ -16,11 +16,36 @@ Sentry.init({ dsn: dsn });
 
 console.log('Stripe webhook server started');
 
+// Helper function to determine plan type from subscription
+const getPlanTypeFromSubscription = (
+  subscription: Stripe.Subscription
+): 'starter' | 'pro' | 'team' => {
+  // Get the first price ID from the subscription items
+  const priceId = subscription.items.data[0]?.price?.id;
+
+  if (!priceId) {
+    console.warn('No price ID found in subscription, defaulting to starter plan');
+    return PLAN_TYPES.STARTER;
+  }
+
+  // Map price ID to plan type
+  const planType =
+    STRIPE_CONFIG.PRICE_TO_PLAN_MAP[priceId as keyof typeof STRIPE_CONFIG.PRICE_TO_PLAN_MAP];
+
+  if (!planType) {
+    console.warn(`Unknown price ID: ${priceId}, defaulting to starter plan`);
+    return PLAN_TYPES.STARTER;
+  }
+
+  console.log(`Mapped price ID ${priceId} to plan type: ${planType}`);
+  return planType;
+};
+
 export async function POST(request: NextRequest) {
   console.log('Stripe webhook received');
   const headersList = headers();
   const body = await request.text();
-  const signature = headersList.get('stripe-signature');
+  const signature = (await headersList).get('stripe-signature');
 
   if (!signature) {
     console.error('No signature found in request headers');
@@ -159,8 +184,22 @@ export async function POST(request: NextRequest) {
           );
         }
 
+        // For checkout sessions, we need to get the subscription to determine plan type
+        let planType: 'starter' | 'pro' | 'team' = PLAN_TYPES.STARTER;
+
+        if (session.subscription) {
+          try {
+            const subscription = await stripe.subscriptions.retrieve(
+              session.subscription as string
+            );
+            planType = getPlanTypeFromSubscription(subscription);
+          } catch (error) {
+            console.error('Error retrieving subscription from session:', error);
+          }
+        }
+
         await adminDb.collection('users').doc(userDetails.id).update({
-          hasActiveMembership: true,
+          planType: planType,
         });
 
         console.log(SUCCESS_MESSAGES.MEMBERSHIP_ACTIVATED + ' for user:', userDetails.id);
@@ -190,8 +229,10 @@ export async function POST(request: NextRequest) {
           subscription.status === STRIPE_CONFIG.SUBSCRIPTION_STATUSES.ACTIVE ||
           subscription.status === STRIPE_CONFIG.SUBSCRIPTION_STATUSES.TRIALING;
 
+        const planType = isActive ? getPlanTypeFromSubscription(subscription) : PLAN_TYPES.STARTER;
+
         await adminDb.collection('users').doc(userDetails.id).update({
-          hasActiveMembership: isActive,
+          planType: planType,
         });
 
         console.log(
@@ -224,8 +265,10 @@ export async function POST(request: NextRequest) {
           subscription.status === STRIPE_CONFIG.SUBSCRIPTION_STATUSES.ACTIVE ||
           subscription.status === STRIPE_CONFIG.SUBSCRIPTION_STATUSES.TRIALING;
 
+        const planType = isActive ? getPlanTypeFromSubscription(subscription) : PLAN_TYPES.STARTER;
+
         await adminDb.collection('users').doc(userDetails.id).update({
-          hasActiveMembership: isActive,
+          planType: planType,
         });
 
         console.log(
@@ -253,7 +296,7 @@ export async function POST(request: NextRequest) {
         }
 
         await adminDb.collection('users').doc(userDetails.id).update({
-          hasActiveMembership: false,
+          planType: PLAN_TYPES.STARTER,
         });
 
         console.log('✅ Membership deactivated for user:', userDetails.id);
@@ -266,7 +309,12 @@ export async function POST(request: NextRequest) {
         console.log('💰 Invoice payment succeeded for customer:', customerId);
 
         // Only process if this is for a subscription
-        if (invoice.subscription) {
+        // Cast invoice to any to access subscription property which exists at runtime
+        const invoiceWithSubscription = invoice as any;
+        if (
+          invoiceWithSubscription.subscription &&
+          typeof invoiceWithSubscription.subscription === 'string'
+        ) {
           const userDetails = await getUserDetails(customerId);
           if (!userDetails?.id) {
             console.error(
@@ -279,8 +327,20 @@ export async function POST(request: NextRequest) {
             );
           }
 
+          // Get subscription details to determine plan type
+          let planType: 'starter' | 'pro' | 'team' = PLAN_TYPES.PRO; // Default to PRO for paid invoices
+
+          try {
+            const subscription = await stripe.subscriptions.retrieve(
+              invoiceWithSubscription.subscription as string
+            );
+            planType = getPlanTypeFromSubscription(subscription);
+          } catch (error) {
+            console.error('Error retrieving subscription from invoice:', error);
+          }
+
           await adminDb.collection('users').doc(userDetails.id).update({
-            hasActiveMembership: true,
+            planType: planType,
           });
 
           console.log(SUCCESS_MESSAGES.MEMBERSHIP_ACTIVATED + ' for user:', userDetails.id);

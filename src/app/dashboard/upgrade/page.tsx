@@ -12,7 +12,7 @@ import { useUser } from '@clerk/nextjs';
 import { Check, X } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import React, { useTransition } from 'react';
-import { SUBSCRIPTION_LIMITS } from '@/lib/constants/appConstants';
+import { SUBSCRIPTION_LIMITS, PRICING_PLANS, PLAN_TYPES } from '@/lib/constants/appConstants';
 
 export type UserDetails = {
   email: string;
@@ -22,7 +22,7 @@ export type UserDetails = {
 const PricingPage = () => {
   const { user } = useUser();
   const router = useRouter();
-  const { hasActiveMembership, loading } = useSubscription();
+  const { hasPaidPlan, loading } = useSubscription();
   const [isPending, startTransition] = useTransition();
 
   const handleUpgrade = () => {
@@ -36,13 +36,14 @@ const PricingPage = () => {
     startTransition(async () => {
       const stripe = await getStripe();
 
-      if (hasActiveMembership) {
+      if (hasPaidPlan) {
         //create stripe portal
         const stripePortalURL = await createStripePortal();
         return router.push(stripePortalURL);
       }
 
-      const sessionId = await createCheckoutSession(userDetails);
+      // Default to Pro plan for dashboard upgrade
+      const sessionId = await createCheckoutSession(userDetails, PLAN_TYPES.PRO, false);
       await stripe?.redirectToCheckout({ sessionId });
     });
   };
@@ -61,98 +62,57 @@ const PricingPage = () => {
           enhancing productivity and streamliningg your workflow
         </p>
         {/* Plans  */}
-        <div className='mx-auto mt-12 grid max-w-md grid-cols-1 gap-10 px-4 sm:px-6 md:max-w-2xl md:grid-cols-2 lg:max-w-4xl lg:gap-x-22 lg:px-8'>
-          {/* Free */}
-          <div className='h-fit rounded-lg bg-light-600 p-6 pb-12 ring-1 ring-accent2'>
-            <h3 className='text-lg font-semibold leading-8 text-dark-700'>Starter</h3>
-            <p className='test-sm mt-4 leading-6 text-dark-600'>
-              For individuals exploring DocuBots capabilities
-            </p>
-            <p className='mt-6 flex items-baseline gap-x-1'>
-              <span className='text-4xl font-bold tracking-tight text-dark-800'>Free</span>
-            </p>
-            <ul role='list' className='mt-8 space-y-3 text-sm leading-6 text-dark-600'>
-              <li className='gapx-x-3 flex'>
-                <Check className='h-6 w-5 flex-none text-accent2' />
-                Upload up to {SUBSCRIPTION_LIMITS.FREE.FILE_LIMIT} documents
-              </li>
-              <li className='gapx-x-3 flex'>
-                <Check className='h-6 w-5 flex-none text-accent2' />
-                {SUBSCRIPTION_LIMITS.FREE.MESSAGE_LIMIT} AI messages per document
-              </li>
-              <li className='gapx-x-3 flex'>
-                <Check className='h-6 w-5 flex-none text-accent2' />
-                Basic document analysis
-              </li>
-              <li className='gapx-x-3 flex'>
-                <Check className='h-6 w-5 flex-none text-accent2' />
-                Standard email support
-              </li>
-              <li className='gapx-x-3 flex'>
-                <X className='h-6 w-5 flex-none text-dark-400' />
-                Delete documents
-              </li>
-              <li className='gapx-x-3 flex'>
-                <X className='h-6 w-5 flex-none text-dark-400' />
-                Advanced data exports
-              </li>
-              <li className='gapx-x-3 flex'>
-                <X className='h-6 w-5 flex-none text-dark-400' />
-                Priority support
-              </li>
-            </ul>
-          </div>
-
-          {/* Pro Tier */}
-          <div className='h-fit rounded-lg bg-light-600 p-6 pb-12 ring-2 ring-accent'>
-            <h3 className='text-lg font-bold leading-8 text-dark-900'>Professional</h3>
-            <p className='test-sm mt-4 leading-6 text-dark-600'>
-              For professionals who need more power and flexibility
-            </p>
-            <p className='mt-6 flex items-baseline gap-x-1'>
-              <span className='text-4xl font-bold tracking-tight text-dark-800'>$9.99</span>
-              <span className='text-base font-semibold leading-6 text-dark-600'>/ month</span>
-            </p>
-            <ul role='list' className='my-8 space-y-3 text-sm leading-6 text-dark-600'>
-              <li className='gapx-x-3 flex'>
-                <Check className='h-6 w-5 flex-none text-accent2' />
-                Upload up to {SUBSCRIPTION_LIMITS.PRO.FILE_LIMIT} documents
-              </li>
-              <li className='gapx-x-3 flex'>
-                <Check className='h-6 w-5 flex-none text-accent2' />
-                Up to {SUBSCRIPTION_LIMITS.PRO.MESSAGE_LIMIT} AI messages per document
-              </li>
-              <li className='gapx-x-3 flex'>
-                <Check className='h-6 w-5 flex-none text-accent2' />
-                Advanced document analytics
-              </li>
-              <li className='gapx-x-3 flex'>
-                <Check className='h-6 w-5 flex-none text-accent2' />
-                Delete documents anytime
-              </li>
-              <li className='gapx-x-3 flex'>
-                <Check className='h-6 w-5 flex-none text-accent2' />
-                Advanced data export options
-              </li>
-              <li className='gapx-x-3 flex'>
-                <Check className='h-6 w-5 flex-none text-accent2' />
-                Priority email support
-              </li>
-              <li className='gapx-x-3 flex'>
-                <Check className='h-6 w-5 flex-none text-accent2' />
-                Access to new features first
-              </li>
-            </ul>
-            <Button className='' disabled={loading || isPending} onClick={handleUpgrade}>
-              <span className='text-sm font-semibold leading-6 text-accent'>
-                {isPending || loading
-                  ? 'Loading...'
-                  : hasActiveMembership
-                    ? 'Manage Plan'
-                    : 'Upgrade Now'}
-              </span>
-            </Button>
-          </div>
+        <div className='mx-auto mt-12 grid max-w-md grid-cols-1 gap-10 px-4 sm:px-6 md:max-w-2xl md:grid-cols-2 lg:max-w-6xl lg:grid-cols-3 lg:gap-x-8 lg:px-8'>
+          {Object.values(PRICING_PLANS).map((plan) => (
+            <div
+              key={plan.id}
+              className={`h-fit rounded-lg bg-light-600 p-6 pb-12 ${
+                plan.popular ? 'ring-2 ring-accent' : 'ring-1 ring-accent2'
+              }`}
+            >
+              <h3
+                className={`text-lg leading-8 ${plan.popular ? 'font-bold text-dark-900' : 'font-semibold text-dark-700'}`}
+              >
+                {plan.name}
+              </h3>
+              <p className='test-sm mt-4 leading-6 text-dark-600'>{plan.description}</p>
+              <p className='mt-6 flex items-baseline gap-x-1'>
+                <span className='text-4xl font-bold tracking-tight text-dark-800'>
+                  {plan.pricing.monthly}
+                </span>
+                {plan.pricing.monthly !== 'Free' && (
+                  <span className='text-base font-semibold leading-6 text-dark-600'>/ month</span>
+                )}
+              </p>
+              <ul role='list' className='mt-8 space-y-3 text-sm leading-6 text-dark-600'>
+                {plan.features.map((feature, index) => (
+                  <li key={index} className='gapx-x-3 flex'>
+                    {feature.included ? (
+                      <Check className='h-6 w-5 flex-none text-accent2' />
+                    ) : (
+                      <X className='h-6 w-5 flex-none text-dark-400' />
+                    )}
+                    {feature.title}
+                  </li>
+                ))}
+              </ul>
+              <Button
+                className='mt-8 w-full'
+                disabled={plan.id === PLAN_TYPES.STARTER || loading || isPending}
+                onClick={plan.id !== PLAN_TYPES.STARTER ? handleUpgrade : undefined}
+              >
+                <span className='text-sm font-semibold leading-6 text-accent'>
+                  {plan.id === PLAN_TYPES.STARTER
+                    ? 'Current Plan'
+                    : isPending || loading
+                      ? 'Loading...'
+                      : hasPaidPlan
+                        ? 'Manage Plan'
+                        : plan.cta}
+                </span>
+              </Button>
+            </div>
+          ))}
         </div>
       </div>
     </div>

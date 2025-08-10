@@ -2,71 +2,79 @@
 // app/api/firebase-token/route.ts
 
 import { getAuth } from '@clerk/nextjs/server';
-import { adminDb } from '@/lib/firebase/firebaseAdmin';
 import { NextRequest, NextResponse } from 'next/server';
-import { isTokenExpiredAction } from '@/actions/tokenActions';
+import { generateFirebaseToken } from '@/actions/tokenActions';
+import { adminDb } from '@/lib/firebase/firebaseAdmin';
 
 export async function POST(req: NextRequest) {
-  const auth = getAuth(req);
-  const userId = auth.userId;
-
-  if (!userId) {
-    console.error('Token API: No userId in request');
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
-
-  console.log(`Token API: Processing request for user ${userId}`);
+  console.log('🔥🔥🔥 NEW Firebase token API route called - VERSION 2.0 🔥🔥🔥');
 
   try {
-    // First check if the user document exists at all
-    const userDoc = await adminDb.collection('users').doc(userId).get();
+    const auth = getAuth(req);
+    const userId = auth.userId;
 
-    if (!userDoc.exists) {
-      console.log(`Token API: User document doesn't exist for ${userId}, creating fallback token`);
-
-      // Generate a fallback token through the token action
-      const tokenExpired = await isTokenExpiredAction(userId);
-
-      if (tokenExpired) {
-        // The token action should have created a new token
-        const refreshedDoc = await adminDb.collection('users').doc(userId).get();
-        const refreshedData = refreshedDoc.data();
-
-        if (!refreshedData || !refreshedData.firebaseToken) {
-          console.error(`Token API: Failed to create token for new user ${userId}`);
-          return NextResponse.json({ error: 'Failed to create token' }, { status: 500 });
-        }
-
-        return NextResponse.json({ firebaseToken: refreshedData.firebaseToken }, { status: 200 });
-      } else {
-        console.error(`Token API: Unexpected state - token not expired but user doesn't exist`);
-        return NextResponse.json({ error: 'Inconsistent token state' }, { status: 500 });
-      }
+    if (!userId) {
+      console.error('NEW Token API: No userId in request');
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // For existing users, check if token is expired and refresh if needed
-    console.log(`Token API: Checking token expiry for user ${userId}`);
-    const tokenExpired = await isTokenExpiredAction(userId);
+    console.log(`NEW Token API: Processing request for user ${userId}`);
 
-    // Whether expired or not, we now fetch the current token
-    const currentUserDoc = await adminDb.collection('users').doc(userId).get();
-    const userData = currentUserDoc.data();
+    // Generate a fresh Firebase token directly
+    console.log(`NEW Token API: Generating fresh Firebase token for user ${userId}`);
+    const firebaseToken = await generateFirebaseToken(userId);
 
-    if (!userData || !userData.firebaseToken) {
-      console.error(`Token API: No Firebase token found for user ${userId}`);
-      return NextResponse.json({ error: 'Firebase token not found' }, { status: 404 });
+    if (!firebaseToken) {
+      console.error(`NEW Token API: Failed to generate token for user ${userId}`);
+      return NextResponse.json({ error: 'Failed to create token' }, { status: 500 });
     }
 
-    console.log(`Token API: Returning token for user ${userId} (was expired: ${tokenExpired})`);
-    return NextResponse.json({ firebaseToken: userData.firebaseToken }, { status: 200 });
+    // Store the token in the user's Firestore document
+    try {
+      console.log(`NEW Token API: Storing token in Firestore for user ${userId}`);
+      const userDocRef = adminDb.collection('users').doc(userId);
+
+      // Use set with merge to handle both new and existing documents
+      await userDocRef.set(
+        {
+          firebaseToken,
+          lastTokenRefresh: new Date(),
+        },
+        { merge: true }
+      );
+
+      console.log(`NEW Token API: Successfully stored token in Firestore for user ${userId}`);
+    } catch (storageError) {
+      console.warn(
+        `NEW Token API: Could not store token in Firestore for user ${userId}:`,
+        storageError
+      );
+      // Don't fail the API call if storage fails - the token was generated successfully
+    }
+
+    console.log(`NEW Token API: Successfully generated token for user ${userId}`);
+    return NextResponse.json({ firebaseToken }, { status: 200 });
   } catch (error) {
-    console.error('Token API: Error fetching Firebase token:', error);
+    console.error('NEW Token API: Error generating Firebase token:', error);
     return NextResponse.json(
       {
-        error: 'Internal server error',
+        error: 'Failed to create token',
         details: error instanceof Error ? error.message : 'Unknown error',
       },
       { status: 500 }
     );
   }
+}
+
+// Add GET method for testing
+export async function GET() {
+  console.log('🔥🔥🔥 NEW Firebase token API GET route called - VERSION 2.0 🔥🔥🔥');
+  return NextResponse.json(
+    {
+      message: 'NEW Firebase token API is working - VERSION 2.0',
+      timestamp: new Date().toISOString(),
+      version: '2.0',
+    },
+    { status: 200 }
+  );
 }

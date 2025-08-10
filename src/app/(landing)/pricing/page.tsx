@@ -15,6 +15,7 @@ import { createStripePortal } from '@/actions/createStripePortal';
 import getStripe from '@/lib/stripe/stripeConfig';
 import useSubscription from '@/hooks/useSubscription';
 import Footer from '@/components/Global/Footer';
+import { PRICING_PLANS, PLAN_TYPES } from '@/lib/constants/appConstants';
 
 export type UserDetails = {
   email: string;
@@ -22,13 +23,25 @@ export type UserDetails = {
 };
 
 const PricingPage = () => {
-  const { user } = useUser();
+  const { user, isLoaded } = useUser();
   const router = useRouter();
-  const { hasActiveMembership, loading } = useSubscription();
+  const { hasPaidPlan, loading } = useSubscription();
   const [isPending, startTransition] = useTransition();
   const [annualBilling, setAnnualBilling] = useState(true);
 
-  const handleUpgrade = (_planId: string) => {
+  // Show loading state while Clerk is loading
+  if (!isLoaded) {
+    return (
+      <div className='flex min-h-screen items-center justify-center'>
+        <div className='text-center'>
+          <div className='mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-b-2 border-accent'></div>
+          <p>Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  const handleUpgrade = (planId: string) => {
     if (!user || !user.primaryEmailAddress) return;
 
     const userDetails: UserDetails = {
@@ -39,13 +52,18 @@ const PricingPage = () => {
     startTransition(async () => {
       const stripe = await getStripe();
 
-      if (hasActiveMembership) {
+      if (hasPaidPlan) {
         // Create stripe portal
         const stripePortalURL = await createStripePortal();
         return router.push(stripePortalURL);
       }
 
-      const sessionId = await createCheckoutSession(userDetails);
+      // Skip checkout for starter plan
+      if (planId === PLAN_TYPES.STARTER) {
+        return;
+      }
+
+      const sessionId = await createCheckoutSession(userDetails, planId, annualBilling);
       await stripe?.redirectToCheckout({ sessionId });
     });
   };
@@ -59,88 +77,13 @@ const PricingPage = () => {
     },
   };
 
-  const plans = [
-    {
-      id: 'starter',
-      name: 'Starter',
-      description: 'For individuals exploring DocuBots capabilities',
-      price: annualBilling ? 'Free' : 'Free',
-      features: [
-        { title: 'Upload up to 3 documents', included: true },
-        { title: '5 AI messages per document', included: true },
-        { title: 'Basic document analysis', included: true },
-        { title: 'Standard email support', included: true },
-        { title: 'Delete documents', included: false },
-        { title: 'Advanced data exports', included: false },
-        { title: 'Priority support', included: false },
-      ],
-      cta: 'Get Started',
-      popular: false,
-      disabled: false,
-    },
-    {
-      id: 'pro',
-      name: 'Professional',
-      description: 'For professionals who need more power and flexibility',
-      price: annualBilling ? '$8.33/mo' : '$9.99/mo',
-      features: [
-        { title: 'Upload up to 15 documents', included: true },
-        { title: 'Up to 20 AI messages per document', included: true },
-        { title: 'Advanced document analytics', included: true },
-        { title: 'Delete documents anytime', included: true },
-        { title: 'Advanced data export options', included: true },
-        { title: 'Priority email support', included: true },
-        { title: 'Access to new features first', included: true },
-      ],
-      cta: hasActiveMembership ? 'Manage Plan' : 'Upgrade Now',
-      popular: true,
-      disabled: isPending || loading,
-    },
-    {
-      id: 'team',
-      name: 'Team',
-      description: 'For teams and organizations requiring advanced capabilities',
-      price: annualBilling ? '$33.33/mo' : '$39.99/mo',
-      yearlyPrice: annualBilling ? '$400/year' : null,
-      features: [
-        { title: 'Upload up to 100 documents', included: true },
-        { title: 'Up to 50 AI messages per document', included: true },
-        { title: 'Advanced document analytics & insights', included: true },
-        { title: 'Bulk document processing (up to 25 at once)', included: true },
-        { title: 'Team collaboration (up to 25 users)', included: true },
-        { title: 'Custom workflows & automation', included: true },
-        { title: 'Advanced security & compliance (SOC2, GDPR)', included: true },
-        { title: 'Dedicated account manager', included: true },
-        { title: 'Custom data retention (up to 5 years)', included: true },
-        { title: 'Advanced reporting & team analytics', included: true },
-        { title: 'White-label branding options', included: true },
-        { title: 'SLA guarantee (99.9% uptime)', included: true },
-      ],
-      cta: hasActiveMembership ? 'Manage Plan' : 'Contact Sales',
-      popular: false,
-      disabled: isPending || loading,
-      badge: 'Most Powerful',
-      highlight: true,
-    },
-    // {
-    //   id: 'developer',
-    //   name: 'Developer',
-    //   description: 'For teams and developers with advanced needs',
-    //   price: 'Coming Soon',
-    //   features: [
-    //     { title: 'Upload up to 50 documents', included: true },
-    //     { title: 'Unlimited AI messages', included: true },
-    //     { title: 'GitHub repository integration', included: true },
-    //     { title: 'Document-to-repo chat linking', included: true },
-    //     { title: 'Comprehensive analytics suite', included: true },
-    //     { title: '24/7 dedicated support', included: true },
-    //     { title: 'Custom solutions and services', included: true },
-    //   ],
-    //   cta: 'Join Waitlist',
-    //   popular: false,
-    //   disabled: true,
-    // },
-  ];
+  const plans = Object.values(PRICING_PLANS).map((plan) => ({
+    ...plan,
+    price: annualBilling ? plan.pricing.annual : plan.pricing.monthly,
+    yearlyPrice: plan.pricing.yearlyPrice,
+    cta: plan.id === PLAN_TYPES.STARTER ? plan.cta : hasPaidPlan ? 'Manage Plan' : plan.cta,
+    disabled: plan.id === PLAN_TYPES.PRO ? isPending || loading : isPending || loading,
+  }));
 
   return (
     <div className='flex flex-col items-center overflow-x-hidden bg-gradient-to-br from-accent2/20 to-accent/20 dark:from-accent3/20 dark:to-accent4/20'>
@@ -236,7 +179,7 @@ const PricingPage = () => {
                   <span className='text-4xl font-extrabold tracking-tight text-dark-800 dark:text-light-300'>
                     {plan.price}
                   </span>
-                  {plan.price !== 'Free' && plan.price !== 'Coming Soon' && (
+                  {plan.price !== 'Free' && (
                     <span className='text-base text-dark-600 dark:text-light-400'>
                       {annualBilling
                         ? ' per month, billed annually'

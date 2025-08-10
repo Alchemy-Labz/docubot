@@ -10,8 +10,29 @@ import { Menu, X, Settings } from 'lucide-react';
 
 const Header2 = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const { user } = useUser();
+  const { user, isLoaded } = useUser();
   const isAdmin = user?.publicMetadata?.isAdmin === true;
+
+  // Don't render admin features until user data is loaded
+  if (!isLoaded) {
+    return (
+      <header className='bg-white shadow-sm dark:bg-gray-900'>
+        <div className='mx-auto max-w-7xl px-4 sm:px-6 lg:px-8'>
+          <div className='flex h-16 justify-between'>
+            <div className='flex items-center'>
+              <Link href='/' className='flex items-center space-x-2'>
+                <Image src='/logo.png' alt='DocuBot' width={32} height={32} />
+                <span className='text-xl font-bold'>DocuBot</span>
+              </Link>
+            </div>
+            <div className='flex items-center space-x-4'>
+              <DLToggle />
+            </div>
+          </div>
+        </div>
+      </header>
+    );
+  }
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);

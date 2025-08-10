@@ -12,8 +12,23 @@ import { File, FilePlus2, Settings } from 'lucide-react';
 import UpgradeButton from '../Dashboard/UpgradeButton';
 
 const Header = () => {
-  const { user } = useUser();
+  const { user, isLoaded } = useUser();
   const isAdmin = user?.publicMetadata?.isAdmin === true;
+
+  // Don't render admin features until user data is loaded
+  if (!isLoaded) {
+    return (
+      <header className='flex items-center justify-between bg-light-600 px-5 py-3 shadow-xl shadow-dark-800/30 dark:bg-dark-800'>
+        <Link href='/' className='flex items-center space-x-4' aria-label='DocuBot home page'>
+          <Image src='/logo.png' alt='DocuBot logo' width={45} height={45} priority />
+          <h1 className='hidden text-4xl font-bold text-gradient-lime-violet md:block'>DocuBot</h1>
+        </Link>
+        <div className='flex items-center space-x-4'>
+          <DLToggle />
+        </div>
+      </header>
+    );
+  }
 
   return (
     <header className='flex items-center justify-between bg-light-600 px-5 py-3 shadow-xl shadow-dark-800/30 dark:bg-dark-800'>

@@ -1,7 +1,7 @@
 // src/providers/FirebaseContext.tsx
 'use client';
 
-import React, { createContext, useContext, useEffect, useState, useRef } from 'react';
+import React, { createContext, useContext, useEffect, useState, useRef, useCallback } from 'react';
 import {
   User,
   signInWithCustomToken,
@@ -81,7 +81,7 @@ export const FirebaseProvider: React.FC<FirebaseProviderProps> = ({ children }) 
   };
 
   // Function to authenticate with Firebase using custom token
-  const authenticate = async (): Promise<void> => {
+  const authenticate = useCallback(async (): Promise<void> => {
     if (!clerkUser) {
       throw new Error('No Clerk user available');
     }
@@ -111,25 +111,26 @@ export const FirebaseProvider: React.FC<FirebaseProviderProps> = ({ children }) 
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [clerkUser]);
 
   // Function to sign out
-  const signOut = async (): Promise<void> => {
+  const signOut = useCallback(async (): Promise<void> => {
     try {
       await firebaseSignOut(auth);
       setToken(null);
       setTokenExpiry(null);
       setError(null);
+      authenticationAttempted.current = false;
       console.log('✅ Firebase sign out successful');
     } catch (err) {
       console.error('❌ Firebase sign out failed:', err);
       setError(err instanceof Error ? err.message : 'Sign out failed');
       throw err;
     }
-  };
+  }, []);
 
   // Function to refresh token if needed
-  const refreshToken = async (): Promise<void> => {
+  const refreshToken = useCallback(async (): Promise<void> => {
     if (!clerkUser) return;
 
     try {
@@ -139,7 +140,7 @@ export const FirebaseProvider: React.FC<FirebaseProviderProps> = ({ children }) 
       console.error('❌ Token refresh failed:', err);
       setError(err instanceof Error ? err.message : 'Token refresh failed');
     }
-  };
+  }, [clerkUser, authenticate]);
 
   // Set up Firebase auth state listener
   useEffect(() => {
@@ -191,23 +192,16 @@ export const FirebaseProvider: React.FC<FirebaseProviderProps> = ({ children }) 
     };
   }, [mounted, clerkUser]);
 
-  // Auto-authenticate when Clerk user becomes available
+  // Reset authentication flag when Clerk user changes
   useEffect(() => {
     if (!mounted || !clerkLoaded) return;
 
-    if (clerkUser && !firebaseUser && !authenticationAttempted.current) {
-      console.log('🔄 Clerk user loaded, attempting Firebase authentication...');
-      authenticationAttempted.current = true;
-      authenticate().catch((err) => {
-        console.error('Auto-authentication failed:', err);
-        setIsLoading(false);
-      });
-    } else if (!clerkUser) {
+    if (!clerkUser) {
       // Reset authentication flag when Clerk user is cleared
       authenticationAttempted.current = false;
       setIsLoading(false);
     }
-  }, [clerkUser, clerkLoaded, firebaseUser, mounted]);
+  }, [clerkUser, clerkLoaded, mounted]);
 
   // Don't render until mounted to prevent hydration issues
   if (!mounted) {

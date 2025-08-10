@@ -42,9 +42,9 @@ const Document = ({
   createdAt,
 }: DocumentProps) => {
   const [isDeleting, startTransaction] = useTransition();
-  const { hasActiveMembership, loading: membershipLoading } = useSubscription();
+  const { hasPaidPlan, loading: membershipLoading } = useSubscription();
 
-  const canDelete = hasActiveMembership && !membershipLoading;
+  const canDelete = hasPaidPlan && !membershipLoading;
 
   const handleDelete = () => {
     const prompt = window.confirm(`Are you sure you want to delete document "${name}"?`);
@@ -168,17 +168,17 @@ const Document = ({
           'flex items-center space-x-1',
           !canDelete && 'cursor-not-allowed opacity-50'
         )}
-        aria-label={`Delete ${name}${!hasActiveMembership ? ' (requires Pro membership)' : ''}`}
-        aria-describedby={!hasActiveMembership ? `delete-restriction-${id}` : undefined}
+        aria-label={`Delete ${name}${!hasPaidPlan ? ' (requires Pro membership)' : ''}`}
+        aria-describedby={!hasPaidPlan ? `delete-restriction-${id}` : undefined}
       >
         <Trash2 className='h-4 w-4' aria-hidden='true' />
         <span className='hidden sm:inline'>
-          {!hasActiveMembership && <span className='text-xs'>Pro </span>}
+          {!hasPaidPlan && <span className='text-xs'>Pro </span>}
           {isDeleting ? 'Deleting...' : 'Delete'}
         </span>
       </Button>
 
-      {!hasActiveMembership && (
+      {!hasPaidPlan && (
         <div id={`delete-restriction-${id}`} className='sr-only'>
           Document deletion requires a Pro membership. Upgrade to delete documents.
         </div>
@@ -237,7 +237,7 @@ const Document = ({
           </div>
 
           {/* Action Buttons */}
-          <div className='mt-4 border-t border-light-600/20 pt-4 dark:border-light-800/20'>
+          <div className='mt-4 border-t border-light-600/20 p-4 dark:border-light-800/20'>
             <ActionButtons className='justify-center' />
           </div>
         </div>

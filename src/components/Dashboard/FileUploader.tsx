@@ -25,12 +25,17 @@ import {
   FILE_TYPE_LABELS,
   ERROR_MESSAGES,
   SUCCESS_MESSAGES,
+  PLAN_TYPES,
 } from '@/lib/constants/appConstants';
 
 const FileUploader = () => {
   const { progress, status, docId, handleUploadDocument } = useUpload();
-  const { isOverFileLimit, docsLoading } = useSubscription();
+  const { isOverFileLimit, docsLoading, planType } = useSubscription();
   const router = useRouter();
+
+  // Get file size limit based on user's plan
+  const maxFileSize = FILE_UPLOAD.getMaxFileSizeForPlan(planType);
+  const maxFileSizeDisplay = FILE_UPLOAD.formatFileSize(maxFileSize);
 
   // File type icons mapping
   const fileTypeIcons = useMemo(
@@ -80,7 +85,7 @@ const FileUploader = () => {
             }
           }
         } else {
-          toast.error(ERROR_MESSAGES.SUBSCRIPTION_LIMIT_REACHED);
+          toast.error(ERROR_MESSAGES.SUBSCRIPTION_LIMIT_REACHED(planType));
         }
       }
     },
@@ -110,7 +115,7 @@ const FileUploader = () => {
   }, []);
 
   const statusIcons: {
-    [key in UploadStatusText]: JSX.Element;
+    [key in UploadStatusText]: React.JSX.Element;
   } = {
     [UploadStatusText.UPLOADING]: (
       <CircleArrowDown className='h-20 w-20 text-accent' aria-hidden='true' />
@@ -129,7 +134,7 @@ const FileUploader = () => {
       onDrop,
       onDropRejected,
       maxFiles: 1,
-      maxSize: FILE_UPLOAD.MAX_FILE_SIZE,
+      maxSize: maxFileSize,
       accept: FILE_UPLOAD.ACCEPTED_FILE_TYPES,
     });
 
@@ -138,118 +143,146 @@ const FileUploader = () => {
 
   return (
     <div className='font mx-auto flex max-w-7xl flex-col items-center gap-4'>
-      {/* File Loading Logic  */}
-      {uploadInProgress && (
-        <div className='mt-32 flex flex-col items-center justify-center gap-5'>
-          <div
-            className={`radial-progress border-4 border-accent2 bg-accent text-light-200 ${
-              progress === 100 && 'hidden'
-            }`}
-            role='progressbar'
-            style={
-              {
-                '--value': progress,
-                '--size': '12rem',
-                '--thickness': '1.3rem',
-              } as React.CSSProperties
-            }
-            aria-valuenow={progress || 0}
-            aria-valuemin={0}
-            aria-valuemax={100}
-            aria-label={`Upload progress: ${progress}% complete`}
-          >
-            <span className='sr-only'>{progress}% uploaded</span>
-            {progress}%
-          </div>
-
-          <div role='status' aria-live='polite'>
-            {statusIcons[status! as keyof typeof statusIcons]}
-            <p className='animate-pulse text-accent2'>{status}</p>
-          </div>
-
-          {currentFile && (
-            <div className='flex flex-col items-center gap-2'>
-              {getFileTypeDisplay(currentFile.type)}
-              <p className='text-sm text-accent2'>
-                <span className='sr-only'>Uploading file: </span>
-                {currentFile.name}
-              </p>
+      {/* Consistent container height to prevent layout shifts */}
+      <div className='mt-12 flex min-h-[24rem] w-[75%] items-center justify-center'>
+        {/* File Loading Logic  */}
+        {uploadInProgress ? (
+          <div className='flex flex-col items-center justify-center gap-5'>
+            <div
+              className={`radial-progress border-4 border-accent2 bg-accent text-light-200 shadow-lg ${
+                progress === 100 && 'hidden'
+              }`}
+              role='progressbar'
+              style={
+                {
+                  '--value': progress,
+                  '--size': '12rem',
+                  '--thickness': '1.3rem',
+                } as React.CSSProperties
+              }
+              aria-valuenow={progress || 0}
+              aria-valuemin={0}
+              aria-valuemax={100}
+              aria-label={`Upload progress: ${progress}% complete`}
+            >
+              <span className='sr-only'>{progress}% uploaded</span>
+              <span className='text-lg font-bold'>{progress}%</span>
             </div>
-          )}
-        </div>
-      )}
 
-      {!uploadInProgress && (
-        <div
-          {...getRootProps()}
-          className={`mt-12 flex h-86 w-[75%] cursor-pointer items-center justify-center rounded-lg border-2 border-dashed p-10 text-center text-accent2 transition-colors focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 dark:border-accent2 dark:text-accent ${
-            isDragAccept
-              ? 'border-accent3 bg-accent4/50 dark:border-accent3 dark:bg-accent/40 dark:text-accent2'
-              : 'border-accent bg-light-500/30 dark:bg-dark-600/30'
-          } ${isFocused ? 'border-accent4' : 'border-accent'}`}
-          role='button'
-          tabIndex={0}
-          aria-label='File upload area. Click to select files or drag and drop documents here.'
-          aria-describedby='upload-instructions upload-file-types'
-        >
-          <input
-            {...getInputProps()}
-            aria-label='File input for document upload'
-            aria-describedby='upload-instructions'
-          />
+            {/* Status Text with improved contrast */}
+            <div role='status' aria-live='polite' className='text-center'>
+              <div className='flex flex-col items-center gap-3'>
+                {statusIcons[status! as keyof typeof statusIcons]}
+                <p className='animate-pulse text-lg font-semibold text-accent2 dark:text-accent'>
+                  {status}
+                </p>
+              </div>
+            </div>
 
-          <div className='flex flex-col items-center justify-center space-y-6'>
-            <Image src='/logo.png' alt='DocuBot logo' width={75} height={75} priority />
-
-            {isDragActive ? (
-              <>
-                <div role='status' aria-live='polite'>
-                  <Rocket className='h-14 w-14 animate-ping text-accent2' aria-hidden='true' />
-                  <p id='upload-instructions'>Drop Documents for DocuBot here...</p>
-                </div>
-              </>
-            ) : (
-              <>
-                <CircleArrowDown
-                  className='h-14 w-14 animate-caret-blink text-accent2 dark:text-accent'
-                  aria-hidden='true'
-                />
-                <div>
-                  <p id='upload-instructions'>
-                    Feed me some Documents by dropping them in front of me or clicking here.
-                  </p>
-                  <p className='mt-2 text-sm text-muted-foreground'>
-                    Supports PDF, TXT, MD, and RTF files. Maximum file size: 15MB
-                  </p>
-                </div>
-
-                <div
-                  id='upload-file-types'
-                  className='flex max-w-md flex-wrap items-center justify-center gap-3'
-                  aria-label='Supported file types'
-                >
-                  <div className='flex items-center gap-1 rounded-md bg-light-600/50 p-1 text-sm dark:bg-dark-700/50'>
-                    <FileText className='h-4 w-4' aria-hidden='true' />
-                    <span>PDF</span>
-                  </div>
-                  <div className='flex items-center gap-1 rounded-md bg-light-600/50 p-1 text-sm dark:bg-dark-700/50'>
-                    <FileText className='h-4 w-4' aria-hidden='true' />
-                    <span>TXT</span>
-                  </div>
-                  <div className='flex items-center gap-1 rounded-md bg-light-600/50 p-1 text-sm dark:bg-dark-700/50'>
-                    <FileType className='h-4 w-4' aria-hidden='true' />
-                    <span>MD</span>
-                  </div>
-                  <div className='flex items-center gap-1 rounded-md bg-light-600/50 p-1 text-sm dark:bg-dark-700/50'>
-                    <FileArchive className='h-4 w-4' aria-hidden='true' />
-                    <span>RTF</span>
-                  </div>
-                </div>
-              </>
+            {/* File info with better styling */}
+            {currentFile && (
+              <div className='flex flex-col items-center gap-2 rounded-lg bg-light-400/50 p-4 dark:bg-dark-700/50'>
+                {getFileTypeDisplay(currentFile.type)}
+                <p className='text-sm font-medium text-gray-700 dark:text-gray-300'>
+                  <span className='sr-only'>Uploading file: </span>
+                  {currentFile.name}
+                </p>
+                <p className='text-xs text-gray-500 dark:text-gray-400'>
+                  {FILE_UPLOAD.formatFileSize(currentFile.size)}
+                </p>
+              </div>
             )}
           </div>
-        </div>
-      )}
+        ) : (
+          /* Upload Area - consistent sizing to prevent layout shifts */
+          <div
+            {...getRootProps()}
+            className={`flex cursor-pointer items-center justify-center rounded-lg border-2 border-dashed p-10 text-center transition-all duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 ${
+              isDragAccept
+                ? 'border-accent3 bg-accent4/50 text-accent2 dark:border-accent3 dark:bg-accent/40 dark:text-accent2'
+                : 'border-accent bg-light-500/30 text-accent2 dark:border-accent2 dark:bg-dark-600/30 dark:text-accent'
+            } ${
+              isFocused
+                ? 'border-accent4 shadow-lg'
+                : 'border-accent hover:border-accent3 hover:bg-light-400/40 dark:hover:bg-dark-500/40'
+            }`}
+            role='button'
+            tabIndex={0}
+            aria-label='File upload area. Click to select files or drag and drop documents here.'
+            aria-describedby='upload-instructions upload-file-types'
+          >
+            <input
+              {...getInputProps()}
+              aria-label='File input for document upload'
+              aria-describedby='upload-instructions'
+            />
+
+            <div className='flex flex-col items-center justify-center space-y-6'>
+              <Image src='/logo.png' alt='DocuBot logo' width={75} height={75} priority />
+
+              {isDragActive ? (
+                <div role='status' aria-live='polite' className='flex flex-col items-center gap-4'>
+                  <Rocket
+                    className='h-14 w-14 animate-ping text-accent2 dark:text-accent'
+                    aria-hidden='true'
+                  />
+                  <p
+                    id='upload-instructions'
+                    className='text-lg font-semibold text-accent2 dark:text-accent'
+                  >
+                    Drop Documents for DocuBot here...
+                  </p>
+                </div>
+              ) : (
+                <>
+                  <CircleArrowDown
+                    className='h-14 w-14 animate-caret-blink text-accent2 dark:text-accent'
+                    aria-hidden='true'
+                  />
+                  <div className='space-y-3'>
+                    <p
+                      id='upload-instructions'
+                      className='text-lg font-semibold text-gray-700 dark:text-gray-200'
+                    >
+                      Feed me some Documents by dropping them in front of me or clicking here.
+                    </p>
+                    <p className='text-sm font-medium text-gray-600 dark:text-gray-300'>
+                      Supports PDF, TXT, MD, and RTF files. Maximum file size: {maxFileSizeDisplay}
+                    </p>
+                    <p className='text-xs text-gray-500 dark:text-gray-400'>
+                      Your current plan:{' '}
+                      <span className='font-semibold capitalize'>{planType}</span>
+                    </p>
+                  </div>
+
+                  <div
+                    id='upload-file-types'
+                    className='flex max-w-md flex-wrap items-center justify-center gap-3'
+                    aria-label='Supported file types'
+                  >
+                    <div className='flex items-center gap-1 rounded-md bg-light-600/50 p-1 text-sm dark:bg-dark-700/50'>
+                      <FileText className='h-4 w-4' aria-hidden='true' />
+                      <span>PDF</span>
+                    </div>
+                    <div className='flex items-center gap-1 rounded-md bg-light-600/50 p-1 text-sm dark:bg-dark-700/50'>
+                      <FileText className='h-4 w-4' aria-hidden='true' />
+                      <span>TXT</span>
+                    </div>
+                    <div className='flex items-center gap-1 rounded-md bg-light-600/50 p-1 text-sm dark:bg-dark-700/50'>
+                      <FileType className='h-4 w-4' aria-hidden='true' />
+                      <span>MD</span>
+                    </div>
+                    <div className='flex items-center gap-1 rounded-md bg-light-600/50 p-1 text-sm dark:bg-dark-700/50'>
+                      <FileArchive className='h-4 w-4' aria-hidden='true' />
+                      <span>RTF</span>
+                    </div>
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 };

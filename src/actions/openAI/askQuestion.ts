@@ -9,7 +9,12 @@ import {
   searchDenseVectors,
   searchSparseVectors,
 } from '../langchain/langchain';
-import { SUBSCRIPTION_LIMITS, ERROR_MESSAGES, OPENAI_CONFIG } from '@/lib/constants/appConstants';
+import {
+  SUBSCRIPTION_LIMITS,
+  ERROR_MESSAGES,
+  OPENAI_CONFIG,
+  PLAN_TYPES,
+} from '@/lib/constants/appConstants';
 import { Message } from '@/models/types/chatTypes';
 import { Document } from '@langchain/core/documents';
 
@@ -102,8 +107,8 @@ export async function askQuestion(id: string, question: string) {
     // Check user's subscription status
     console.log(`🔍 Checking user's subscription status...`);
     const userDoc = await userRef.get();
-    const hasActiveMembership = userDoc.data()?.hasActiveMembership ?? false;
-    console.log(`ℹ️ User has active membership: ${hasActiveMembership}`);
+    const planType = userDoc.data()?.planType || PLAN_TYPES.STARTER;
+    console.log(`ℹ️ User plan type: ${planType}`);
 
     // Get user's messages for this document
     console.log(`🔍 Getting user's existing messages for this document...`);
@@ -112,18 +117,20 @@ export async function askQuestion(id: string, question: string) {
     console.log(`ℹ️ User has ${userMessages.length} existing messages for this document`);
 
     // Check if the user has reached their limit
-    const limit = hasActiveMembership
-      ? SUBSCRIPTION_LIMITS.PRO.MESSAGE_LIMIT
-      : SUBSCRIPTION_LIMITS.FREE.MESSAGE_LIMIT;
-    console.log(
-      `ℹ️ Message limit for user: ${limit} (${hasActiveMembership ? 'PRO' : 'FREE'} tier)`
-    );
+    let limit = SUBSCRIPTION_LIMITS.FREE.MESSAGE_LIMIT;
+    if (planType === PLAN_TYPES.PRO) {
+      limit = SUBSCRIPTION_LIMITS.PRO.MESSAGE_LIMIT;
+    } else if (planType === PLAN_TYPES.TEAM) {
+      limit = SUBSCRIPTION_LIMITS.TEAM.MESSAGE_LIMIT;
+    }
+
+    console.log(`ℹ️ Message limit for user: ${limit} (${planType} tier)`);
 
     if (userMessages.length >= limit) {
       console.warn(`⚠️ User has reached message limit: ${userMessages.length}/${limit}`);
       return {
         success: false,
-        message: ERROR_MESSAGES.MESSAGE_LIMIT_REACHED(hasActiveMembership, limit),
+        message: ERROR_MESSAGES.MESSAGE_LIMIT_REACHED(planType, limit),
       };
     }
 

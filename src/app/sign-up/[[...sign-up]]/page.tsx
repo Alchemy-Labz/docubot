@@ -1,5 +1,7 @@
 'use client';
 // eslint-disable react/function-component-definition
+import React, { useEffect, useState } from 'react';
+import { useAuth } from '@clerk/nextjs';
 import * as Clerk from '@clerk/elements/common';
 import * as SignUp from '@clerk/elements/sign-up';
 import Link from 'next/link';
@@ -20,6 +22,24 @@ import Image from 'next/image';
 import { ArrowRight } from 'lucide-react';
 
 export default function SignUpPage() {
+  const { isLoaded } = useAuth();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // Don't render until mounted and Clerk is loaded
+  if (!mounted || !isLoaded) {
+    return (
+      <div className='flex min-h-screen items-center justify-center'>
+        <div className='text-center'>
+          <div className='mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-b-2 border-accent'></div>
+          <p>Loading...</p>
+        </div>
+      </div>
+    );
+  }
   return (
     <div className='flex min-h-screen items-center justify-center bg-gradient-to-b from-light-100 via-accent2/30 to-accent/40 px-4 py-16 transition-colors duration-300 dark:from-dark-900 dark:via-dark-800 dark:to-accent3/30 sm:px-6 lg:px-8'>
       <div className='relative mx-auto max-w-6xl'>

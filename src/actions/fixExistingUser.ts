@@ -4,7 +4,7 @@ import { auth } from '@clerk/nextjs/server';
 import { adminDb } from '@/lib/firebase/firebaseAdmin';
 import { getAuth } from 'firebase-admin/auth';
 import { adminApp } from '@/lib/firebase/firebaseAdmin';
-import { FIREBASE_CONFIG } from '@/lib/constants/appConstants';
+import { FIREBASE_CONFIG, PLAN_TYPES } from '@/lib/constants/appConstants';
 
 /**
  * Fixes an existing user's Firestore data to ensure all required fields are present
@@ -42,8 +42,8 @@ export async function fixExistingUser() {
     };
 
     // Only set these fields if they don't already exist
-    if (!userDoc.exists || !userDoc.data()?.hasActiveMembership) {
-      updateData.hasActiveMembership = false;
+    if (!userDoc.exists || !userDoc.data()?.planType) {
+      updateData.planType = PLAN_TYPES.STARTER;
     }
 
     if (!userDoc.exists || !userDoc.data()?.createdAt) {
