@@ -1,11 +1,10 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { useAuth } from '@clerk/nextjs';
+import { useSignIn, useAuth } from '@clerk/nextjs';
+import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { ArrowRight } from 'lucide-react';
-import * as Clerk from '@clerk/elements/common';
-import * as SignIn from '@clerk/elements/sign-in';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import {
@@ -23,14 +22,62 @@ import { cn } from '@/util/utils';
 
 export default function SignInPage() {
   const { isLoaded } = useAuth();
+  const { isLoaded: signInLoaded, signIn, setActive } = useSignIn();
   const [mounted, setMounted] = useState(false);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!signInLoaded) return;
+
+    setIsLoading(true);
+    setError('');
+
+    try {
+      const result = await signIn.create({
+        identifier: email,
+        password,
+      });
+
+      if (result.status === 'complete') {
+        await setActive({ session: result.createdSessionId });
+        router.push('/dashboard');
+      }
+    } catch (err: any) {
+      setError(err.errors?.[0]?.message || 'Invalid credentials');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleSocialSignIn = async (strategy: 'oauth_github' | 'oauth_google') => {
+    if (!signInLoaded) return;
+
+    setIsLoading(true);
+    setError('');
+
+    try {
+      await signIn.authenticateWithRedirect({
+        strategy,
+        redirectUrl: '/dashboard',
+        redirectUrlComplete: '/dashboard',
+      });
+    } catch (err: any) {
+      setError(err.errors?.[0]?.message || 'Social sign in failed');
+      setIsLoading(false);
+    }
+  };
+
   // Don't render until mounted and Clerk is loaded
-  if (!mounted || !isLoaded) {
+  if (!mounted || !isLoaded || !signInLoaded) {
     return (
       <div className='flex min-h-screen items-center justify-center'>
         <div className='text-center'>
@@ -85,289 +132,117 @@ export default function SignInPage() {
 
           {/* Right Panel - Authentication Form */}
           <div className='flex items-center justify-center bg-gradient-to-b from-light-100 via-accent2/30 to-accent/40 p-6 backdrop-blur-md transition-colors duration-300 dark:from-dark-900 dark:via-dark-800 dark:to-accent3/30 md:p-10'>
-            <SignIn.Root>
-              <Clerk.Loading>
-                {(isGlobalLoading) => (
-                  <>
-                    <SignIn.Step name='start'>
-                      <Card className='w-full min-w-max border-light-300/50 bg-white/80 backdrop-blur-sm dark:border-dark-600/50 dark:bg-dark-800/80 sm:w-96'>
-                        <CardHeader>
-                          <div className='flex w-full flex-col items-center justify-center space-y-4'>
-                            <Image src='/logo.png' alt='DocuBot logo' width={75} height={75} />
-                            <CardTitle className='text-center'>
-                              Sign in to{' '}
-                              <span className='text-accent2 dark:text-accent2'>DocuBot</span>
-                            </CardTitle>
-                            <CardDescription className='text-center'>
-                              Welcome back! Please sign in to continue.
-                            </CardDescription>
-                          </div>
-                        </CardHeader>
-                        <CardContent className='w-full space-y-4'>
-                          <Clerk.GlobalError className='text-sm text-destructive' />
-
-                          {/* Social Login Options */}
-                          <div className='grid w-full grid-cols-2 gap-x-4'>
-                            <Clerk.Connection name='github' asChild>
-                              <Button
-                                size='sm'
-                                variant='outline'
-                                type='button'
-                                disabled={isGlobalLoading}
-                                aria-label='Sign in with GitHub'
-                              >
-                                {isGlobalLoading ? (
-                                  <Icons.spinner className='size-4 animate-spin' />
-                                ) : (
-                                  <>
-                                    <Icons.gitHub className='mr-2 size-4' />
-                                    GitHub
-                                  </>
-                                )}
-                              </Button>
-                            </Clerk.Connection>
-                            <Clerk.Connection name='google' asChild>
-                              <Button
-                                size='sm'
-                                variant='outline'
-                                type='button'
-                                disabled={isGlobalLoading}
-                                aria-label='Sign in with Google'
-                              >
-                                {isGlobalLoading ? (
-                                  <Icons.spinner className='size-4 animate-spin' />
-                                ) : (
-                                  <>
-                                    <Icons.google className='mr-2 size-4' />
-                                    Google
-                                  </>
-                                )}
-                              </Button>
-                            </Clerk.Connection>
-                          </div>
-
-                          <p className='flex items-center gap-x-3 text-sm text-muted-foreground before:h-px before:flex-1 before:bg-border after:h-px after:flex-1 after:bg-border'>
-                            or
-                          </p>
-
-                          {/* Combined Email/Username and Password Fields */}
-                          <div className='space-y-4'>
-                            <Clerk.Field name='identifier' className='space-y-2'>
-                              <Clerk.Label asChild>
-                                <Label>Email or Username</Label>
-                              </Clerk.Label>
-                              <Clerk.Input type='text' required asChild>
-                                <Input />
-                              </Clerk.Input>
-                              <Clerk.FieldError className='block text-sm text-destructive' />
-                            </Clerk.Field>
-
-                            <Clerk.Field name='password' className='space-y-2'>
-                              <Clerk.Label asChild>
-                                <Label>Password</Label>
-                              </Clerk.Label>
-                              <Clerk.Input type='password' required asChild>
-                                <Input />
-                              </Clerk.Input>
-                              <Clerk.FieldError className='block text-sm text-destructive' />
-                            </Clerk.Field>
-                          </div>
-
-                          {/* Forgot Password Link */}
-                          <div className='text-center'>
-                            <SignIn.Action navigate='forgot-password' asChild>
-                              <Button type='button' variant='link' size='sm'>
-                                Forgot your password?
-                              </Button>
-                            </SignIn.Action>
-                          </div>
-                        </CardContent>
-                        <CardFooter>
-                          <div className='grid w-full gap-y-4'>
-                            <SignIn.Action submit asChild>
-                              <Button
-                                disabled={isGlobalLoading}
-                                className='w-full bg-accent text-white hover:bg-accent/90'
-                              >
-                                {isGlobalLoading ? (
-                                  <Icons.spinner className='size-4 animate-spin' />
-                                ) : (
-                                  'Sign In'
-                                )}
-                              </Button>
-                            </SignIn.Action>
-                            <Button variant='link' size='sm' asChild>
-                              <Link href='/sign-up'>Don&apos;t have an account? Sign up</Link>
-                            </Button>
-                          </div>
-                        </CardFooter>
-                      </Card>
-                    </SignIn.Step>
-
-                    {/* Keep verification steps for email codes, etc. */}
-                    <SignIn.Step name='verifications'>
-                      <SignIn.Strategy name='email_code'>
-                        <Card className='w-full border-light-300/50 bg-white/80 backdrop-blur-sm dark:border-dark-600/50 dark:bg-dark-800/80 sm:w-96'>
-                          <CardHeader>
-                            <CardTitle>Verify your email</CardTitle>
-                            <CardDescription>
-                              Use the verification code sent to your email address
-                            </CardDescription>
-                          </CardHeader>
-                          <CardContent className='grid gap-y-4'>
-                            <Clerk.GlobalError className='text-sm text-destructive' />
-                            <div className='grid items-center justify-center gap-y-2'>
-                              <Clerk.Field name='code' className='space-y-2'>
-                                <Clerk.Label className='sr-only'>Email code</Clerk.Label>
-                                <div className='flex justify-center text-center'>
-                                  <Clerk.Input
-                                    type='otp'
-                                    className='flex justify-center has-[:disabled]:opacity-50'
-                                    autoSubmit
-                                    render={({ value, status }) => {
-                                      return (
-                                        <div
-                                          data-status={status}
-                                          className={cn(
-                                            'relative flex size-10 items-center justify-center border-y border-r border-input text-sm transition-all first:rounded-l-md first:border-l last:rounded-r-md',
-                                            {
-                                              'z-10 ring-2 ring-ring ring-offset-background':
-                                                status === 'cursor' || status === 'selected',
-                                            }
-                                          )}
-                                        >
-                                          {value}
-                                          {status === 'cursor' && (
-                                            <div className='pointer-events-none absolute inset-0 flex items-center justify-center'>
-                                              <div className='h-4 w-px animate-caret-blink bg-foreground duration-1000' />
-                                            </div>
-                                          )}
-                                        </div>
-                                      );
-                                    }}
-                                  />
-                                </div>
-                                <Clerk.FieldError className='block text-center text-sm text-destructive' />
-                              </Clerk.Field>
-                              <SignIn.Action
-                                asChild
-                                resend
-                                className='text-muted-foreground'
-                                fallback={({ resendableAfter }) => (
-                                  <Button variant='link' size='sm' disabled>
-                                    Didn&apos;t receive a code? Resend (
-                                    <span className='tabular-nums'>{resendableAfter}</span>)
-                                  </Button>
-                                )}
-                              >
-                                <Button type='button' variant='link' size='sm'>
-                                  Didn&apos;t receive a code? Resend
-                                </Button>
-                              </SignIn.Action>
-                            </div>
-                          </CardContent>
-                          <CardFooter>
-                            <div className='grid w-full gap-y-4'>
-                              <SignIn.Action submit asChild>
-                                <Button disabled={isGlobalLoading}>
-                                  {isGlobalLoading ? (
-                                    <Icons.spinner className='size-4 animate-spin' />
-                                  ) : (
-                                    'Verify'
-                                  )}
-                                </Button>
-                              </SignIn.Action>
-                            </div>
-                          </CardFooter>
-                        </Card>
-                      </SignIn.Strategy>
-                    </SignIn.Step>
-
-                    {/* Forgot Password Step */}
-                    <SignIn.Step name='forgot-password'>
-                      <Card className='w-full border-light-300/50 bg-white/80 backdrop-blur-sm dark:border-dark-600/50 dark:bg-dark-800/80 sm:w-96'>
-                        <CardHeader>
-                          <CardTitle>Forgot your password?</CardTitle>
-                          <CardDescription>
-                            Enter your email or username and we&apos;ll send you a reset link
-                          </CardDescription>
-                        </CardHeader>
-                        <CardContent className='grid gap-y-4'>
-                          <Clerk.Field name='identifier' className='space-y-2'>
-                            <Clerk.Label asChild>
-                              <Label>Email or Username</Label>
-                            </Clerk.Label>
-                            <Clerk.Input type='text' required asChild>
-                              <Input />
-                            </Clerk.Input>
-                            <Clerk.FieldError className='block text-sm text-destructive' />
-                          </Clerk.Field>
-                        </CardContent>
-                        <CardFooter>
-                          <div className='grid w-full gap-y-4'>
-                            <SignIn.SupportedStrategy name='reset_password_email_code' asChild>
-                              <Button disabled={isGlobalLoading}>
-                                {isGlobalLoading ? (
-                                  <Icons.spinner className='size-4 animate-spin' />
-                                ) : (
-                                  'Send reset link'
-                                )}
-                              </Button>
-                            </SignIn.SupportedStrategy>
-                            <SignIn.Action navigate='start' asChild>
-                              <Button size='sm' variant='link'>
-                                Back to sign in
-                              </Button>
-                            </SignIn.Action>
-                          </div>
-                        </CardFooter>
-                      </Card>
-                    </SignIn.Step>
-
-                    {/* Reset Password Step */}
-                    <SignIn.Step name='reset-password'>
-                      <Card className='w-full border-light-300/50 bg-white/80 backdrop-blur-sm dark:border-dark-600/50 dark:bg-dark-800/80 sm:w-96'>
-                        <CardHeader>
-                          <CardTitle>Reset your password</CardTitle>
-                          <CardDescription>Enter a new password for your account</CardDescription>
-                        </CardHeader>
-                        <CardContent className='grid gap-y-4'>
-                          <Clerk.Field name='password' className='space-y-2'>
-                            <Clerk.Label asChild>
-                              <Label>New password</Label>
-                            </Clerk.Label>
-                            <Clerk.Input type='password' required asChild>
-                              <Input />
-                            </Clerk.Input>
-                            <Clerk.FieldError className='block text-sm text-destructive' />
-                          </Clerk.Field>
-                          <Clerk.Field name='confirmPassword' className='space-y-2'>
-                            <Clerk.Label asChild>
-                              <Label>Confirm password</Label>
-                            </Clerk.Label>
-                            <Clerk.Input type='password' required asChild>
-                              <Input />
-                            </Clerk.Input>
-                            <Clerk.FieldError className='block text-sm text-destructive' />
-                          </Clerk.Field>
-                        </CardContent>
-                        <CardFooter>
-                          <SignIn.Action submit asChild>
-                            <Button disabled={isGlobalLoading}>
-                              {isGlobalLoading ? (
-                                <Icons.spinner className='size-4 animate-spin' />
-                              ) : (
-                                'Reset password'
-                              )}
-                            </Button>
-                          </SignIn.Action>
-                        </CardFooter>
-                      </Card>
-                    </SignIn.Step>
-                  </>
+            <Card className='w-full min-w-max border-light-300/50 bg-white/80 backdrop-blur-sm dark:border-dark-600/50 dark:bg-dark-800/80 sm:w-96'>
+              <CardHeader>
+                <div className='flex w-full flex-col items-center justify-center space-y-4'>
+                  <Image src='/logo.png' alt='DocuBot logo' width={75} height={75} />
+                  <CardTitle className='text-center'>
+                    Sign in to <span className='text-accent2 dark:text-accent2'>DocuBot</span>
+                  </CardTitle>
+                  <CardDescription className='text-center'>
+                    Welcome back! Please sign in to continue.
+                  </CardDescription>
+                </div>
+              </CardHeader>
+              <CardContent className='w-full space-y-4'>
+                {error && (
+                  <div className='rounded-md border border-red-400 bg-red-100 px-4 py-3 text-sm text-red-700'>
+                    {error}
+                  </div>
                 )}
-              </Clerk.Loading>
-            </SignIn.Root>
+
+                {/* Social Login Options */}
+                <div className='grid w-full grid-cols-2 gap-x-4'>
+                  <Button
+                    size='sm'
+                    variant='outline'
+                    type='button'
+                    disabled={isLoading}
+                    aria-label='Sign in with GitHub'
+                    onClick={() => handleSocialSignIn('oauth_github')}
+                  >
+                    {isLoading ? (
+                      <Icons.spinner className='size-4 animate-spin' />
+                    ) : (
+                      <>
+                        <Icons.gitHub className='mr-2 size-4' />
+                        GitHub
+                      </>
+                    )}
+                  </Button>
+                  <Button
+                    size='sm'
+                    variant='outline'
+                    type='button'
+                    disabled={isLoading}
+                    aria-label='Sign in with Google'
+                    onClick={() => handleSocialSignIn('oauth_google')}
+                  >
+                    {isLoading ? (
+                      <Icons.spinner className='size-4 animate-spin' />
+                    ) : (
+                      <>
+                        <Icons.google className='mr-2 size-4' />
+                        Google
+                      </>
+                    )}
+                  </Button>
+                </div>
+
+                <p className='flex items-center gap-x-3 text-sm text-muted-foreground before:h-px before:flex-1 before:bg-border after:h-px after:flex-1 after:bg-border'>
+                  or
+                </p>
+
+                {/* Combined Email/Username and Password Fields */}
+                <form onSubmit={handleSubmit} className='space-y-4'>
+                  <div className='space-y-2'>
+                    <Label htmlFor='email'>Email or Username</Label>
+                    <Input
+                      id='email'
+                      type='text'
+                      placeholder='Email Address'
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      required
+                    />
+                  </div>
+
+                  <div className='space-y-2'>
+                    <Label htmlFor='password'>Password</Label>
+                    <Input
+                      id='password'
+                      type='password'
+                      placeholder='Password'
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      required
+                    />
+                  </div>
+                </form>
+
+                {/* Forgot Password Link */}
+                <div className='text-center'>
+                  <Button type='button' variant='link' size='sm'>
+                    Forgot your password?
+                  </Button>
+                </div>
+              </CardContent>
+              <CardFooter>
+                <div className='grid w-full gap-y-4'>
+                  <Button
+                    type='submit'
+                    disabled={isLoading}
+                    className='w-full bg-accent text-white hover:bg-accent/90'
+                    onClick={handleSubmit}
+                  >
+                    {isLoading ? <Icons.spinner className='size-4 animate-spin' /> : 'Sign In'}
+                  </Button>
+                  <Button variant='link' size='sm' asChild>
+                    <Link href='/sign-up'>Don&apos;t have an account? Sign up</Link>
+                  </Button>
+                </div>
+              </CardFooter>
+            </Card>
           </div>
         </div>
       </div>
