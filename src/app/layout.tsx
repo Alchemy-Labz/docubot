@@ -14,8 +14,63 @@ import { GoogleTagManager } from '@next/third-parties/google';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: 'DocuBot',
-  description: 'Chat with your documents and code repositories',
+  title:
+    'DocuBot - AI-Powered Document Analysis & Chat | Transform PDFs into Interactive Conversations',
+  description:
+    "Transform your PDFs into interactive conversations with DocuBot's AI-powered document analysis. Upload documents, ask questions in natural language, and get instant insights using advanced RAG technology. Free to start.",
+  keywords:
+    'AI document analysis, PDF chat, document AI, RAG technology, document intelligence, PDF analysis, AI chatbot, document processing, knowledge extraction, document search',
+  authors: [{ name: 'DocuBot Team' }],
+  creator: 'DocuBot',
+  publisher: 'DocuBot',
+  formatDetection: {
+    email: false,
+    address: false,
+    telephone: false,
+  },
+  metadataBase: new URL('https://docubot.ai'),
+  alternates: {
+    canonical: '/',
+  },
+  openGraph: {
+    title: 'DocuBot - AI-Powered Document Analysis & Chat',
+    description:
+      'Transform your PDFs into interactive conversations with AI. Upload documents and get instant insights using natural language questions.',
+    url: 'https://docubot.ai',
+    siteName: 'DocuBot',
+    images: [
+      {
+        url: '/screenshots/Tailwind.png',
+        width: 1200,
+        height: 630,
+        alt: 'DocuBot AI Document Analysis Interface',
+      },
+    ],
+    locale: 'en_US',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'DocuBot - AI-Powered Document Analysis & Chat',
+    description:
+      'Transform your PDFs into interactive conversations with AI. Upload documents and get instant insights.',
+    images: ['/screenshots/Tailwind.png'],
+    creator: '@docubot',
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
+  },
+  verification: {
+    google: 'your-google-verification-code',
+  },
 };
 
 export default function RootLayout({
