@@ -58,7 +58,7 @@ export default function RootLayout({
                   toastOptions={{
                     success: {
                       iconTheme: {
-                        primary: '#22c55e', // Green for success
+                        primary: 'hsl(var(--primary))', // Use theme primary color
                         secondary: 'hsl(var(--background))',
                       },
                     },

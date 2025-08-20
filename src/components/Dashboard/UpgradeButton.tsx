@@ -46,7 +46,7 @@ const UpgradeButton = () => {
           <Star
             className={getClasses({
               base: 'ml-2',
-              business: 'text-green-600',
+              business: 'text-primary',
               neon: 'text-accent',
             })}
           />

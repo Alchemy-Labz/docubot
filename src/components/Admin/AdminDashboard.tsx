@@ -249,21 +249,19 @@ const AdminDashboard: React.FC = () => {
         collection(db, 'investor-inquiries'),
         orderBy('timestamp', 'desc')
       );
-      const supportQuery = query(
-        collection(db, 'support-tickets'),
-        orderBy('timestamp', 'desc')
-      );
+      const supportQuery = query(collection(db, 'support-tickets'), orderBy('timestamp', 'desc'));
       const contactQuery = query(
         collection(db, 'contact-submissions'),
         orderBy('timestamp', 'desc')
       );
 
-      const [careerSnapshot, investorSnapshot, supportSnapshot, contactSnapshot] = await Promise.all([
-        getDocs(careerQuery),
-        getDocs(investorQuery),
-        getDocs(supportQuery),
-        getDocs(contactQuery),
-      ]);
+      const [careerSnapshot, investorSnapshot, supportSnapshot, contactSnapshot] =
+        await Promise.all([
+          getDocs(careerQuery),
+          getDocs(investorQuery),
+          getDocs(supportQuery),
+          getDocs(contactQuery),
+        ]);
 
       setStats({
         ...adminStats,
@@ -436,18 +434,18 @@ const AdminDashboard: React.FC = () => {
         return 'bg-accent2/20 text-accent2 dark:bg-accent/20 dark:text-accent';
       case 'reviewing':
       case 'contacted':
-        return 'bg-yellow-500/20 text-yellow-600 dark:text-yellow-400';
+        return 'bg-accent4/20 text-accent4 dark:text-accent4-dark';
       case 'interview':
       case 'meeting-scheduled':
-        return 'bg-blue-500/20 text-blue-600 dark:text-blue-400';
+        return 'bg-accent2/20 text-accent2 dark:text-accent2-dark';
       case 'hired':
       case 'completed':
-        return 'bg-green-500/20 text-green-600 dark:text-green-400';
+        return 'bg-accent/20 text-accent dark:text-accent-dark';
       case 'rejected':
       case 'declined':
-        return 'bg-red-500/20 text-red-600 dark:text-red-400';
+        return 'bg-destructive/20 text-destructive dark:text-destructive';
       default:
-        return 'bg-light-500/20 text-dark-600 dark:text-light-400';
+        return 'bg-muted/20 text-muted-foreground dark:text-muted-foreground';
     }
   };
 

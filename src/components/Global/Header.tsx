@@ -25,7 +25,7 @@ const Header = () => {
           base: 'flex items-center justify-between px-5 py-3 shadow-xl',
           business: 'border-b border-border bg-background',
           neonLight: 'bg-light-600 shadow-dark-800/30',
-          neonDark: 'bg-slate-800/95 shadow-black/50',
+          neonDark: 'bg-neon2-dark-800/95 shadow-black/50',
         })}
       >
         <Link href='/' className='flex items-center space-x-4' aria-label='DocuBot home page'>
@@ -53,7 +53,7 @@ const Header = () => {
         base: 'flex items-center justify-between px-5 py-3 shadow-xl',
         business: 'border-b border-border bg-background',
         neonLight: 'bg-light-600 shadow-dark-800/30',
-        neonDark: 'bg-slate-800/95 shadow-black/50',
+        neonDark: 'bg-neon2-dark-800/95 shadow-black/50',
       })}
     >
       <SignedOut>
@@ -146,7 +146,7 @@ const Header = () => {
                 neonLight:
                   'border-accent bg-light-700 text-dark-800 hover:bg-light-600 focus:ring-accent',
                 neonDark:
-                  'border-accent2 bg-slate-800 text-slate-300 hover:bg-slate-700 focus:ring-accent2/60',
+                  'bg-neon2-dark-800 hover:bg-neon2-dark-700 border-accent2 text-light-300 focus:ring-accent2/60',
               })}
             >
               <Link href='/sign-up' aria-label='Create new account'>
@@ -161,7 +161,7 @@ const Header = () => {
                 business: 'bg-primary text-primary-foreground hover:bg-primary/90 focus:ring-ring',
                 neonLight: 'bg-accent2 text-light-100 hover:bg-accent2/90 focus:ring-accent2',
                 neonDark:
-                  'bg-accent font-semibold text-slate-900 hover:bg-accent focus:ring-accent',
+                  'bg-accent font-semibold text-dark-900 hover:bg-accent/90 focus:ring-accent',
               })}
             >
               <Link href='/sign-in' aria-label='Sign in to your account'>

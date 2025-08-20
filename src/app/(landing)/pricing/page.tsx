@@ -93,7 +93,7 @@ const PricingPage = () => {
         base: 'flex flex-col items-center overflow-x-hidden',
         business: 'bg-background',
         neonLight: 'bg-gradient-to-br from-accent2/20 to-accent/20',
-        neonDark: 'from-neon2-dark-900/15 to-neon-dark-900/15 bg-gradient-to-br',
+        neonDark: 'from-neon2-dark-900/25 to-neon-dark-900/25 bg-gradient-to-br',
       })}
     >
       <div className='w-full max-w-7xl px-4 py-16 sm:px-6 sm:py-24 lg:px-8'>
@@ -129,7 +129,7 @@ const PricingPage = () => {
                 base: 'relative flex items-center rounded-full p-1',
                 business: 'bg-muted',
                 neonLight: 'bg-light-200/50',
-                neonDark: 'bg-dark-700/50',
+                neonDark: 'bg-neon2-dark-700/50',
               })}
             >
               <div className='flex items-center space-x-2 px-4 py-2'>
@@ -211,8 +211,8 @@ const PricingPage = () => {
                   ? 'border-accent2 bg-light-100/80 shadow-accent2/20'
                   : 'border-accent2/20 bg-light-100/80',
                 neonDark: plan.popular
-                  ? 'border-accent bg-dark-700/80 shadow-accent/20'
-                  : 'border-accent/20 bg-dark-700/80',
+                  ? 'bg-neon2-dark-700/80 border-accent shadow-accent/20'
+                  : 'bg-neon2-dark-700/80 border-accent/20',
               })}
             >
               {plan.popular && (
@@ -221,7 +221,7 @@ const PricingPage = () => {
                     base: 'py-2 text-center text-sm font-medium',
                     business: 'bg-primary text-primary-foreground',
                     neonLight: 'bg-accent2 text-light-100',
-                    neonDark: 'bg-accent text-dark-900',
+                    neonDark: 'text-neon-dark-900 bg-accent',
                   })}
                 >
                   Most Popular
@@ -325,8 +325,8 @@ const PricingPage = () => {
                         ? 'bg-accent2 text-light-100 hover:bg-accent2/90'
                         : 'bg-light-300 text-dark-800 hover:bg-light-400',
                       neonDark: plan.popular
-                        ? 'bg-accent text-dark-900 hover:bg-accent/90'
-                        : 'bg-dark-600 text-light-300 hover:bg-dark-500',
+                        ? 'text-neon-dark-900 bg-accent hover:bg-accent/90'
+                        : 'bg-neon2-dark-600 hover:bg-neon2-dark-500 text-light-300',
                     })}
                   >
                     {isPending && plan.id === 'pro' ? (
@@ -383,7 +383,7 @@ const PricingPage = () => {
                   base: 'rounded-lg border p-6',
                   business: 'border-border bg-card',
                   neonLight: 'border-accent2/20 bg-light-100/50',
-                  neonDark: 'border-accent/20 bg-dark-700/50',
+                  neonDark: 'bg-neon2-dark-700/50 border-accent/20',
                 })}
               >
                 <h3
@@ -450,7 +450,7 @@ const PricingPage = () => {
               base: 'mt-8',
               business: 'bg-primary text-primary-foreground hover:bg-primary/90',
               neonLight: 'bg-dark-800 text-light-300 hover:bg-dark-700',
-              neonDark: 'bg-light-300 text-dark-800 hover:bg-light-400',
+              neonDark: 'text-neon-dark-800 bg-light-300 hover:bg-light-400',
             })}
           >
             <Link href='/contact'>Contact Sales</Link>

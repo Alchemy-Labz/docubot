@@ -117,15 +117,15 @@ const HelpCenterPage: React.FC = () => {
                 className={getClasses({
                   base: 'w-96 rounded-lg p-8 shadow-lg ring-1 drop-shadow-md',
                   business: 'bg-card shadow-black/10 ring-border',
-                  neonLight: 'bg-indigo-500/20 shadow-dark-900/30 ring-indigo-500/80',
-                  neonDark: 'bg-indigo-900/30 shadow-black/50 ring-indigo-400/80',
+                  neonLight: 'bg-accent2/20 shadow-dark-900/30 ring-accent2/80',
+                  neonDark: 'bg-accent2/30 shadow-black/50 ring-accent2/80',
                 })}
               >
                 <Users
                   className={getClasses({
                     base: 'mb-4 h-8 w-8',
                     business: 'text-primary',
-                    neon: 'text-indigo-500',
+                    neon: 'text-accent2',
                   })}
                 />
                 <h3

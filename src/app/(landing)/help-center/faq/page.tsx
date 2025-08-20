@@ -171,7 +171,7 @@ const FAQPage: React.FC = () => {
           transition={{ duration: 0.6, delay: 0.1 }}
         >
           <div className='relative'>
-            <Search className='absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-dark-400 dark:text-light-600' />
+            <Search className='absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground' />
             <Input
               type='text'
               placeholder='Search for questions...'

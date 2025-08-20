@@ -130,7 +130,7 @@ const SupportTicketPage: React.FC = () => {
       value: 'high',
       label: 'High',
       description: 'Urgent issues affecting your work',
-      color: 'text-red-600 dark:text-red-400',
+      color: 'text-destructive',
     },
   ];
 
@@ -348,7 +348,7 @@ const SupportTicketPage: React.FC = () => {
                     <div className='grid gap-6 sm:grid-cols-2'>
                       <div className='space-y-2'>
                         <Label htmlFor='name'>
-                          Full Name <span className='text-red-500'>*</span>
+                          Full Name <span className='text-destructive'>*</span>
                         </Label>
                         <Input
                           id='name'
@@ -356,11 +356,11 @@ const SupportTicketPage: React.FC = () => {
                           type='text'
                           value={formData.name}
                           onChange={handleInputChange}
-                          className={errors.name ? 'border-red-500' : ''}
+                          className={errors.name ? 'border-destructive' : ''}
                           disabled={isSubmitting}
                         />
                         {errors.name && (
-                          <div className='flex items-center text-sm text-red-500'>
+                          <div className='flex items-center text-sm text-destructive'>
                             <AlertCircle className='mr-1 h-4 w-4' />
                             {errors.name}
                           </div>
@@ -369,7 +369,7 @@ const SupportTicketPage: React.FC = () => {
 
                       <div className='space-y-2'>
                         <Label htmlFor='email'>
-                          Email Address <span className='text-red-500'>*</span>
+                          Email Address <span className='text-destructive'>*</span>
                         </Label>
                         <Input
                           id='email'
@@ -377,11 +377,11 @@ const SupportTicketPage: React.FC = () => {
                           type='email'
                           value={formData.email}
                           onChange={handleInputChange}
-                          className={errors.email ? 'border-red-500' : ''}
+                          className={errors.email ? 'border-destructive' : ''}
                           disabled={isSubmitting}
                         />
                         {errors.email && (
-                          <div className='flex items-center text-sm text-red-500'>
+                          <div className='flex items-center text-sm text-destructive'>
                             <AlertCircle className='mr-1 h-4 w-4' />
                             {errors.email}
                           </div>
@@ -392,7 +392,7 @@ const SupportTicketPage: React.FC = () => {
                     {/* Issue Details */}
                     <div className='space-y-2'>
                       <Label htmlFor='subject'>
-                        Subject <span className='text-red-500'>*</span>
+                        Subject <span className='text-destructive'>*</span>
                       </Label>
                       <Input
                         id='subject'
@@ -400,12 +400,12 @@ const SupportTicketPage: React.FC = () => {
                         type='text'
                         value={formData.subject}
                         onChange={handleInputChange}
-                        className={errors.subject ? 'border-red-500' : ''}
+                        className={errors.subject ? 'border-destructive' : ''}
                         disabled={isSubmitting}
                         placeholder='Brief description of your issue'
                       />
                       {errors.subject && (
-                        <div className='flex items-center text-sm text-red-500'>
+                        <div className='flex items-center text-sm text-destructive'>
                           <AlertCircle className='mr-1 h-4 w-4' />
                           {errors.subject}
                         </div>
@@ -415,13 +415,13 @@ const SupportTicketPage: React.FC = () => {
                     <div className='grid gap-6 sm:grid-cols-2'>
                       <div className='space-y-2'>
                         <Label htmlFor='category'>
-                          Category <span className='text-red-500'>*</span>
+                          Category <span className='text-destructive'>*</span>
                         </Label>
                         <Select
                           onValueChange={handleSelectChange('category')}
                           disabled={isSubmitting}
                         >
-                          <SelectTrigger className={errors.category ? 'border-red-500' : ''}>
+                          <SelectTrigger className={errors.category ? 'border-destructive' : ''}>
                             <SelectValue placeholder='Select category...' />
                           </SelectTrigger>
                           <SelectContent>
@@ -441,7 +441,7 @@ const SupportTicketPage: React.FC = () => {
                           </SelectContent>
                         </Select>
                         {errors.category && (
-                          <div className='flex items-center text-sm text-red-500'>
+                          <div className='flex items-center text-sm text-destructive'>
                             <AlertCircle className='mr-1 h-4 w-4' />
                             {errors.category}
                           </div>
@@ -521,7 +521,7 @@ const SupportTicketPage: React.FC = () => {
 
                     <div className='space-y-2'>
                       <Label htmlFor='message'>
-                        Detailed Description <span className='text-red-500'>*</span>
+                        Detailed Description <span className='text-destructive'>*</span>
                       </Label>
                       <Textarea
                         id='message'
@@ -529,12 +529,12 @@ const SupportTicketPage: React.FC = () => {
                         rows={6}
                         value={formData.message}
                         onChange={handleInputChange}
-                        className={errors.message ? 'border-red-500' : ''}
+                        className={errors.message ? 'border-destructive' : ''}
                         disabled={isSubmitting}
                         placeholder="Please provide a detailed description of your issue, including any error messages you've seen..."
                       />
                       {errors.message && (
-                        <div className='flex items-center text-sm text-red-500'>
+                        <div className='flex items-center text-sm text-destructive'>
                           <AlertCircle className='mr-1 h-4 w-4' />
                           {errors.message}
                         </div>
