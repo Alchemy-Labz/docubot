@@ -3,7 +3,88 @@
 @tailwind utilities;
 
 @layer base {
+  /* Business Light Theme - Professional, clean, conversion-focused */
   :root {
+    --background: 0 0% 100%;
+    --foreground: 0 0% 9%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 9%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 9%;
+
+    /* Primary uses professional purple for CTAs */
+    --primary: 258 65% 40%; /* Professional purple #5029a6 */
+    --primary-foreground: 0 0% 98%;
+
+    --secondary: 0 0% 96%;
+    --secondary-foreground: 0 0% 9%;
+
+    --muted: 0 0% 96%;
+    --muted-foreground: 0 0% 45%;
+
+    /* Accent uses subtle gray for secondary actions */
+    --accent: 0 0% 96%;
+    --accent-foreground: 0 0% 9%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 0 0% 90%;
+    --input: 0 0% 90%;
+    --ring: 258 65% 40%; /* Purple focus rings */
+
+    --radius: 0.5rem;
+
+    /* Legacy color variables for backward compatibility */
+    --color-light-bg: #f8f9fa;
+    --color-light-fg: #212529;
+    --color-dark-bg: #212529;
+    --color-dark-fg: #f8f9fa;
+  }
+
+  /* Business Dark Theme - Professional dark mode */
+  .business-dark {
+    --background: 0 0% 9%;
+    --foreground: 0 0% 98%;
+
+    --card: 0 0% 12%; /* Slightly lighter for cards */
+    --card-foreground: 0 0% 98%;
+
+    --popover: 0 0% 12%;
+    --popover-foreground: 0 0% 98%;
+
+    /* Primary uses professional purple for CTAs */
+    --primary: 258 65% 40%; /* Professional purple #5029a6 */
+    --primary-foreground: 0 0% 98%;
+
+    --secondary: 0 0% 15%;
+    --secondary-foreground: 0 0% 98%;
+
+    --muted: 0 0% 15%;
+    --muted-foreground: 0 0% 65%;
+
+    /* Accent uses subtle gray for secondary actions */
+    --accent: 0 0% 20%;
+    --accent-foreground: 0 0% 98%;
+
+    --destructive: 0 62.8% 50%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 0 0% 20%;
+    --input: 0 0% 20%;
+    --ring: 258 65% 40%; /* Purple focus rings */
+
+    /* Legacy color variables */
+    --color-light-bg: #212529;
+    --color-light-fg: #f8f9fa;
+    --color-dark-bg: #212529;
+    --color-dark-fg: #f8f9fa;
+  }
+
+  /* Neon Light Theme - Creative, vibrant, original DocuBot style */
+  .neon-light {
     --background: 0 0% 100%;
     --foreground: 222.2 84% 4.9%;
 
@@ -13,8 +94,9 @@
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
 
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
+    /* Primary uses neon purple */
+    --primary: 258 65% 40%; /* #5029a6 - neon purple */
+    --primary-foreground: 0 0% 98%;
 
     --secondary: 210 40% 96.1%;
     --secondary-foreground: 222.2 47.4% 11.2%;
@@ -22,55 +104,93 @@
     --muted: 210 40% 96.1%;
     --muted-foreground: 215.4 16.3% 46.9%;
 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    /* Accent uses neon green */
+    --accent: 75 100% 28%; /* #8db600 - neon green */
+    --accent-foreground: 0 0% 98%;
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
 
     --border: 214.3 31.8% 91.4%;
     --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    --ring: 258 65% 40%; /* neon purple for focus rings */
 
-    --radius: 0.5rem;
-
+    /* Legacy color variables */
     --color-light-bg: #566573;
     --color-light-fg: #5e6060;
     --color-dark-bg: #2c3e50;
     --color-dark-fg: #f0f3f4;
   }
 
-  .dark {
-    --background: 222.2 84% 4.9%;
+  /* Neon Dark Theme - Creative dark mode with vibrant neon accents */
+  .neon-dark {
+    /* Dark background with slight purple tint */
+    --background: 222 84% 4.9%; /* Dark purple-tinted background */
     --foreground: 210 40% 98%;
 
-    --card: 222.2 84% 4.9%;
+    /* Cards with slightly lighter dark background */
+    --card: 222 50% 8%; /* Slightly lighter dark with purple tint */
     --card-foreground: 210 40% 98%;
 
-    --popover: 222.2 84% 4.9%;
+    --popover: 222 50% 8%;
     --popover-foreground: 210 40% 98%;
 
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
+    /* Primary uses bright neon green for dark mode */
+    --primary: 75 100% 35%; /* Brighter neon green #8db600 */
+    --primary-foreground: 222 84% 4.9%;
 
-    --secondary: 217.2 32.6% 17.5%;
+    /* Secondary with purple tint - improved contrast */
+    --secondary: 258 25% 25%; /* Lighter purple-tinted secondary for better contrast */
     --secondary-foreground: 210 40% 98%;
 
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
+    /* Muted with purple tint - improved contrast */
+    --muted: 258 20% 22%; /* Lighter purple-tinted muted for better contrast */
+    --muted-foreground: 215 25% 75%; /* Much lighter muted text for better readability */
 
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
+    /* Accent uses bright neon purple */
+    --accent: 258 65% 50%; /* Bright neon purple #5029a6 but brighter */
+    --accent-foreground: 0 0% 98%;
 
-    --destructive: 0 62.8% 30.6%;
+    --destructive: 0 62.8% 50%;
     --destructive-foreground: 210 40% 98%;
 
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
+    /* Borders with purple tint */
+    --border: 258 25% 20%; /* Purple-tinted borders */
+    --input: 258 25% 20%;
+    --ring: 75 100% 35%; /* Neon green focus rings */
+
+    /* Legacy color variables */
+    --color-light-bg: #566573;
+    --color-light-fg: #5e6060;
+    --color-dark-bg: #2c3e50;
+    --color-dark-fg: #f0f3f4;
   }
+
+  /* Legacy dark class removed - now using specific theme classes */
 }
 
+/* Theme-specific body styles */
+body.business-light {
+  --bg-color: #f8f9fa;
+  --fg-color: #212529;
+}
+
+body.business-dark {
+  --bg-color: #212529;
+  --fg-color: #f8f9fa;
+}
+
+body.neon-light {
+  --bg-color: var(--color-light-bg);
+  --fg-color: var(--color-light-fg);
+}
+
+body.neon-dark {
+  --bg-color: var(--color-dark-bg);
+  --fg-color: var(--color-dark-fg);
+}
+
+/* Legacy support */
 body.light {
   --bg-color: var(--color-light-bg);
   --fg-color: var(--color-light-fg);
@@ -89,6 +209,44 @@ body.dark {
   }
 }
 
+/* Clerk theme customization - Business themes */
+.business-light .cl-userButtonPopoverCard,
+.business-dark .cl-userButtonPopoverCard {
+  color: hsl(var(--foreground));
+  background-color: hsl(var(--card));
+  border: 1px solid hsl(var(--border));
+}
+
+.business-light .cl-userButtonPopoverMain,
+.business-dark .cl-userButtonPopoverMain {
+  background-color: hsl(var(--background));
+  color: hsl(var(--foreground));
+}
+
+.business-light .cl-button,
+.business-dark .cl-button {
+  color: hsl(var(--foreground));
+}
+
+/* Clerk theme customization - Neon themes */
+.neon-light .cl-userButtonPopoverCard,
+.neon-dark .cl-userButtonPopoverCard {
+  color: #ecf0f1;
+  background-color: #5029a6;
+}
+
+.neon-light .cl-userButtonPopoverMain,
+.neon-dark .cl-userButtonPopoverMain {
+  background-color: #233240;
+  color: #ecf0f1;
+}
+
+.neon-light .cl-button,
+.neon-dark .cl-button {
+  color: #ecf0f1;
+}
+
+/* Legacy support */
 .cl-userButtonPopoverCard {
   color: #ecf0f1;
   background-color: #5029a6;
@@ -99,6 +257,160 @@ body.dark {
 }
 .cl-button {
   color: #ecf0f1;
+}
+
+/* Accessibility improvements for all themes */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Focus styles for better accessibility */
+.business-light *:focus-visible,
+.business-dark *:focus-visible {
+  outline: 2px solid hsl(var(--ring));
+  outline-offset: 2px;
+}
+
+.neon-light *:focus-visible,
+.neon-dark *:focus-visible {
+  outline: 2px solid #5029a6;
+  outline-offset: 2px;
+  box-shadow: 0 0 0 2px rgba(80, 41, 166, 0.2);
+}
+
+/* Theme-specific design rules */
+
+/* Business themes: No gradients, solid colors only */
+.business-light *,
+.business-dark * {
+  background-image: none !important;
+}
+
+.business-light .text-gradient-lime-violet,
+.business-dark .text-gradient-lime-violet {
+  background: none !important;
+  -webkit-background-clip: unset !important;
+  -webkit-text-fill-color: unset !important;
+  color: hsl(var(--foreground)) !important;
+}
+
+/* Neon themes: Preserve gradients and vibrant colors */
+.neon-light .text-gradient-lime-violet,
+.neon-dark .text-gradient-lime-violet {
+  background: linear-gradient(to right, #8db600, #5029a6);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .business-light {
+    --border: 0 0% 0%;
+    --ring: 0 0% 0%;
+  }
+
+  .business-dark {
+    --border: 0 0% 100%;
+    --ring: 0 0% 100%;
+  }
+}
+
+/* Theme-aware utility classes */
+.business-gradient-override {
+  background: hsl(var(--muted)) !important;
+}
+
+.neon-preserve-gradient {
+  /* Preserve original gradient styling for neon themes */
+}
+
+/* Business theme color overrides - professional purple for CTAs */
+.business-light .bg-accent,
+.business-dark .bg-accent {
+  background-color: hsl(var(--primary)) !important; /* Professional purple */
+}
+
+.business-light .text-accent,
+.business-dark .text-accent {
+  color: hsl(var(--primary)) !important; /* Professional purple */
+}
+
+.business-light .border-accent,
+.business-dark .border-accent {
+  border-color: hsl(var(--primary)) !important; /* Professional purple */
+}
+
+/* Neon theme preserves original vibrant colors */
+.neon-light .bg-accent,
+.neon-dark .bg-accent {
+  background-color: #8db600 !important; /* Neon green */
+}
+
+.neon-light .text-accent,
+.neon-dark .text-accent {
+  color: #8db600 !important; /* Neon green */
+}
+
+.neon-light .border-accent,
+.neon-dark .border-accent {
+  border-color: #8db600 !important; /* Neon green */
+}
+
+/* Neon theme accent2 (purple) overrides */
+.neon-light .bg-accent2,
+.neon-dark .bg-accent2 {
+  background-color: #5029a6 !important; /* Neon purple */
+}
+
+.neon-light .text-accent2,
+.neon-dark .text-accent2 {
+  color: #5029a6 !important; /* Neon purple */
+}
+
+.neon-light .border-accent2,
+.neon-dark .border-accent2 {
+  border-color: #5029a6 !important; /* Neon purple */
+}
+
+/* Additional text color fixes for theme consistency */
+.business-light .text-primary,
+.business-dark .text-primary {
+  color: hsl(var(--primary)) !important;
+}
+
+.neon-light .text-primary,
+.neon-dark .text-primary {
+  color: hsl(var(--primary)) !important;
+}
+
+/* Ensure proper foreground colors */
+.business-light .text-foreground,
+.business-dark .text-foreground {
+  color: hsl(var(--foreground)) !important;
+}
+
+.neon-light .text-foreground,
+.neon-dark .text-foreground {
+  color: hsl(var(--foreground)) !important;
+}
+
+/* Muted text consistency */
+.business-light .text-muted-foreground,
+.business-dark .text-muted-foreground {
+  color: hsl(var(--muted-foreground)) !important;
+}
+
+.neon-light .text-muted-foreground,
+.neon-dark .text-muted-foreground {
+  color: hsl(var(--muted-foreground)) !important;
 }
 
 @keyframes banner-scroll {

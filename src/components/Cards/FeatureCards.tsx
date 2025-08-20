@@ -15,17 +15,18 @@ const FeatureCards = () => {
     ...feature,
     icon: iconMap[feature.icon as keyof typeof iconMap],
   }));
+
   return (
     <div className='mb-3 md:mb-6 lg:mb-10'>
-      <dl className='mx-auto grid max-w-2xl grid-cols-1 gap-x-6 gap-y-8 px-6 text-base text-dark-700 dark:text-light-700 sm:grid-cols-2 lg:mx-0 lg:max-w-7xl lg:grid-cols-3 lg:gap-x-8 lg:gap-y-16 lg:px-8'>
+      <dl className='business-light:text-muted-foreground business-dark:text-muted-foreground neon-light:text-muted-foreground neon-dark:text-muted-foreground mx-auto grid max-w-2xl grid-cols-1 gap-x-6 gap-y-8 px-6 text-base sm:grid-cols-2 lg:mx-0 lg:max-w-7xl lg:grid-cols-3 lg:gap-x-8 lg:gap-y-16 lg:px-8'>
         {features.map((feature, i) => (
           <div
             key={i}
-            className='relative rounded-lg border border-accent2/80 bg-light-500/30 px-2 py-4 shadow-lg shadow-dark-900/30 drop-shadow-md dark:border-accent/80 dark:bg-dark-700/50'
+            className='business-light:border-border business-light:bg-card business-dark:border-border business-dark:bg-card neon-light:border-accent/20 neon-light:bg-card neon-dark:border-accent/30 neon-dark:bg-card relative rounded-lg border px-2 py-4 shadow-lg drop-shadow-md'
           >
-            <dt className='inline font-semibold text-dark-800 dark:text-light-600'>
+            <dt className='business-light:text-foreground business-dark:text-foreground neon-light:text-foreground neon-dark:text-foreground inline font-semibold'>
               <feature.icon
-                className='absolute left-3 top-5 h-10 w-10 text-accent4 dark:text-accent2'
+                className='business-light:text-primary business-dark:text-primary neon-light:text-accent neon-dark:text-accent absolute left-3 top-5 h-10 w-10'
                 aria-hidden='true'
               />
 

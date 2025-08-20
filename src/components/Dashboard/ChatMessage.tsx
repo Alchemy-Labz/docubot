@@ -81,15 +81,15 @@ const ChatMessage = ({ message, viewType = 'split' }: ChatMessageProps) => {
                   className='rounded-full'
                 />
               ) : (
-                <div className='flex h-8 w-8 items-center justify-center rounded-full bg-neon2-300'>
-                  <span className='text-xs font-bold text-dark-800'>
+                <div className='business-light:bg-primary business-dark:bg-primary neon-light:bg-accent2 neon-dark:bg-accent2 flex h-8 w-8 items-center justify-center rounded-full'>
+                  <span className='business-light:text-primary-foreground business-dark:text-primary-foreground neon-light:text-white neon-dark:text-white text-xs font-bold'>
                     {user?.firstName?.[0] || 'U'}
                   </span>
                 </div>
               )
             ) : (
-              <div className='flex h-8 w-8 items-center justify-center rounded-full bg-neon-500'>
-                <BotMessageSquare className='h-5 w-5 text-dark-800' />
+              <div className='business-light:bg-primary business-dark:bg-primary neon-light:bg-accent neon-dark:bg-accent flex h-8 w-8 items-center justify-center rounded-full'>
+                <BotMessageSquare className='business-light:text-primary-foreground business-dark:text-primary-foreground neon-light:text-white neon-dark:text-white h-5 w-5' />
               </div>
             )}
           </div>

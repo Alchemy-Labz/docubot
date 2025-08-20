@@ -9,6 +9,7 @@ import { collection, onSnapshot } from '@firebase/firestore';
 import { db } from '@/lib/firebase/firebase';
 import { useFirebaseAuth } from '@/providers/FirebaseContext';
 import { useUser } from '@clerk/nextjs';
+import { useThemeClasses } from '@/components/Global/ThemeAwareWrapper';
 
 type ViewType = 'grid' | 'list';
 
@@ -29,6 +30,7 @@ const Documents = () => {
   const [error, setError] = useState<string | null>(null);
   const { isAuthenticated, isLoading: authLoading } = useFirebaseAuth();
   const { user } = useUser();
+  const { getClasses } = useThemeClasses();
 
   // Load view preference from localStorage
   useEffect(() => {
@@ -114,12 +116,31 @@ const Documents = () => {
   if (loading || authLoading) {
     return (
       <main
-        className='mx-auto flex max-w-7xl justify-center rounded-b-md bg-dark-700/40 p-8'
+        className={getClasses({
+          base: 'mx-auto flex max-w-7xl justify-center rounded-b-md p-8',
+          business: 'border border-border bg-card',
+          neon: 'bg-dark-700/40',
+        })}
         aria-label='Loading documents'
       >
         <div className='flex items-center space-x-3'>
-          <Loader2 className='h-6 w-6 animate-spin text-accent' aria-hidden='true' />
-          <span className='text-light-300'>Loading your documents...</span>
+          <Loader2
+            className={getClasses({
+              base: 'h-6 w-6 animate-spin',
+              business: 'text-primary',
+              neon: 'text-accent',
+            })}
+            aria-hidden='true'
+          />
+          <span
+            className={getClasses({
+              base: '',
+              business: 'text-muted-foreground',
+              neon: 'text-light-300',
+            })}
+          >
+            Loading your documents...
+          </span>
         </div>
       </main>
     );
@@ -128,7 +149,11 @@ const Documents = () => {
   if (error) {
     return (
       <main
-        className='mx-auto flex max-w-7xl flex-col items-center justify-center rounded-b-md bg-dark-700/40 p-8'
+        className={getClasses({
+          base: 'mx-auto flex max-w-7xl flex-col items-center justify-center rounded-b-md p-8',
+          business: 'border border-border bg-card',
+          neon: 'bg-dark-700/40',
+        })}
         aria-labelledby='documents-error-heading'
       >
         <h2 id='documents-error-heading' className='sr-only'>
@@ -154,7 +179,11 @@ const Documents = () => {
 
   return (
     <main
-      className='mx-auto max-w-7xl rounded-b-md bg-dark-700/40'
+      className={getClasses({
+        base: 'mx-auto max-w-7xl rounded-b-md',
+        business: 'border border-border bg-card',
+        neon: 'bg-dark-700/40',
+      })}
       aria-labelledby='documents-heading'
     >
       <h2 id='documents-heading' className='sr-only'>
@@ -162,11 +191,29 @@ const Documents = () => {
       </h2>
 
       {/* View Toggle Controls */}
-      <div className='flex items-center justify-between border-b border-light-600/20 px-6 py-4 dark:border-light-800/20'>
+      <div
+        className={getClasses({
+          base: 'flex items-center justify-between border-b px-6 py-4',
+          business: 'border-border',
+          neon: 'border-light-600/20 dark:border-light-800/20',
+        })}
+      >
         <div className='flex items-center space-x-2'>
-          <span className='text-sm font-medium text-light-300'>View:</span>
+          <span
+            className={getClasses({
+              base: 'text-sm font-medium',
+              business: 'text-muted-foreground',
+              neon: 'text-light-300',
+            })}
+          >
+            View:
+          </span>
           <div
-            className='flex rounded-lg bg-light-600/20 p-1 dark:bg-dark-600/40'
+            className={getClasses({
+              base: 'flex rounded-lg p-1',
+              business: 'bg-muted',
+              neon: 'bg-light-600/20 dark:bg-dark-600/40',
+            })}
             role='tablist'
             aria-label='Document view options'
           >

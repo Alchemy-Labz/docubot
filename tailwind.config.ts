@@ -54,6 +54,21 @@ const config: Config = {
         // Add more gradients as needed
       },
       colors: {
+        // Business theme colors - professional grayscale palette
+        business: {
+          50: '#f8f9fa',
+          100: '#f1f3f4',
+          200: '#e8eaed',
+          300: '#dadce0',
+          400: '#bdc1c6',
+          500: '#9aa0a6',
+          600: '#80868b',
+          700: '#5f6368',
+          800: '#3c4043',
+          900: '#202124',
+          950: '#171717',
+        },
+        // Neon theme colors - creative vibrant palette
         neon: {
           100: '#e8f0cc',
           200: '#d1e299',
@@ -76,10 +91,13 @@ const config: Config = {
           800: '#201042',
           900: '#100821',
         },
-        accent: '#8db600',
-        accent2: '#5029a6',
-        accent3: '#7a3e6e',
-        accent4: '#549412',
+        // Theme-specific accent colors
+        accent: '#8db600', // Neon green
+        accent2: '#5029a6', // Neon purple
+        accent3: '#7a3e6e', // Neon variant
+        accent4: '#549412', // Neon success
+        // Business accent (minimal, strategic use only)
+        'business-accent': '#2563eb', // Professional blue for CTAs
         dark: {
           100: '#d5d8dc',
           200: '#abb2b9',

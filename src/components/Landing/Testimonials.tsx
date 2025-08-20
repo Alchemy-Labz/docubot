@@ -57,14 +57,14 @@ const TestimonialsCarousel = () => {
   };
 
   return (
-    <section className='w-full bg-gradient-to-br from-slate-50 to-blue-50 py-16 dark:from-slate-900 dark:to-slate-800'>
+    <section className='business-light:bg-background business-dark:bg-background neon-light:bg-gradient-to-br neon-light:from-accent/10 neon-light:to-accent2/10 neon-dark:bg-gradient-to-br neon-dark:from-accent/20 neon-dark:to-accent2/20 w-full py-16'>
       <div className='mx-auto max-w-6xl px-4 sm:px-6 lg:px-8'>
         {/* Header */}
         <div className='mb-12 text-center'>
-          <h2 className='text-4xl font-bold tracking-tight text-slate-900 dark:text-white sm:text-5xl'>
+          <h2 className='business-light:text-foreground business-dark:text-foreground neon-light:text-foreground neon-dark:text-foreground text-4xl font-bold tracking-tight sm:text-5xl'>
             What Our Users Say
           </h2>
-          <p className='mx-auto mt-4 max-w-2xl text-lg text-slate-600 dark:text-slate-300'>
+          <p className='business-light:text-muted-foreground business-dark:text-muted-foreground neon-light:text-muted-foreground neon-dark:text-muted-foreground mx-auto mt-4 max-w-2xl text-lg'>
             DocuBot is helping professionals across industries save time and gain insights
           </p>
         </div>
@@ -72,7 +72,7 @@ const TestimonialsCarousel = () => {
         {/* Carousel Container */}
         <div className='relative mx-auto max-w-4xl'>
           {/* Main Testimonial Card */}
-          <div className='relative overflow-hidden rounded-2xl bg-white shadow-2xl dark:bg-slate-800'>
+          <div className='business-light:bg-card business-dark:bg-card neon-light:bg-card neon-dark:bg-card relative overflow-hidden rounded-2xl shadow-2xl'>
             <div
               className='flex transition-transform duration-500 ease-in-out'
               style={{ transform: `translateX(-${currentIndex * 100}%)` }}
@@ -81,8 +81,8 @@ const TestimonialsCarousel = () => {
                 <div key={index} className='w-full flex-shrink-0 p-8 md:p-12'>
                   <div className='flex flex-col items-center text-center'>
                     {/* Quote Icon */}
-                    <div className='mb-6 flex h-12 w-12 items-center justify-center rounded-full bg-blue-100 dark:bg-blue-900/30'>
-                      <Quote className='h-6 w-6 text-blue-600 dark:text-blue-400' />
+                    <div className='business-light:bg-primary/10 business-dark:bg-primary/10 neon-light:bg-accent/10 neon-dark:bg-accent/10 mb-6 flex h-12 w-12 items-center justify-center rounded-full'>
+                      <Quote className='business-light:text-primary business-dark:text-primary neon-light:text-accent neon-dark:text-accent h-6 w-6' />
                     </div>
 
                     {/* Quote Text */}
@@ -131,9 +131,9 @@ const TestimonialsCarousel = () => {
           </button>
         </div>
 
-        <div className='flex items-center justify-center mt-6 space-x-8'>
+        <div className='mt-6 flex items-center justify-center space-x-8'>
           {/* Dots Indicator */}
-          <div className=' flex justify-center space-x-2'>
+          <div className='flex justify-center space-x-2'>
             {testimonials.map((_, index) => (
               <button
                 key={index}

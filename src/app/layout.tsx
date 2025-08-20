@@ -47,8 +47,9 @@ export default function RootLayout({
             <FirebaseProvider>
               <ThemeProvider
                 attribute='class'
-                defaultTheme='system'
-                enableSystem
+                defaultTheme='business-light'
+                enableSystem={false}
+                themes={['business-light', 'business-dark', 'neon-light', 'neon-dark']}
                 disableTransitionOnChange={false}
               >
                 {children}
@@ -57,13 +58,14 @@ export default function RootLayout({
                   toastOptions={{
                     success: {
                       iconTheme: {
-                        primary: '#549412',
-                        secondary: '#f4f6f7',
+                        primary: '#22c55e', // Green for success
+                        secondary: 'hsl(var(--background))',
                       },
                     },
                     style: {
-                      color: '#5029a6',
-                      backgroundColor: '#808b96',
+                      color: 'hsl(var(--foreground))',
+                      backgroundColor: 'hsl(var(--card))',
+                      border: '1px solid hsl(var(--border))',
                     },
                   }}
                 />

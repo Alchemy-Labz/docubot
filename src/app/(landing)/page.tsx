@@ -1,8 +1,11 @@
+'use client';
+
 // app/page.tsx or app/landing-page/page.tsx (depending on your routing preference)
 import React, { useState, useEffect } from 'react';
 import FeatureCards from '@/components/Cards/FeatureCards';
 import Footer from '@/components/Global/Footer';
 import { Button } from '@/components/ui/button';
+import { useThemeClasses } from '@/components/Global/ThemeAwareWrapper';
 import {
   ChevronRight,
   Rocket,
@@ -23,26 +26,58 @@ import Link from 'next/link';
 import TestimonialsCarousel from '@/components/Landing/Testimonials';
 
 const LandingPage = () => {
+  const { getClasses } = useThemeClasses();
+
   return (
-    <div className='flex flex-col items-center overflow-x-auto bg-gradient-to-br from-accent2/40 to-accent/40 dark:from-accent3/30 dark:to-accent4/30'>
+    <div
+      className={getClasses({
+        base: 'flex flex-col items-center overflow-x-auto',
+        business: 'bg-background',
+        neon: 'bg-gradient-to-br from-accent2/40 to-accent/40 dark:from-accent3/30 dark:to-accent4/30',
+      })}
+    >
       {/* Hero Section */}
       <section className='relative w-full py-12 md:py-18 md:pl-8 lg:py-24'>
         <div className='container flex max-w-[1500px] flex-col items-center justify-center space-y-4 px-4 md:px-6'>
           <div className='grid gap-3 lg:grid-cols-2 lg:gap-6 xl:gap-8'>
             <div className='flex max-w-xl flex-col justify-center space-y-4'>
               <div className='flex items-center space-x-2 overflow-hidden'>
-                <div className='rounded bg-accent px-2 py-1 text-sm font-bold text-light-100'>
+                <div
+                  className={getClasses({
+                    base: 'rounded px-2 py-1 text-sm font-bold',
+                    business: 'bg-primary text-primary-foreground',
+                    neon: 'bg-accent text-light-100',
+                  })}
+                >
                   NEW
                 </div>
                 <div className='relative h-8 w-full overflow-hidden'>
                   <div className='animate-banner-scroll absolute w-full'>
-                    <div className='flex h-8 items-center whitespace-nowrap text-dark-700 dark:text-light-300'>
+                    <div
+                      className={getClasses({
+                        base: 'flex h-8 items-center whitespace-nowrap',
+                        business: 'text-muted-foreground',
+                        neon: 'text-dark-700 dark:text-light-300',
+                      })}
+                    >
                       Enhanced Document Support
                     </div>
-                    <div className='flex h-8 items-center whitespace-nowrap text-dark-700 dark:text-light-300'>
+                    <div
+                      className={getClasses({
+                        base: 'flex h-8 items-center whitespace-nowrap',
+                        business: 'text-muted-foreground',
+                        neon: 'text-dark-700 dark:text-light-300',
+                      })}
+                    >
                       Multi-language Support Added
                     </div>
-                    <div className='flex h-8 items-center whitespace-nowrap text-dark-700 dark:text-light-300'>
+                    <div
+                      className={getClasses({
+                        base: 'flex h-8 items-center whitespace-nowrap',
+                        business: 'text-muted-foreground',
+                        neon: 'text-dark-700 dark:text-light-300',
+                      })}
+                    >
                       Advanced Search Reranking
                     </div>
                   </div>
@@ -79,16 +114,37 @@ const LandingPage = () => {
                 </Link>
               </div>
               <div className='space-y-2'>
-                <h1 className='text-4xl font-bold tracking-tighter text-gradient-lime-violet sm:text-5xl md:text-6xl'>
+                <h1
+                  className={getClasses({
+                    base: 'text-4xl font-bold tracking-tighter sm:text-5xl md:text-6xl',
+                    business: 'text-foreground',
+                    neon: 'text-gradient-lime-violet',
+                  })}
+                >
                   Transform Your PDFs Into Interactive Conversations
                 </h1>
-                <p className='max-w-[600px] text-dark-700 dark:text-light-300 md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed'>
-                  Upload your documents and let DocuBot answer all your questions using advanced
-                  AI with RAG Re-Ranking. Get instant insights using natural language without reading hundreds of pages.
+                <p
+                  className={getClasses({
+                    base: 'max-w-[600px] md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed',
+                    business: 'text-muted-foreground',
+                    neon: 'text-dark-700 dark:text-light-300',
+                  })}
+                >
+                  Upload your documents and let DocuBot answer all your questions using advanced AI
+                  with RAG Re-Ranking. Get instant insights using natural language without reading
+                  hundreds of pages.
                 </p>
               </div>
               <div className='flex flex-col gap-2 min-[400px]:flex-row'>
-                <Button asChild size='lg' className='bg-accent text-light-100 hover:bg-accent2'>
+                <Button
+                  asChild
+                  size='lg'
+                  className={getClasses({
+                    base: '',
+                    business: 'bg-primary text-primary-foreground hover:bg-primary/90',
+                    neon: 'bg-accent text-light-100 hover:bg-accent2',
+                  })}
+                >
                   <Link href='/dashboard'>
                     Try DocuBot for Free <ChevronRight className='ml-2 h-4 w-4' />
                   </Link>
@@ -97,20 +153,60 @@ const LandingPage = () => {
                   asChild
                   variant='outline'
                   size='lg'
-                  className='border-accent2 text-dark-700 dark:border-accent dark:text-light-300'
+                  className={getClasses({
+                    base: '',
+                    business: 'border-border text-foreground',
+                    neon: 'border-accent2 text-dark-700 dark:border-accent dark:text-light-300',
+                  })}
                 >
                   <Link href='#how-it-works'>See How It Works</Link>
                 </Button>
               </div>
               <div className='flex items-center gap-4 text-sm'>
                 <div className='flex items-center gap-1'>
-                  <Star className='h-4 w-4 fill-accent' />
-                  <Star className='h-4 w-4 fill-accent' />
-                  <Star className='h-4 w-4 fill-accent' />
-                  <Star className='h-4 w-4 fill-accent' />
-                  <Star className='h-4 w-4 fill-accent' />
+                  <Star
+                    className={getClasses({
+                      base: 'h-4 w-4',
+                      business: 'fill-primary',
+                      neon: 'fill-accent',
+                    })}
+                  />
+                  <Star
+                    className={getClasses({
+                      base: 'h-4 w-4',
+                      business: 'fill-primary',
+                      neon: 'fill-accent',
+                    })}
+                  />
+                  <Star
+                    className={getClasses({
+                      base: 'h-4 w-4',
+                      business: 'fill-primary',
+                      neon: 'fill-accent',
+                    })}
+                  />
+                  <Star
+                    className={getClasses({
+                      base: 'h-4 w-4',
+                      business: 'fill-primary',
+                      neon: 'fill-accent',
+                    })}
+                  />
+                  <Star
+                    className={getClasses({
+                      base: 'h-4 w-4',
+                      business: 'fill-primary',
+                      neon: 'fill-accent',
+                    })}
+                  />
                 </div>
-                <div className='text-dark-600 dark:text-light-400'>
+                <div
+                  className={getClasses({
+                    base: '',
+                    business: 'text-muted-foreground',
+                    neon: 'text-dark-600 dark:text-light-400',
+                  })}
+                >
                   Trusted by thousands of users worldwide
                 </div>
               </div>
@@ -131,7 +227,11 @@ const LandingPage = () => {
           <svg
             xmlns='http://www.w3.org/2000/svg'
             viewBox='0 0 1440 64'
-            className='h-16 w-screen fill-light-400/30 dark:fill-dark-700/30'
+            className={getClasses({
+              base: 'h-16 w-screen',
+              business: 'fill-muted/30',
+              neon: 'fill-light-400/30 dark:fill-dark-700/30',
+            })}
             preserveAspectRatio='none'
             aria-hidden='true'
           >
@@ -141,16 +241,40 @@ const LandingPage = () => {
       </section>
 
       {/* Feature card section */}
-      <section className='w-full bg-light-500/70 py-12 dark:bg-dark-800/70 md:py-18 lg:py-24'>
+      <section
+        className={getClasses({
+          base: 'w-full py-12 md:py-18 lg:py-24',
+          business: 'bg-muted/30',
+          neon: 'bg-light-500/70 dark:bg-dark-800/70',
+        })}
+      >
         <div className='mx-auto max-w-7xl space-y-4 px-4 sm:px-6 lg:px-8'>
-          <div className='mx-auto flex w-64 items-center justify-center rounded-lg bg-accent px-3 py-1 text-sm text-light-100'>
+          <div
+            className={getClasses({
+              base: 'mx-auto flex w-64 items-center justify-center rounded-lg px-3 py-1 text-sm',
+              business: 'bg-primary text-primary-foreground',
+              neon: 'bg-accent text-light-100',
+            })}
+          >
             AI-Powered Document Analysis
           </div>
           <div className='space-y-4 text-center'>
-            <h2 className='text-3xl font-bold tracking-tight text-dark-800 dark:text-light-200 sm:text-4xl'>
+            <h2
+              className={getClasses({
+                base: 'text-3xl font-bold tracking-tight sm:text-4xl',
+                business: 'text-foreground',
+                neon: 'text-dark-800 dark:text-light-200',
+              })}
+            >
               Powerful Features
             </h2>
-            <p className='mx-auto mt-4 max-w-2xl text-lg text-dark-700 dark:text-light-300'>
+            <p
+              className={getClasses({
+                base: 'mx-auto mt-4 max-w-2xl text-lg',
+                business: 'text-muted-foreground',
+                neon: 'text-dark-700 dark:text-light-300',
+              })}
+            >
               Everything you need to extract knowledge from your documents
             </p>
           </div>
@@ -284,14 +408,32 @@ const LandingPage = () => {
       </section>
 
       {/* Final CTA */}
-      <section className='w-full bg-gradient-to-r from-accent/20 to-accent2/20 py-12 dark:from-accent3/20 dark:to-accent4/20 md:py-18 lg:py-24'>
+      <section
+        className={getClasses({
+          base: 'w-full py-12 md:py-18 lg:py-24',
+          business: 'bg-muted/50',
+          neon: 'bg-gradient-to-r from-accent/20 to-accent2/20 dark:from-accent3/20 dark:to-accent4/20',
+        })}
+      >
         <div className='container px-4 md:px-6'>
           <div className='flex flex-col items-center justify-center space-y-4 text-center'>
             <div className='space-y-2'>
-              <h2 className='text-3xl font-bold tracking-tighter text-dark-800 dark:text-light-200 sm:text-5xl'>
+              <h2
+                className={getClasses({
+                  base: 'text-3xl font-bold tracking-tighter sm:text-5xl',
+                  business: 'text-foreground',
+                  neon: 'text-dark-800 dark:text-light-200',
+                })}
+              >
                 Ready to Transform Your Document Experience?
               </h2>
-              <p className='max-w-[900px] text-dark-700 dark:text-light-300 md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed'>
+              <p
+                className={getClasses({
+                  base: 'max-w-[900px] md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed',
+                  business: 'text-muted-foreground',
+                  neon: 'text-dark-700 dark:text-light-300',
+                })}
+              >
                 Join thousands of professionals who are saving time and gaining insights with
                 DocuBot
               </p>
@@ -300,7 +442,11 @@ const LandingPage = () => {
               <Button
                 asChild
                 size='lg'
-                className='w-full bg-accent text-light-100 hover:bg-accent2 sm:w-auto'
+                className={getClasses({
+                  base: 'w-full sm:w-auto',
+                  business: 'bg-primary text-primary-foreground hover:bg-primary/90',
+                  neon: 'bg-accent text-light-100 hover:bg-accent2',
+                })}
               >
                 <Link href='/dashboard'>Try DocuBot for Free</Link>
               </Button>
@@ -308,12 +454,22 @@ const LandingPage = () => {
                 asChild
                 variant='outline'
                 size='lg'
-                className='w-full border-accent2 text-dark-700 dark:border-accent dark:text-light-300 sm:w-auto'
+                className={getClasses({
+                  base: 'w-full sm:w-auto',
+                  business: 'border-border text-foreground',
+                  neon: 'border-accent2 text-dark-700 dark:border-accent dark:text-light-300',
+                })}
               >
                 <Link href='/pricing'>View Pricing</Link>
               </Button>
             </div>
-            <p className='text-sm text-dark-600 dark:text-light-400'>
+            <p
+              className={getClasses({
+                base: 'text-sm',
+                business: 'text-muted-foreground',
+                neon: 'text-dark-600 dark:text-light-400',
+              })}
+            >
               No credit card required. Start with our free plan today.
             </p>
           </div>

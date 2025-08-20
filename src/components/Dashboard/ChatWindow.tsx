@@ -163,7 +163,7 @@ const ChatWindowClient = ({ docId, userId }: ChatWindowClientProps) => {
   };
 
   return (
-    <div className='flex h-full flex-col bg-light-400/40 dark:bg-dark-800/40'>
+    <div className='business-light:bg-background business-dark:bg-background neon-light:bg-background neon-dark:bg-background flex h-full flex-col'>
       {/* Chat Messages Container */}
       <div
         ref={chatContainerRef}
@@ -184,7 +184,10 @@ const ChatWindowClient = ({ docId, userId }: ChatWindowClientProps) => {
             role='status'
             aria-label='Loading chat messages'
           >
-            <Loader2 className='h-8 w-8 animate-spin text-accent' aria-hidden='true' />
+            <Loader2
+              className='business-light:text-primary business-dark:text-primary neon-light:text-accent neon-dark:text-accent h-8 w-8 animate-spin'
+              aria-hidden='true'
+            />
             <span className='sr-only'>Loading chat messages...</span>
           </div>
         ) : error ? (
@@ -222,7 +225,7 @@ const ChatWindowClient = ({ docId, userId }: ChatWindowClientProps) => {
       {/* Chat Input Form */}
       <form
         onSubmit={handleSubmit}
-        className='border-accent-200 dark:border-accent-700 border-t bg-light-600/40 p-4 dark:bg-dark-600/40'
+        className='business-light:border-border business-light:bg-card business-dark:border-border business-dark:bg-card neon-light:border-accent/20 neon-light:bg-card neon-dark:border-accent/30 neon-dark:bg-card border-t p-4'
         aria-label='Send message form'
       >
         <div className='flex space-x-2'>
@@ -234,7 +237,7 @@ const ChatWindowClient = ({ docId, userId }: ChatWindowClientProps) => {
             value={input}
             onChange={(e) => setInput(e.target.value)}
             placeholder={isAuthenticated ? 'Type your question...' : 'Connecting to database...'}
-            className='flex-1 bg-light-500 dark:bg-dark-700/40'
+            className='business-light:bg-background business-dark:bg-background neon-light:bg-background neon-dark:bg-background flex-1'
             disabled={isSubmitting || !clerkUser || !isAuthenticated}
             aria-describedby='chat-input-help'
             autoComplete='off'
@@ -247,7 +250,7 @@ const ChatWindowClient = ({ docId, userId }: ChatWindowClientProps) => {
           <Button
             type='submit'
             disabled={!input.trim() || isSubmitting || !clerkUser || !isAuthenticated}
-            className='flex items-center justify-center bg-accent hover:bg-accent2'
+            className='business-light:bg-primary business-light:hover:bg-primary/90 business-dark:bg-primary business-dark:hover:bg-primary/90 neon-light:bg-accent neon-light:hover:bg-accent/90 neon-dark:bg-accent neon-dark:hover:bg-accent/90 flex items-center justify-center'
             aria-label={isSubmitting ? 'Sending message...' : 'Send message'}
           >
             {isSubmitting ? (

@@ -3,15 +3,17 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { SignedIn, SignedOut, UserButton, useUser } from '@clerk/nextjs';
-import DLToggle from '@/components/Global/DLToggle';
+import ThemeSelector from '@/components/Global/ThemeSelector';
 import { Button } from '@/components/ui/button';
 import { useState } from 'react';
 import { Menu, X, Settings } from 'lucide-react';
+import { useThemeClasses } from '@/components/Global/ThemeAwareWrapper';
 
 const Header2 = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { user, isLoaded } = useUser();
   const isAdmin = user?.publicMetadata?.isAdmin === true;
+  const { getClasses } = useThemeClasses();
 
   // Don't render admin features until user data is loaded
   if (!isLoaded) {
@@ -26,7 +28,7 @@ const Header2 = () => {
               </Link>
             </div>
             <div className='flex items-center space-x-4'>
-              <DLToggle />
+              <ThemeSelector />
             </div>
           </div>
         </div>
@@ -43,10 +45,24 @@ const Header2 = () => {
   };
 
   return (
-    <header className='sticky top-0 z-10 flex items-center justify-between bg-light-600 px-5 py-3 shadow-xl shadow-dark-800/30 dark:bg-dark-800'>
+    <header
+      className={getClasses({
+        base: 'sticky top-0 z-10 flex items-center justify-between px-5 py-3 shadow-xl',
+        business: 'border-b border-border bg-card shadow-black/10',
+        neon: 'bg-light-600 shadow-dark-800/30 dark:bg-dark-800',
+      })}
+    >
       <Link href='/' className='flex items-center space-x-4' aria-label='DocuBot home page'>
         <Image src='/logo.png' alt='DocuBot logo' width={45} height={45} priority />
-        <h1 className='hidden text-4xl font-bold text-gradient-lime-violet lg:block'>DocuBot</h1>
+        <h1
+          className={getClasses({
+            base: 'hidden text-4xl font-bold lg:block',
+            business: 'text-foreground',
+            neon: 'text-gradient-lime-violet',
+          })}
+        >
+          DocuBot
+        </h1>
       </Link>
 
       <div className='flex items-center space-x-4'>
@@ -235,7 +251,7 @@ const Header2 = () => {
           </Link>
         </nav>
 
-        <DLToggle />
+        <ThemeSelector />
       </div>
     </header>
   );

@@ -4,7 +4,7 @@ import { SignedIn, SignedOut, UserButton, useUser } from '@clerk/nextjs';
 import Image from 'next/image';
 import Link from 'next/link';
 
-import DLToggle from '@/c/Global/DLToggle';
+import ThemeSelector from '@/components/Global/ThemeSelector';
 import { dark } from '@clerk/themes';
 
 import { Button } from '../ui/button';
@@ -24,7 +24,7 @@ const Header = () => {
           <h1 className='hidden text-4xl font-bold text-gradient-lime-violet md:block'>DocuBot</h1>
         </Link>
         <div className='flex items-center space-x-4'>
-          <DLToggle />
+          <ThemeSelector />
         </div>
       </header>
     );
@@ -85,7 +85,7 @@ const Header = () => {
       <div className='flex items-center space-x-4'>
         <SignedIn>
           <UpgradeButton />
-          <DLToggle />
+          <ThemeSelector />
           <UserButton
             showName={false}
             appearance={{
@@ -119,7 +119,7 @@ const Header = () => {
               <button type='button'>Sign In</button>
             </Link>
           </nav>
-          <DLToggle />
+          <ThemeSelector />
         </SignedOut>
       </div>
     </header>
