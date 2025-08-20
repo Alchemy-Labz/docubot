@@ -67,14 +67,12 @@ const MarkdownRenderer = ({ children: markdown }: MarkdownRendererProps) => {
       rehypePlugins={[rehypeRaw]}
       components={{
         // Headings
-        h1: ({ children }) => (
-          <h1 className='my-4 text-2xl font-bold text-neon-300'>{children}</h1>
-        ),
+        h1: ({ children }) => <h1 className='my-4 text-2xl font-bold text-accent'>{children}</h1>,
         h2: ({ children }) => (
-          <h2 className='my-3 text-xl font-semibold text-neon-400'>{children}</h2>
+          <h2 className='my-3 text-xl font-semibold text-accent2'>{children}</h2>
         ),
         h3: ({ children }) => (
-          <h3 className='my-2 text-lg font-medium text-neon-500'>{children}</h3>
+          <h3 className='my-2 text-lg font-medium text-primary'>{children}</h3>
         ),
         h4: ({ children }) => (
           <h4 className='my-2 text-base font-medium text-light-300'>{children}</h4>
@@ -102,7 +100,7 @@ const MarkdownRenderer = ({ children: markdown }: MarkdownRendererProps) => {
         a: ({ href, children, title }) => (
           <Link
             href={href || '#'}
-            className='text-neon2-300 hover:underline'
+            className='text-accent hover:underline'
             target={href?.startsWith('http') ? '_blank' : undefined}
             rel={href?.startsWith('http') ? 'noopener noreferrer' : undefined}
             title={title}
@@ -113,7 +111,7 @@ const MarkdownRenderer = ({ children: markdown }: MarkdownRendererProps) => {
 
         // Blockquotes
         blockquote: ({ children }) => (
-          <blockquote className='my-4 border-l-4 border-neon-500 pl-4 italic text-light-300'>
+          <blockquote className='my-4 border-l-4 border-primary pl-4 italic text-muted-foreground'>
             {children}
           </blockquote>
         ),

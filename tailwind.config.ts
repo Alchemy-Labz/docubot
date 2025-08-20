@@ -50,6 +50,7 @@ const config: Config = {
       },
       gradients: {
         'lime-violet': 'linear-gradient(to right, #5029a6 0%, #8db600 100%)',
+        'lime-violet-dark': 'linear-gradient(to right, #7a55d4 0%, #88c022 100%)',
         'red-yellow': 'linear-gradient(to right, #f83600 0%, #f9d423 100%)',
         // Add more gradients as needed
       },
@@ -79,6 +80,19 @@ const config: Config = {
           700: '#556d00',
           800: '#384900',
           900: '#1c2400',
+          // Dark theme variants - darker but still vibrant
+          950: '#0f1200',
+          dark: {
+            100: '#c8e088', // Darker but still bright for dark mode
+            200: '#a8d055', // Muted neon green
+            300: '#88c022', // Primary dark mode green
+            400: '#6ba000', // Darker green
+            500: '#4e8000', // Deep green
+            600: '#316000', // Very deep green
+            700: '#1a4000', // Almost black green
+            800: '#0d2000', // Very dark green
+            900: '#061000', // Near black green
+          },
         },
         neon2: {
           100: '#dcd4ed',
@@ -90,12 +104,30 @@ const config: Config = {
           700: '#301964',
           800: '#201042',
           900: '#100821',
+          // Dark theme variants - darker but still vibrant
+          950: '#080410',
+          dark: {
+            100: '#b899e6', // Darker but still bright for dark mode
+            200: '#9977dd', // Muted neon purple
+            300: '#7a55d4', // Primary dark mode purple
+            400: '#5b33cb', // Darker purple
+            500: '#3c11c2', // Deep purple
+            600: '#2d0099', // Very deep purple
+            700: '#1e0066', // Almost black purple
+            800: '#0f0033', // Very dark purple
+            900: '#070019', // Near black purple
+          },
         },
         // Theme-specific accent colors
-        accent: '#8db600', // Neon green
-        accent2: '#5029a6', // Neon purple
+        accent: '#8db600', // Neon green (light theme)
+        accent2: '#5029a6', // Neon purple (light theme)
         accent3: '#7a3e6e', // Neon variant
         accent4: '#549412', // Neon success
+        // Dark theme accent colors - darker but still vibrant
+        'accent-dark': '#88c022', // Darker neon green for dark mode
+        'accent2-dark': '#7a55d4', // Darker neon purple for dark mode
+        'accent3-dark': '#6b2c5e', // Darker neon variant for dark mode
+        'accent4-dark': '#4a7a0f', // Darker neon success for dark mode
         // Business accent (minimal, strategic use only)
         'business-accent': '#2563eb', // Professional blue for CTAs
         dark: {

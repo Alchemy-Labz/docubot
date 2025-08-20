@@ -4,7 +4,7 @@
 import { useEffect, useState } from 'react';
 import { Loader2 } from 'lucide-react';
 import Link from 'next/link';
-import  MarkdownRenderer  from './Markdown';
+import MarkdownRenderer from './Markdown';
 import RichTextViewer from './RichTextViewer';
 import { ERROR_MESSAGES } from '@/lib/constants/appConstants';
 
@@ -121,7 +121,7 @@ const TextDocumentViewer = ({ url, fileName, fileType }: TextDocumentViewerProps
         <Link
           href={url}
           download={fileName}
-          className='rounded bg-accent px-3 py-1 text-sm font-medium text-white transition hover:bg-accent2'
+          className='rounded bg-primary px-3 py-1 text-sm font-medium text-primary-foreground transition hover:bg-accent'
         >
           Download
         </Link>
@@ -129,7 +129,7 @@ const TextDocumentViewer = ({ url, fileName, fileType }: TextDocumentViewerProps
       <div className='flex-1 overflow-auto p-4'>
         {loading ? (
           <div className='flex h-full items-center justify-center'>
-            <Loader2 className='h-12 w-12 animate-spin text-accent' />
+            <Loader2 className='h-12 w-12 animate-spin text-primary' />
           </div>
         ) : error ? (
           <div className='flex h-full items-center justify-center p-4 text-center'>
@@ -140,7 +140,7 @@ const TextDocumentViewer = ({ url, fileName, fileType }: TextDocumentViewerProps
             {fileType === 'text/markdown' ? (
               <MarkdownRenderer>{content}</MarkdownRenderer>
             ) : (
-              <pre className='whitespace-pre-wrap break-words rounded-md bg-dark-800/50 p-4 text-light-300'>
+              <pre className='whitespace-pre-wrap break-words rounded-md bg-muted p-4 text-muted-foreground'>
                 {content}
               </pre>
             )}

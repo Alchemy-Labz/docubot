@@ -1,6 +1,9 @@
+'use client';
+
 import React from 'react';
 import Footer from '@/components/Global/Footer';
 import { CalendarCheck, ThumbsUp, FlaskConical, Sparkles, GitBranch, Clock } from 'lucide-react';
+import { useThemeClasses } from '@/components/Global/ThemeAwareWrapper';
 
 type RoadmapItem = {
   title: string;
@@ -11,6 +14,8 @@ type RoadmapItem = {
 };
 
 const RoadmapPage = () => {
+  const { getClasses } = useThemeClasses();
+
   const roadmapItems: RoadmapItem[] = [
     {
       title: 'Multi-Language Support',
@@ -69,7 +74,7 @@ const RoadmapPage = () => {
       case 'in-progress':
         return 'bg-amber-500 dark:bg-amber-600';
       case 'planned':
-        return 'bg-accent2 dark:bg-accent';
+        return 'bg-accent2';
       default:
         return 'bg-gray-500';
     }
@@ -89,13 +94,34 @@ const RoadmapPage = () => {
   };
 
   return (
-    <div className='flex flex-col items-center overflow-x-hidden bg-gradient-to-br from-accent2/40 to-accent/40 dark:from-accent3/30 dark:to-accent4/30'>
+    <div
+      className={getClasses({
+        base: 'flex flex-col items-center overflow-x-hidden',
+        business: 'bg-background',
+        neonLight: 'bg-gradient-to-br from-accent2/40 to-accent/40',
+        neonDark: 'from-neon2-dark-900/20 to-neon-dark-900/20 bg-gradient-to-br',
+      })}
+    >
       <div className='container mx-auto px-4 py-16 md:px-6 lg:py-24'>
         <div className='mx-auto max-w-4xl text-center'>
-          <h1 className='text-4xl font-bold tracking-tight text-dark-800 dark:text-light-200 sm:text-5xl'>
+          <h1
+            className={getClasses({
+              base: 'text-4xl font-bold tracking-tight sm:text-5xl',
+              business: 'text-foreground',
+              neonLight: 'text-dark-800',
+              neonDark: 'text-light-200',
+            })}
+          >
             DocuBot Product Roadmap
           </h1>
-          <p className='mt-4 text-lg text-dark-700 dark:text-light-300'>
+          <p
+            className={getClasses({
+              base: 'mt-4 text-lg',
+              business: 'text-muted-foreground',
+              neonLight: 'text-dark-700',
+              neonDark: 'text-light-300',
+            })}
+          >
             Our vision for the future of DocuBot and upcoming features we&apos;re working on
           </p>
         </div>
@@ -103,7 +129,14 @@ const RoadmapPage = () => {
         {/* Timeline */}
         <div className='relative mx-auto mt-16 max-w-5xl'>
           {/* Timeline Line */}
-          <div className='absolute left-0 top-0 hidden h-full w-1 border-l-2 border-accent2/50 dark:border-accent/50 lg:left-1/2 lg:-ml-px lg:block' />
+          <div
+            className={getClasses({
+              base: 'absolute left-0 top-0 hidden h-full w-1 border-l-2 lg:left-1/2 lg:-ml-px lg:block',
+              business: 'border-border',
+              neonLight: 'border-accent2/50',
+              neonDark: 'border-accent/50',
+            })}
+          />
 
           {/* Roadmap Items */}
           <div className='space-y-12'>
@@ -114,24 +147,50 @@ const RoadmapPage = () => {
                   className={`w-full pb-10 lg:w-1/2 lg:pb-0 ${index % 2 === 0 ? 'lg:pr-8' : 'lg:order-1 lg:pl-8'}`}
                 >
                   <div
-                    className={`hidden h-8 text-right font-semibold text-dark-600 dark:text-light-400 lg:block ${
-                      index % 2 === 0 ? 'text-right' : 'text-left'
-                    }`}
+                    className={getClasses({
+                      base: `hidden h-8 font-semibold lg:block ${
+                        index % 2 === 0 ? 'text-right' : 'text-left'
+                      }`,
+                      business: 'text-muted-foreground',
+                      neonLight: 'text-dark-600',
+                      neonDark: 'text-light-400',
+                    })}
                   >
                     {item.timeframe}
                   </div>
                 </div>
 
                 {/* Timeline dot */}
-                <div className='absolute left-0 top-0 hidden h-6 w-6 rounded-full border-4 border-light-200 bg-accent2 dark:border-dark-600 dark:bg-accent lg:left-1/2 lg:-ml-3 lg:block' />
+                <div
+                  className={getClasses({
+                    base: 'absolute left-0 top-0 hidden h-6 w-6 rounded-full border-4 lg:left-1/2 lg:-ml-3 lg:block',
+                    business: 'border-border bg-primary',
+                    neonLight: 'border-light-200 bg-accent2',
+                    neonDark: 'border-dark-600 bg-accent',
+                  })}
+                />
 
                 {/* Content (right side on even, left side on odd) */}
                 <div
                   className={`w-full lg:w-1/2 ${index % 2 === 0 ? 'lg:order-1 lg:pl-8' : 'lg:pr-8'}`}
                 >
-                  <div className='rounded-lg border border-accent2/60 bg-light-500/70 p-6 shadow-xl dark:border-accent/40 dark:bg-dark-700/85'>
+                  <div
+                    className={getClasses({
+                      base: 'rounded-lg border p-6 shadow-xl',
+                      business: 'border-border bg-card',
+                      neonLight: 'border-accent2/60 bg-light-500/70',
+                      neonDark: 'border-accent/40 bg-dark-700/85',
+                    })}
+                  >
                     {/* Mobile timeframe */}
-                    <div className='mb-2 font-semibold text-dark-600 dark:text-light-400 lg:hidden'>
+                    <div
+                      className={getClasses({
+                        base: 'mb-2 font-semibold lg:hidden',
+                        business: 'text-muted-foreground',
+                        neonLight: 'text-dark-600',
+                        neonDark: 'text-light-400',
+                      })}
+                    >
                       {item.timeframe}
                     </div>
 
@@ -139,7 +198,14 @@ const RoadmapPage = () => {
                       <div className='flex-shrink-0'>{item.icon}</div>
                       <div className='flex-1'>
                         <div className='flex flex-wrap items-center justify-between gap-2'>
-                          <h3 className='text-xl font-bold text-dark-800 dark:text-light-200'>
+                          <h3
+                            className={getClasses({
+                              base: 'text-xl font-bold',
+                              business: 'text-foreground',
+                              neonLight: 'text-dark-800',
+                              neonDark: 'text-light-200',
+                            })}
+                          >
                             {item.title}
                           </h3>
                           <span
@@ -148,7 +214,14 @@ const RoadmapPage = () => {
                             {getStatusText(item.status)}
                           </span>
                         </div>
-                        <p className='mt-2 text-dark-700 dark:text-light-300'>
+                        <p
+                          className={getClasses({
+                            base: 'mt-2',
+                            business: 'text-muted-foreground',
+                            neonLight: 'text-dark-700',
+                            neonDark: 'text-light-300',
+                          })}
+                        >
                           {item.description}
                         </p>
                       </div>

@@ -124,46 +124,46 @@
 
   /* Neon Dark Theme - Creative dark mode with vibrant neon accents */
   .neon-dark {
-    /* Dark background with slight purple tint */
-    --background: 222 84% 4.9%; /* Dark purple-tinted background */
-    --foreground: 210 40% 98%;
+    /* Much darker background with deep purple-green blend */
+    --background: 270 40% 4%; /* Much deeper purple-green blend background */
+    --foreground: 120 20% 92%; /* Slightly muted light green-tinted foreground */
 
-    /* Cards with slightly lighter dark background */
-    --card: 222 50% 8%; /* Slightly lighter dark with purple tint */
-    --card-foreground: 210 40% 98%;
+    /* Cards with darker purple-green blend */
+    --card: 270 35% 7%; /* Darker purple-green blend for cards */
+    --card-foreground: 120 20% 92%;
 
-    --popover: 222 50% 8%;
-    --popover-foreground: 210 40% 98%;
+    --popover: 270 35% 7%;
+    --popover-foreground: 120 20% 92%;
 
-    /* Primary uses bright neon green for dark mode */
-    --primary: 75 100% 35%; /* Brighter neon green #8db600 */
-    --primary-foreground: 222 84% 4.9%;
+    /* Primary uses darker neon green for better dark mode integration */
+    --primary: 75 80% 27%; /* Darker but still vibrant neon green #88c022 */
+    --primary-foreground: 270 40% 4%;
 
-    /* Secondary with purple tint - improved contrast */
-    --secondary: 258 25% 25%; /* Lighter purple-tinted secondary for better contrast */
-    --secondary-foreground: 210 40% 98%;
+    /* Secondary with darker purple-green blend */
+    --secondary: 270 25% 12%; /* Darker purple-green blended secondary */
+    --secondary-foreground: 120 20% 92%;
 
-    /* Muted with purple tint - improved contrast */
-    --muted: 258 20% 22%; /* Lighter purple-tinted muted for better contrast */
-    --muted-foreground: 215 25% 75%; /* Much lighter muted text for better readability */
+    /* Muted with darker purple-green blend */
+    --muted: 270 22% 10%; /* Much darker purple-green blended muted */
+    --muted-foreground: 120 15% 70%; /* Muted green-tinted text for better readability */
 
-    /* Accent uses bright neon purple */
-    --accent: 258 65% 50%; /* Bright neon purple #5029a6 but brighter */
-    --accent-foreground: 0 0% 98%;
+    /* Accent uses darker neon purple for better dark mode integration */
+    --accent: 258 70% 42%; /* Darker neon purple #7a55d4 */
+    --accent-foreground: 270 40% 4%;
 
     --destructive: 0 62.8% 50%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive-foreground: 120 20% 92%;
 
-    /* Borders with purple tint */
-    --border: 258 25% 20%; /* Purple-tinted borders */
-    --input: 258 25% 20%;
-    --ring: 75 100% 35%; /* Neon green focus rings */
+    /* Borders with darker purple-green blend */
+    --border: 270 25% 15%; /* Darker purple-green blended borders */
+    --input: 270 25% 15%;
+    --ring: 75 80% 27%; /* Darker neon green focus rings */
 
-    /* Legacy color variables */
+    /* Legacy color variables - updated for much darker purple-green blend */
     --color-light-bg: #566573;
     --color-light-fg: #5e6060;
-    --color-dark-bg: #2c3e50;
-    --color-dark-fg: #f0f3f4;
+    --color-dark-bg: #0f0d1a; /* Much deeper purple-green blend */
+    --color-dark-fg: #e0f0e0; /* Light green-tinted text */
   }
 
   /* Legacy dark class removed - now using specific theme classes */
@@ -180,26 +180,9 @@ body.business-dark {
   --fg-color: #f8f9fa;
 }
 
-body.neon-light {
-  --bg-color: var(--color-light-bg);
-  --fg-color: var(--color-light-fg);
-}
+/* Legacy neon body classes removed - now using theme-specific CSS variables */
 
-body.neon-dark {
-  --bg-color: var(--color-dark-bg);
-  --fg-color: var(--color-dark-fg);
-}
-
-/* Legacy support */
-body.light {
-  --bg-color: var(--color-light-bg);
-  --fg-color: var(--color-light-fg);
-}
-
-body.dark {
-  --bg-color: var(--color-dark-bg);
-  --fg-color: var(--color-dark-fg);
-}
+/* Legacy body classes removed - now using theme-specific CSS variables */
 @layer base {
   * {
     @apply border-border;
@@ -229,10 +212,14 @@ body.dark {
 }
 
 /* Clerk theme customization - Neon themes */
-.neon-light .cl-userButtonPopoverCard,
+.neon-light .cl-userButtonPopoverCard {
+  color: #ecf0f1;
+  background-color: #5029a6; /* Bright purple for light theme */
+}
+
 .neon-dark .cl-userButtonPopoverCard {
   color: #ecf0f1;
-  background-color: #5029a6;
+  background-color: #7a55d4; /* Darker purple for dark theme */
 }
 
 .neon-light .cl-userButtonPopoverMain,
@@ -246,10 +233,10 @@ body.dark {
   color: #ecf0f1;
 }
 
-/* Legacy support */
+/* Legacy support - defaults to light theme colors */
 .cl-userButtonPopoverCard {
   color: #ecf0f1;
-  background-color: #5029a6;
+  background-color: #5029a6; /* Default to light theme bright purple */
 }
 .cl-userButtonPopoverMain {
   background-color: #233240;
@@ -278,11 +265,16 @@ body.dark {
   outline-offset: 2px;
 }
 
-.neon-light *:focus-visible,
-.neon-dark *:focus-visible {
-  outline: 2px solid #5029a6;
+.neon-light *:focus-visible {
+  outline: 2px solid #5029a6; /* Bright purple for light theme */
   outline-offset: 2px;
   box-shadow: 0 0 0 2px rgba(80, 41, 166, 0.2);
+}
+
+.neon-dark *:focus-visible {
+  outline: 2px solid #7a55d4; /* Darker purple for dark theme */
+  outline-offset: 2px;
+  box-shadow: 0 0 0 2px rgba(122, 85, 212, 0.2);
 }
 
 /* Theme-specific design rules */
@@ -302,9 +294,16 @@ body.dark {
 }
 
 /* Neon themes: Preserve gradients and vibrant colors */
-.neon-light .text-gradient-lime-violet,
-.neon-dark .text-gradient-lime-violet {
+.neon-light .text-gradient-lime-violet {
   background: linear-gradient(to right, #8db600, #5029a6);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Neon dark theme: Use darker gradient colors */
+.neon-dark .text-gradient-lime-violet {
+  background: linear-gradient(to right, #88c022, #7a55d4);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -348,36 +347,56 @@ body.dark {
   border-color: hsl(var(--primary)) !important; /* Professional purple */
 }
 
-/* Neon theme preserves original vibrant colors */
-.neon-light .bg-accent,
+/* Neon light theme preserves original vibrant colors */
+.neon-light .bg-accent {
+  background-color: #8db600 !important; /* Bright neon green */
+}
+
+.neon-light .text-accent {
+  color: #8db600 !important; /* Bright neon green */
+}
+
+.neon-light .border-accent {
+  border-color: #8db600 !important; /* Bright neon green */
+}
+
+/* Neon dark theme uses darker but still vibrant colors */
 .neon-dark .bg-accent {
-  background-color: #8db600 !important; /* Neon green */
+  background-color: #88c022 !important; /* Darker neon green */
 }
 
-.neon-light .text-accent,
 .neon-dark .text-accent {
-  color: #8db600 !important; /* Neon green */
+  color: #88c022 !important; /* Darker neon green */
 }
 
-.neon-light .border-accent,
 .neon-dark .border-accent {
-  border-color: #8db600 !important; /* Neon green */
+  border-color: #88c022 !important; /* Darker neon green */
 }
 
-/* Neon theme accent2 (purple) overrides */
-.neon-light .bg-accent2,
+/* Neon light theme accent2 (purple) overrides */
+.neon-light .bg-accent2 {
+  background-color: #5029a6 !important; /* Bright neon purple */
+}
+
+.neon-light .text-accent2 {
+  color: #5029a6 !important; /* Bright neon purple */
+}
+
+.neon-light .border-accent2 {
+  border-color: #5029a6 !important; /* Bright neon purple */
+}
+
+/* Neon dark theme accent2 (purple) overrides */
 .neon-dark .bg-accent2 {
-  background-color: #5029a6 !important; /* Neon purple */
+  background-color: #7a55d4 !important; /* Darker neon purple */
 }
 
-.neon-light .text-accent2,
 .neon-dark .text-accent2 {
-  color: #5029a6 !important; /* Neon purple */
+  color: #7a55d4 !important; /* Darker neon purple */
 }
 
-.neon-light .border-accent2,
 .neon-dark .border-accent2 {
-  border-color: #5029a6 !important; /* Neon purple */
+  border-color: #7a55d4 !important; /* Darker neon purple */
 }
 
 /* Additional text color fixes for theme consistency */

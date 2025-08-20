@@ -12,19 +12,19 @@ interface ThemeManagerReturn {
   themeType: ThemeType;
   themeMode: ThemeMode;
   currentTheme: ThemeName;
-  
+
   // Theme setters
   setThemeType: (type: ThemeType) => void;
   setThemeMode: (mode: ThemeMode) => void;
   setTheme: (theme: ThemeName) => void;
-  
+
   // Utility functions
   toggleMode: () => void;
   isBusinessTheme: boolean;
   isNeonTheme: boolean;
   isDarkMode: boolean;
   isLightMode: boolean;
-  
+
   // Loading state
   mounted: boolean;
 }
@@ -40,25 +40,25 @@ export function useThemeManager(): ThemeManagerReturn {
   // Parse current theme into type and mode
   const parseTheme = (themeName: string | undefined): { type: ThemeType; mode: ThemeMode } => {
     if (!themeName) return { type: 'business', mode: 'light' };
-    
+
     if (themeName.startsWith('business-')) {
       return {
         type: 'business',
-        mode: themeName.endsWith('-dark') ? 'dark' : 'light'
+        mode: themeName.endsWith('-dark') ? 'dark' : 'light',
       };
     }
-    
+
     if (themeName.startsWith('neon-')) {
       return {
         type: 'neon',
-        mode: themeName.endsWith('-dark') ? 'dark' : 'light'
+        mode: themeName.endsWith('-dark') ? 'dark' : 'light',
       };
     }
-    
+
     // Handle legacy themes
     if (themeName === 'dark') return { type: 'neon', mode: 'dark' };
     if (themeName === 'light') return { type: 'neon', mode: 'light' };
-    
+
     // Default fallback
     return { type: 'business', mode: 'light' };
   };
@@ -119,19 +119,19 @@ export function useThemeManager(): ThemeManagerReturn {
     themeType,
     themeMode,
     currentTheme,
-    
+
     // Setters
     setThemeType,
     setThemeMode,
     setTheme,
-    
+
     // Utilities
     toggleMode,
     isBusinessTheme,
     isNeonTheme,
     isDarkMode,
     isLightMode,
-    
+
     // Loading
     mounted,
   };
@@ -144,12 +144,12 @@ export function getThemeClasses(themeType: ThemeType, themeMode: ThemeMode) {
   const baseClasses = {
     business: {
       light: 'bg-white text-gray-900 border-gray-200',
-      dark: 'bg-gray-900 text-white border-gray-800'
+      dark: 'bg-gray-900 text-white border-gray-800',
     },
     neon: {
       light: 'bg-light-100 text-dark-900 border-light-300',
-      dark: 'bg-dark-900 text-light-100 border-dark-700'
-    }
+      dark: 'bg-dark-900 text-light-100 border-dark-700',
+    },
   };
 
   return baseClasses[themeType][themeMode];
@@ -158,6 +158,10 @@ export function getThemeClasses(themeType: ThemeType, themeMode: ThemeMode) {
 /**
  * Get theme-specific accent colors
  */
-export function getAccentColor(themeType: ThemeType): string {
-  return themeType === 'business' ? '#2563eb' : '#5029a6';
+export function getAccentColor(themeType: ThemeType, themeMode: ThemeMode): string {
+  if (themeType === 'business') {
+    return '#2563eb'; // Professional blue for business themes
+  }
+  // Neon themes use different colors for light and dark modes
+  return themeMode === 'light' ? '#5029a6' : '#7a55d4';
 }

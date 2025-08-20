@@ -27,11 +27,13 @@ import {
   SUCCESS_MESSAGES,
   PLAN_TYPES,
 } from '@/lib/constants/appConstants';
+import { useThemeClasses } from '@/components/Global/ThemeAwareWrapper';
 
 const FileUploader = () => {
   const { progress, status, docId, handleUploadDocument } = useUpload();
   const { isOverFileLimit, docsLoading, planType } = useSubscription();
   const router = useRouter();
+  const { getClasses } = useThemeClasses();
 
   // Get file size limit based on user's plan
   const maxFileSize = FILE_UPLOAD.getMaxFileSizeForPlan(planType);
@@ -197,15 +199,20 @@ const FileUploader = () => {
           /* Upload Area - consistent sizing to prevent layout shifts */
           <div
             {...getRootProps()}
-            className={`flex cursor-pointer items-center justify-center rounded-lg border-2 border-dashed p-10 text-center transition-all duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 ${
-              isDragAccept
-                ? 'border-accent3 bg-accent4/50 text-accent2 dark:border-accent3 dark:bg-accent/40 dark:text-accent2'
-                : 'border-accent bg-light-500/30 text-accent2 dark:border-accent2 dark:bg-dark-600/30 dark:text-accent'
-            } ${
-              isFocused
-                ? 'border-accent4 shadow-lg'
-                : 'border-accent hover:border-accent3 hover:bg-light-400/40 dark:hover:bg-dark-500/40'
-            }`}
+            className={getClasses({
+              base: `flex cursor-pointer items-center justify-center rounded-lg border-2 border-dashed p-10 text-center transition-all duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 ${
+                isDragAccept ? 'shadow-lg' : isFocused ? 'shadow-lg' : ''
+              }`,
+              business: isDragAccept
+                ? 'border-primary bg-primary/10 text-primary focus:ring-primary'
+                : 'border-border bg-muted/30 text-foreground hover:bg-muted/50 focus:ring-primary',
+              neonLight: isDragAccept
+                ? 'border-accent3 bg-accent4/50 text-accent2 focus:ring-accent'
+                : 'border-accent bg-light-500/30 text-accent2 hover:border-accent3 hover:bg-light-400/40 focus:ring-accent',
+              neonDark: isDragAccept
+                ? 'border-accent3 bg-accent/40 text-accent2 focus:ring-accent'
+                : 'border-accent2 bg-dark-600/30 text-accent hover:bg-dark-500/40 focus:ring-accent',
+            })}
             role='button'
             tabIndex={0}
             aria-label='File upload area. Click to select files or drag and drop documents here.'
@@ -236,20 +243,44 @@ const FileUploader = () => {
               ) : (
                 <>
                   <CircleArrowDown
-                    className='h-14 w-14 animate-caret-blink text-accent2 dark:text-accent'
+                    className={getClasses({
+                      base: 'h-14 w-14 animate-caret-blink',
+                      business: 'text-primary',
+                      neonLight: 'text-accent2',
+                      neonDark: 'text-accent',
+                    })}
                     aria-hidden='true'
                   />
                   <div className='space-y-3'>
                     <p
                       id='upload-instructions'
-                      className='text-lg font-semibold text-gray-700 dark:text-gray-200'
+                      className={getClasses({
+                        base: 'text-lg font-semibold',
+                        business: 'text-foreground',
+                        neonLight: 'text-gray-700',
+                        neonDark: 'text-gray-200',
+                      })}
                     >
                       Feed me some Documents by dropping them in front of me or clicking here.
                     </p>
-                    <p className='text-sm font-medium text-gray-600 dark:text-gray-300'>
+                    <p
+                      className={getClasses({
+                        base: 'text-sm font-medium',
+                        business: 'text-muted-foreground',
+                        neonLight: 'text-gray-600',
+                        neonDark: 'text-gray-300',
+                      })}
+                    >
                       Supports PDF, TXT, MD, and RTF files. Maximum file size: {maxFileSizeDisplay}
                     </p>
-                    <p className='text-xs text-gray-500 dark:text-gray-400'>
+                    <p
+                      className={getClasses({
+                        base: 'text-xs',
+                        business: 'text-muted-foreground',
+                        neonLight: 'text-gray-500',
+                        neonDark: 'text-gray-400',
+                      })}
+                    >
                       Your current plan:{' '}
                       <span className='font-semibold capitalize'>{planType}</span>
                     </p>
@@ -260,19 +291,47 @@ const FileUploader = () => {
                     className='flex max-w-md flex-wrap items-center justify-center gap-3'
                     aria-label='Supported file types'
                   >
-                    <div className='flex items-center gap-1 rounded-md bg-light-600/50 p-1 text-sm dark:bg-dark-700/50'>
+                    <div
+                      className={getClasses({
+                        base: 'flex items-center gap-1 rounded-md p-1 text-sm',
+                        business: 'bg-muted',
+                        neonLight: 'bg-light-600/50',
+                        neonDark: 'bg-dark-700/50',
+                      })}
+                    >
                       <FileText className='h-4 w-4' aria-hidden='true' />
                       <span>PDF</span>
                     </div>
-                    <div className='flex items-center gap-1 rounded-md bg-light-600/50 p-1 text-sm dark:bg-dark-700/50'>
+                    <div
+                      className={getClasses({
+                        base: 'flex items-center gap-1 rounded-md p-1 text-sm',
+                        business: 'bg-muted',
+                        neonLight: 'bg-light-600/50',
+                        neonDark: 'bg-dark-700/50',
+                      })}
+                    >
                       <FileText className='h-4 w-4' aria-hidden='true' />
                       <span>TXT</span>
                     </div>
-                    <div className='flex items-center gap-1 rounded-md bg-light-600/50 p-1 text-sm dark:bg-dark-700/50'>
+                    <div
+                      className={getClasses({
+                        base: 'flex items-center gap-1 rounded-md p-1 text-sm',
+                        business: 'bg-muted',
+                        neonLight: 'bg-light-600/50',
+                        neonDark: 'bg-dark-700/50',
+                      })}
+                    >
                       <FileType className='h-4 w-4' aria-hidden='true' />
                       <span>MD</span>
                     </div>
-                    <div className='flex items-center gap-1 rounded-md bg-light-600/50 p-1 text-sm dark:bg-dark-700/50'>
+                    <div
+                      className={getClasses({
+                        base: 'flex items-center gap-1 rounded-md p-1 text-sm',
+                        business: 'bg-muted',
+                        neonLight: 'bg-light-600/50',
+                        neonDark: 'bg-dark-700/50',
+                      })}
+                    >
                       <FileArchive className='h-4 w-4' aria-hidden='true' />
                       <span>RTF</span>
                     </div>

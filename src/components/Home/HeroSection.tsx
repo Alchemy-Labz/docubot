@@ -4,10 +4,10 @@ import { Button } from '@/components/ui/button';
 
 const HeroSection = () => {
   return (
-    <div className='mx-auto flex max-w-7xl flex-col items-center justify-center rounded-xl border border-accent2/60 bg-light-500/70 px-6 py-16 shadow-xl shadow-dark-800/30 drop-shadow-xl dark:border-accent/40 dark:bg-dark-700/85 sm:py-8 lg:px-8'>
+    <div className='mx-auto flex max-w-7xl flex-col items-center justify-center rounded-xl border border-border bg-card/70 px-6 py-16 shadow-xl drop-shadow-xl sm:py-8 lg:px-8'>
       <div className='mx-auto flex max-w-2xl flex-col items-center justify-center sm:text-center'>
-        <h4 className='text-base font-semibold leading-7 text-accent2 dark:text-accent'>
-          <span className='text-2xl font-extrabold text-accent text-stroke-2 text-stroke-accent2 dark:text-accent2 dark:text-stroke-accent'>
+        <h4 className='text-base font-semibold leading-7 text-accent2'>
+          <span className='text-2xl font-extrabold text-accent text-stroke-2 text-stroke-accent2'>
             DocuBot
           </span>
           {' - '}
@@ -20,13 +20,13 @@ const HeroSection = () => {
         <h2 className='my-3 text-2xl font-semibold'>
           Leverage AI to Analyze, Understand, and Interact with Your Documents
         </h2>
-        <p className='mb-2 py-4 text-base leading-8 text-dark-600 dark:text-light-400 lg:mb-4'>
+        <p className='mb-2 py-4 text-base leading-8 text-muted-foreground lg:mb-4'>
           Introducing <span className='font-bold text-accent'>DocuBot</span>
           <br /> Upload your PDF documents, and let DocuBot answer all your questions.
           <br /> With its ease of use, <span className='font-bold text-accent'>DocuBot</span> is
           perfect for everyone.
           <br /> Turn your static documents into
-          <span className='font-bold text-accent3'> dynamic conversations</span> and effortlessly
+          <span className='font-bold text-accent2'> dynamic conversations</span> and effortlessly
           boost your productivity.
         </p>
       </div>

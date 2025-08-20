@@ -6,6 +6,7 @@ import Link from 'next/link';
 
 import ThemeSelector from '@/components/Global/ThemeSelector';
 import { dark } from '@clerk/themes';
+import { useThemeClasses } from '@/components/Global/ThemeAwareWrapper';
 
 import { Button } from '../ui/button';
 import { File, FilePlus2, Settings } from 'lucide-react';
@@ -14,14 +15,30 @@ import UpgradeButton from '../Dashboard/UpgradeButton';
 const Header = () => {
   const { user, isLoaded } = useUser();
   const isAdmin = user?.publicMetadata?.isAdmin === true;
+  const { getClasses } = useThemeClasses();
 
   // Don't render admin features until user data is loaded
   if (!isLoaded) {
     return (
-      <header className='flex items-center justify-between bg-light-600 px-5 py-3 shadow-xl shadow-dark-800/30 dark:bg-dark-800'>
+      <header
+        className={getClasses({
+          base: 'flex items-center justify-between px-5 py-3 shadow-xl',
+          business: 'border-b border-border bg-background',
+          neonLight: 'bg-light-600 shadow-dark-800/30',
+          neonDark: 'bg-neon2-dark-800/95 shadow-black/50',
+        })}
+      >
         <Link href='/' className='flex items-center space-x-4' aria-label='DocuBot home page'>
           <Image src='/logo.png' alt='DocuBot logo' width={45} height={45} priority />
-          <h1 className='hidden text-4xl font-bold text-gradient-lime-violet md:block'>DocuBot</h1>
+          <h1
+            className={getClasses({
+              base: 'hidden text-4xl font-bold md:block',
+              business: 'text-foreground',
+              neon: 'text-gradient-lime-violet',
+            })}
+          >
+            DocuBot
+          </h1>
         </Link>
         <div className='flex items-center space-x-4'>
           <ThemeSelector />
@@ -31,11 +48,26 @@ const Header = () => {
   }
 
   return (
-    <header className='flex items-center justify-between bg-light-600 px-5 py-3 shadow-xl shadow-dark-800/30 dark:bg-dark-800'>
+    <header
+      className={getClasses({
+        base: 'flex items-center justify-between px-5 py-3 shadow-xl',
+        business: 'border-b border-border bg-background',
+        neonLight: 'bg-light-600 shadow-dark-800/30',
+        neonDark: 'bg-neon2-dark-800/95 shadow-black/50',
+      })}
+    >
       <SignedOut>
         <Link href='/' className='flex items-center space-x-4' aria-label='DocuBot home page'>
           <Image src='/logo.png' alt='DocuBot logo' width={45} height={45} priority />
-          <h1 className='hidden text-4xl font-bold text-gradient-lime-violet md:block'>DocuBot</h1>
+          <h1
+            className={getClasses({
+              base: 'hidden text-4xl font-bold md:block',
+              business: 'text-foreground',
+              neon: 'text-gradient-lime-violet',
+            })}
+          >
+            DocuBot
+          </h1>
         </Link>
       </SignedOut>
 
@@ -47,7 +79,7 @@ const Header = () => {
             aria-label='Go to dashboard'
           >
             <Image src='/logo.png' alt='DocuBot logo' width={45} height={45} priority />
-            <h1 className='hidden text-4xl font-bold text-gradient-lime-violet md:block'>
+            <h1 className='business-light:text-foreground business-dark:text-foreground neon-light:text-gradient-lime-violet neon-dark:text-gradient-lime-violet hidden text-4xl font-bold md:block'>
               DocuBot
             </h1>
           </Link>
@@ -104,20 +136,38 @@ const Header = () => {
 
         <SignedOut>
           <nav className='flex items-center space-x-4' aria-label='Authentication navigation'>
-            <Link
-              className='rounded-md border border-accent bg-light-700 px-3 py-2 text-dark-800 neon-neon focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 dark:bg-dark-400 dark:text-light-400'
-              href='/sign-up'
-              aria-label='Create new account'
+            <Button
+              asChild
+              variant='outline'
+              className={getClasses({
+                base: 'border focus:outline-none focus:ring-2 focus:ring-offset-2',
+                business:
+                  'border-border bg-background text-foreground hover:bg-secondary focus:ring-ring',
+                neonLight:
+                  'border-accent bg-light-700 text-dark-800 hover:bg-light-600 focus:ring-accent',
+                neonDark:
+                  'border-accent bg-card text-card-foreground hover:bg-secondary focus:ring-accent',
+              })}
             >
-              <button type='button'>Sign Up</button>
-            </Link>
-            <Link
-              className='rounded-md border border-accent2 bg-light-700 px-3 py-2 text-dark-800 neon-neon2 focus:outline-none focus:ring-2 focus:ring-accent2 focus:ring-offset-2 dark:bg-dark-400 dark:text-light-400'
-              href='/sign-in'
-              aria-label='Sign in to your account'
+              <Link href='/sign-up' aria-label='Create new account'>
+                Sign Up
+              </Link>
+            </Button>
+            <Button
+              asChild
+              variant='default'
+              className={getClasses({
+                base: 'focus:outline-none focus:ring-2 focus:ring-offset-2',
+                business: 'bg-primary text-primary-foreground hover:bg-primary/90 focus:ring-ring',
+                neonLight: 'bg-accent2 text-light-100 hover:bg-accent2/90 focus:ring-accent2',
+                neonDark:
+                  'bg-accent2 text-primary-foreground hover:bg-accent2/90 focus:ring-accent2',
+              })}
             >
-              <button type='button'>Sign In</button>
-            </Link>
+              <Link href='/sign-in' aria-label='Sign in to your account'>
+                Sign In
+              </Link>
+            </Button>
           </nav>
           <ThemeSelector />
         </SignedOut>

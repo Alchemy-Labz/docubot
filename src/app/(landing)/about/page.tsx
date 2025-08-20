@@ -20,8 +20,11 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Footer from '@/components/Global/Footer';
+import { useThemeClasses } from '@/components/Global/ThemeAwareWrapper';
 
 const AboutPage: React.FC = () => {
+  const { getClasses } = useThemeClasses();
+
   const fadeIn = {
     hidden: { opacity: 0, y: 20 },
     visible: {
@@ -42,17 +45,48 @@ const AboutPage: React.FC = () => {
   };
 
   return (
-    <div className='flex min-h-screen flex-col overflow-x-hidden bg-gradient-to-br from-accent2/20 to-accent/20 dark:from-accent3/20 dark:to-accent4/20'>
+    <div
+      className={getClasses({
+        base: 'flex min-h-screen flex-col overflow-x-hidden',
+        business: 'bg-background',
+        neonLight: 'bg-gradient-to-br from-accent2/20 to-accent/20',
+        neonDark: 'from-neon2-dark-900/15 to-neon-dark-900/15 bg-gradient-to-br',
+      })}
+    >
       {/* Hero section */}
       <section className='relative'>
         <div className='mx-auto max-w-7xl px-4 py-20 sm:px-6 sm:py-24 lg:px-8 lg:py-32'>
           <motion.div className='text-center' initial='hidden' animate='visible' variants={fadeIn}>
-            <h1 className='text-4xl font-extrabold tracking-tight text-dark-800 dark:text-light-300 sm:text-5xl lg:text-6xl'>
-              Our Mission is to <span className='text-accent2 dark:text-accent'>Transform</span>
+            <h1
+              className={getClasses({
+                base: 'text-4xl font-extrabold tracking-tight sm:text-5xl lg:text-6xl',
+                business: 'text-foreground',
+                neonLight: 'text-dark-800',
+                neonDark: 'text-light-300',
+              })}
+            >
+              Our Mission is to{' '}
+              <span
+                className={getClasses({
+                  base: '',
+                  business: 'text-primary',
+                  neonLight: 'text-accent2',
+                  neonDark: 'text-accent',
+                })}
+              >
+                Transform
+              </span>
               <br />
               Document Interaction
             </h1>
-            <p className='mx-auto mt-6 max-w-2xl text-xl text-dark-600 dark:text-light-400'>
+            <p
+              className={getClasses({
+                base: 'mx-auto mt-6 max-w-2xl text-xl',
+                business: 'text-muted-foreground',
+                neonLight: 'text-dark-600',
+                neonDark: 'text-light-400',
+              })}
+            >
               Empowering professionals to extract knowledge and insights from documents with
               unprecedented speed and accuracy
             </p>
@@ -92,7 +126,7 @@ const AboutPage: React.FC = () => {
       </section>
 
       {/* Our Story section */}
-      <section className='bg-light-400/30 py-24 dark:bg-dark-700/30'>
+      <section className='business-light:bg-muted business-dark:bg-muted neon-light:bg-light-400/30 neon-dark:bg-dark-700/30 py-24'>
         <div className='mx-auto max-w-7xl px-4 sm:px-6 lg:px-8'>
           <motion.div
             className='grid items-center gap-12 lg:grid-cols-2'
@@ -102,10 +136,10 @@ const AboutPage: React.FC = () => {
             variants={staggerContainer}
           >
             <motion.div variants={fadeIn}>
-              <h2 className='text-3xl font-bold tracking-tight text-dark-800 dark:text-light-300 sm:text-4xl'>
+              <h2 className='business-light:text-foreground business-dark:text-foreground neon-light:text-dark-800 neon-dark:text-light-300 text-3xl font-bold tracking-tight sm:text-4xl'>
                 The DocuBot Story
               </h2>
-              <p className='mt-6 text-lg text-dark-600 dark:text-light-400'>
+              <p className='business-light:text-muted-foreground business-dark:text-muted-foreground neon-light:text-dark-600 neon-dark:text-light-400 mt-6 text-lg'>
                 DocuBot was born during the University of Code AI SaaS Challenge, where it secured
                 an impressive 2nd place among 4,000 contestants. Developed in just 3 days, DocuBot
                 showcases the power of rapid innovation and expertise in AI and SaaS development.

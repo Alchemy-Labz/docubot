@@ -33,11 +33,19 @@ const LandingPage = () => {
       className={getClasses({
         base: 'flex flex-col items-center overflow-x-auto',
         business: 'bg-background',
-        neon: 'bg-gradient-to-br from-accent2/40 to-accent/40 dark:from-accent3/30 dark:to-accent4/30',
+        neonLight: 'bg-gradient-to-br from-accent2/40 to-accent/40',
+        neonDark: 'from-neon2-dark-900/30 to-neon-dark-900/30 bg-gradient-to-br',
       })}
     >
       {/* Hero Section */}
-      <section className='relative w-full py-12 md:py-18 md:pl-8 lg:py-24'>
+      <section
+        className={getClasses({
+          base: 'relative w-full py-12 md:py-18 md:pl-8 lg:py-24',
+          business: '',
+          neonLight: '',
+          neonDark: 'from-neon2-dark-900/40 to-neon-dark-900/40 bg-gradient-to-br',
+        })}
+      >
         <div className='container flex max-w-[1500px] flex-col items-center justify-center space-y-4 px-4 md:px-6'>
           <div className='grid gap-3 lg:grid-cols-2 lg:gap-6 xl:gap-8'>
             <div className='flex max-w-xl flex-col justify-center space-y-4'>
@@ -78,6 +86,15 @@ const LandingPage = () => {
                         neon: 'text-dark-700 dark:text-light-300',
                       })}
                     >
+                      Business Theme Available
+                    </div>
+                    <div
+                      className={getClasses({
+                        base: 'flex h-8 items-center whitespace-nowrap',
+                        business: 'text-muted-foreground',
+                        neon: 'text-dark-700 dark:text-light-300',
+                      })}
+                    >
                       Advanced Search Reranking
                     </div>
                   </div>
@@ -90,8 +107,22 @@ const LandingPage = () => {
                   className='group'
                   aria-label='View DocuBot on Product Hunt'
                 >
-                  <div className='flex flex-col items-start gap-2 rounded-lg border border-accent2/60 bg-light-500 px-3 py-2 shadow-md transition hover:shadow-xl dark:border-accent/40 dark:bg-dark-600 sm:flex-row sm:items-center sm:gap-3 sm:py-1'>
-                    <span className='whitespace-nowrap text-sm font-semibold text-accent2 dark:text-accent'>
+                  <div
+                    className={getClasses({
+                      base: 'flex flex-col items-start gap-2 rounded-lg border px-3 py-2 shadow-md transition hover:shadow-xl sm:flex-row sm:items-center sm:gap-3 sm:py-1',
+                      business: 'border-border bg-card',
+                      neonLight: 'border-accent2/60 bg-light-500',
+                      neonDark: 'border-accent/40 bg-dark-600',
+                    })}
+                  >
+                    <span
+                      className={getClasses({
+                        base: 'whitespace-nowrap text-sm font-semibold',
+                        business: 'text-primary',
+                        neonLight: 'text-accent2',
+                        neonDark: 'text-accent',
+                      })}
+                    >
                       Discount Code on Product Hunt
                     </span>
                     <Image
@@ -99,7 +130,12 @@ const LandingPage = () => {
                       alt='DocuBot on Product Hunt'
                       width={200}
                       height={42}
-                      className='block rounded-lg border border-accent/60 dark:hidden'
+                      className={getClasses({
+                        base: 'rounded-lg border',
+                        business: 'border-border',
+                        neonLight: 'block border-accent/60',
+                        neonDark: 'hidden border-accent/60',
+                      })}
                       style={{ filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.08))' }}
                     />
                     <Image
@@ -107,7 +143,12 @@ const LandingPage = () => {
                       alt='DocuBot on Product Hunt'
                       width={200}
                       height={42}
-                      className='hidden rounded-lg border border-accent2/60 dark:block'
+                      className={getClasses({
+                        base: 'rounded-lg border',
+                        business: 'hidden border-border',
+                        neonLight: 'hidden border-accent2/60',
+                        neonDark: 'block border-accent2/60',
+                      })}
                       style={{ filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.18))' }}
                     />
                   </div>
@@ -127,7 +168,8 @@ const LandingPage = () => {
                   className={getClasses({
                     base: 'max-w-[600px] md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed',
                     business: 'text-muted-foreground',
-                    neon: 'text-dark-700 dark:text-light-300',
+                    neonLight: 'text-dark-700',
+                    neonDark: 'text-light-300',
                   })}
                 >
                   Upload your documents and let DocuBot answer all your questions using advanced AI
@@ -230,7 +272,8 @@ const LandingPage = () => {
             className={getClasses({
               base: 'h-16 w-screen',
               business: 'fill-muted/30',
-              neon: 'fill-light-400/30 dark:fill-dark-700/30',
+              neonLight: 'fill-light-400/30',
+              neonDark: 'fill-neon2-dark-800/50',
             })}
             preserveAspectRatio='none'
             aria-hidden='true'
@@ -245,7 +288,8 @@ const LandingPage = () => {
         className={getClasses({
           base: 'w-full py-12 md:py-18 lg:py-24',
           business: 'bg-muted/30',
-          neon: 'bg-light-500/70 dark:bg-dark-800/70',
+          neonLight: 'bg-light-500/70',
+          neonDark: 'bg-neon2-dark-900/80',
         })}
       >
         <div className='mx-auto max-w-7xl space-y-4 px-4 sm:px-6 lg:px-8'>
@@ -289,51 +333,161 @@ const LandingPage = () => {
       {/* Feature Highlights */}
       <section
         id='how-it-works'
-        className='w-full bg-light-500/70 py-12 dark:bg-dark-700/50 md:py-18 lg:py-24'
+        className={getClasses({
+          base: 'w-full py-12 md:py-18 lg:py-24',
+          business: 'bg-muted/30',
+          neonLight: 'bg-light-500/70',
+          neonDark: 'bg-dark-700/50',
+        })}
       >
         <div className='container px-4 md:px-6'>
           <div className='flex flex-col items-center justify-center space-y-4 text-center'>
             <div className='space-y-2'>
-              <div className='inline-block rounded-lg bg-accent px-3 py-1 text-sm text-light-100'>
+              <div
+                className={getClasses({
+                  base: 'inline-block rounded-lg px-3 py-1 text-sm',
+                  business: 'bg-primary text-primary-foreground',
+                  neonLight: 'bg-accent text-light-100',
+                  neonDark: 'bg-accent text-dark-900',
+                })}
+              >
                 AI-Powered Document Analysis
               </div>
-              <h2 className='text-3xl font-bold tracking-tighter text-dark-800 dark:text-light-200 sm:text-5xl'>
+              <h2
+                className={getClasses({
+                  base: 'text-3xl font-bold tracking-tighter sm:text-5xl',
+                  business: 'text-foreground',
+                  neonLight: 'text-dark-800',
+                  neonDark: 'text-light-200',
+                })}
+              >
                 How DocuBot Works
               </h2>
-              <p className='max-w-[900px] text-dark-700 dark:text-light-300 md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed'>
+              <p
+                className={getClasses({
+                  base: 'max-w-[900px] md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed',
+                  business: 'text-muted-foreground',
+                  neonLight: 'text-dark-700',
+                  neonDark: 'text-light-300',
+                })}
+              >
                 Our advanced AI technology transforms static documents into interactive knowledge
                 bases you can chat with
               </p>
             </div>
           </div>
           <div className='mx-auto grid max-w-5xl grid-cols-1 gap-6 py-12 md:grid-cols-3 lg:gap-12'>
-            <div className='flex flex-col items-center space-y-2 rounded-lg border border-accent2/60 bg-light-500/70 p-6 shadow-xl dark:border-accent/40 dark:bg-dark-700/85'>
-              <Rocket className='h-12 w-12 text-accent dark:text-accent4' />
-              <h3 className='text-xl font-bold text-dark-800 dark:text-light-200'>
+            <div
+              className={getClasses({
+                base: 'flex flex-col items-center space-y-2 rounded-lg border p-6 shadow-xl',
+                business: 'border-border bg-card',
+                neonLight: 'border-accent2/60 bg-light-500/70',
+                neonDark: 'border-accent/40 bg-dark-700/85',
+              })}
+            >
+              <Rocket
+                className={getClasses({
+                  base: 'h-12 w-12',
+                  business: 'text-primary',
+                  neonLight: 'text-accent',
+                  neonDark: 'text-accent4',
+                })}
+              />
+              <h3
+                className={getClasses({
+                  base: 'text-xl font-bold',
+                  business: 'text-foreground',
+                  neonLight: 'text-dark-800',
+                  neonDark: 'text-light-200',
+                })}
+              >
                 1. Upload & Ingest
               </h3>
-              <p className='text-center text-dark-700 dark:text-light-300'>
+              <p
+                className={getClasses({
+                  base: 'text-center',
+                  business: 'text-muted-foreground',
+                  neonLight: 'text-dark-700',
+                  neonDark: 'text-light-300',
+                })}
+              >
                 Securely upload your PDF documents to DocuBot. Each document is automatically
                 split, parsed, and converted into vector embeddings for fast, intelligent
                 retrieval.
               </p>
             </div>
-            <div className='flex flex-col items-center space-y-2 rounded-lg border border-accent2/60 bg-light-500/70 p-6 shadow-xl dark:border-accent/40 dark:bg-dark-700/85'>
-              <Puzzle className='h-12 w-12 text-accent2 dark:text-accent' />
-              <h3 className='text-xl font-bold text-dark-800 dark:text-light-200'>
+            <div
+              className={getClasses({
+                base: 'flex flex-col items-center space-y-2 rounded-lg border p-6 shadow-xl',
+                business: 'border-border bg-card',
+                neonLight: 'border-accent2/60 bg-light-500/70',
+                neonDark: 'border-accent/40 bg-dark-700/85',
+              })}
+            >
+              <Puzzle
+                className={getClasses({
+                  base: 'h-12 w-12',
+                  business: 'text-primary',
+                  neonLight: 'text-accent2',
+                  neonDark: 'text-accent',
+                })}
+              />
+              <h3
+                className={getClasses({
+                  base: 'text-xl font-bold',
+                  business: 'text-foreground',
+                  neonLight: 'text-dark-800',
+                  neonDark: 'text-light-200',
+                })}
+              >
                 2. RAG & Reranking
               </h3>
-              <p className='text-center text-dark-700 dark:text-light-300'>
+              <p
+                className={getClasses({
+                  base: 'text-center',
+                  business: 'text-muted-foreground',
+                  neonLight: 'text-dark-700',
+                  neonDark: 'text-light-300',
+                })}
+              >
                 DocuBot uses Retrieval-Augmented Generation (RAG) and Pinecone-powered results
                 reranking to find the most relevant information from your documents.
               </p>
             </div>
-            <div className='flex flex-col items-center space-y-2 rounded-lg border border-accent2/60 bg-light-500/70 p-6 shadow-xl dark:border-accent/40 dark:bg-dark-700/85'>
-              <Zap className='h-12 w-12 text-accent dark:text-accent4' />
-              <h3 className='text-xl font-bold text-dark-800 dark:text-light-200'>
+            <div
+              className={getClasses({
+                base: 'flex flex-col items-center space-y-2 rounded-lg border p-6 shadow-xl',
+                business: 'border-border bg-card',
+                neonLight: 'border-accent2/60 bg-light-500/70',
+                neonDark: 'border-accent/40 bg-dark-700/85',
+              })}
+            >
+              <Zap
+                className={getClasses({
+                  base: 'h-12 w-12',
+                  business: 'text-primary',
+                  neonLight: 'text-accent',
+                  neonDark: 'text-primary',
+                })}
+              />
+              <h3
+                className={getClasses({
+                  base: 'text-xl font-bold',
+                  business: 'text-foreground',
+                  neonLight: 'text-dark-800',
+                  neonDark: 'text-light-200',
+                })}
+              >
                 3. Chat & Extract Insights
               </h3>
-              <p className='text-center text-dark-700 dark:text-light-300'>
+              <p
+                className={getClasses({
+                  base: 'text-center',
+                  business: 'text-muted-foreground',
+                  neonLight: 'text-dark-700',
+                  neonDark: 'text-light-300',
+                })}
+              >
                 Ask questions in natural language and receive instant, context-aware answers.
                 Extract summaries, key facts, and actionable insights directly from your document
                 content.
@@ -341,7 +495,11 @@ const LandingPage = () => {
             </div>
           </div>
           <div className='flex justify-center'>
-            <Button asChild size='lg' className='bg-accent2 text-light-100 hover:bg-accent'>
+            <Button
+              asChild
+              size='lg'
+              className='text-accent2-foreground bg-accent2 hover:bg-accent'
+            >
               <Link href='/dashboard'>Start Using DocuBot Now</Link>
             </Button>
           </div>
@@ -349,10 +507,24 @@ const LandingPage = () => {
       </section>
 
       {/* Key benefits section */}
-      <section className='w-full bg-light-200/30 py-12 dark:bg-dark-900/30 md:py-18 lg:py-24'>
+      <section
+        className={getClasses({
+          base: 'w-full py-12 md:py-18 lg:py-24',
+          business: 'bg-muted/30',
+          neonLight: 'bg-light-200/30',
+          neonDark: 'bg-neon2-dark-900/70',
+        })}
+      >
         <div className='mx-auto max-w-7xl px-4 sm:px-6 lg:px-8'>
           <div className='mb-16 text-center'>
-            <h2 className='text-3xl font-bold tracking-tight text-dark-800 dark:text-light-200 sm:text-4xl'>
+            <h2
+              className={getClasses({
+                base: 'text-3xl font-bold tracking-tight sm:text-4xl',
+                business: 'text-foreground',
+                neonLight: 'text-dark-800',
+                neonDark: 'text-light-200',
+              })}
+            >
               Why Choose DocuBot?
             </h2>
           </div>
@@ -360,46 +532,121 @@ const LandingPage = () => {
           <div className='grid gap-8 md:grid-cols-2 lg:grid-cols-3'>
             {[
               {
-                icon: <Clock className='h-8 w-8 text-accent2 dark:text-accent' />,
+                icon: (
+                  <Clock
+                    className={getClasses({
+                      base: 'h-8 w-8',
+                      business: 'text-primary',
+                      neonLight: 'text-accent2',
+                      neonDark: 'text-accent',
+                    })}
+                  />
+                ),
                 title: 'Save Time',
                 description: 'Extract key information in seconds instead of hours of reading.',
               },
               {
-                icon: <Search className='h-8 w-8 text-accent2 dark:text-accent' />,
+                icon: (
+                  <Search
+                    className={getClasses({
+                      base: 'h-8 w-8',
+                      business: 'text-primary',
+                      neonLight: 'text-accent2',
+                      neonDark: 'text-accent',
+                    })}
+                  />
+                ),
                 title: 'Find Exact Answers',
                 description: 'Get precise answers to your questions directly from your documents.',
               },
               {
-                icon: <Brain className='h-8 w-8 text-accent2 dark:text-accent' />,
+                icon: (
+                  <Brain
+                    className={getClasses({
+                      base: 'h-8 w-8',
+                      business: 'text-primary',
+                      neonLight: 'text-accent2',
+                      neonDark: 'text-accent',
+                    })}
+                  />
+                ),
                 title: 'AI-Powered Insights',
                 description: 'Discover connections and insights you might have missed.',
               },
               {
-                icon: <BookOpen className='h-8 w-8 text-accent2 dark:text-accent' />,
+                icon: (
+                  <BookOpen
+                    className={getClasses({
+                      base: 'h-8 w-8',
+                      business: 'text-primary',
+                      neonLight: 'text-accent2',
+                      neonDark: 'text-accent',
+                    })}
+                  />
+                ),
                 title: 'Handle Multiple Documents',
                 description: 'Upload and analyze multiple documents with ease.',
               },
               {
-                icon: <MessageSquare className='h-8 w-8 text-accent2 dark:text-accent' />,
+                icon: (
+                  <MessageSquare
+                    className={getClasses({
+                      base: 'h-8 w-8',
+                      business: 'text-primary',
+                      neonLight: 'text-accent2',
+                      neonDark: 'text-accent',
+                    })}
+                  />
+                ),
                 title: 'Natural Conversations',
                 description: 'Chat with your documents using natural language questions.',
               },
               {
-                icon: <FileText className='h-8 w-8 text-accent2 dark:text-accent' />,
+                icon: (
+                  <FileText
+                    className={getClasses({
+                      base: 'h-8 w-8',
+                      business: 'text-primary',
+                      neonLight: 'text-accent2',
+                      neonDark: 'text-accent',
+                    })}
+                  />
+                ),
                 title: 'Secure & Private',
                 description: 'Your documents are encrypted and securely stored.',
               },
             ].map((benefit, index) => (
               <div
                 key={index}
-                className='flex items-start space-x-4 rounded-lg border border-accent2/10 bg-light-100/70 p-6 shadow transition-all hover:bg-light-200/80 hover:shadow-md dark:border-accent/10 dark:bg-dark-700/70 dark:hover:bg-dark-600/80'
+                className={getClasses({
+                  base: 'flex items-start space-x-4 rounded-lg border p-6 shadow transition-all hover:shadow-md',
+                  business: 'border-border bg-card hover:bg-muted/50',
+                  neonLight: 'border-accent2/10 bg-light-100/70 hover:bg-light-200/80',
+                  neonDark: 'border-accent/10 bg-dark-700/70 hover:bg-dark-600/80',
+                })}
               >
                 <div className='mt-1 flex-shrink-0'>{benefit.icon}</div>
                 <div>
-                  <h3 className='text-lg font-bold text-dark-800 dark:text-light-200'>
+                  <h3
+                    className={getClasses({
+                      base: 'text-lg font-bold',
+                      business: 'text-foreground',
+                      neonLight: 'text-dark-800',
+                      neonDark: 'text-light-200',
+                    })}
+                  >
                     {benefit.title}
                   </h3>
-                  <p className='mt-2 text-dark-700 dark:text-light-300'>{benefit.description}</p>
+                  <p
+                    className={getClasses({
+                      base: 'mt-2',
+                      business: 'text-muted-foreground',
+                      neonLight: 'text-dark-700',
+                      neonDark: 'text-light-300',
+                    })}
+                  >
+                    {benefit.description}
+                  </p>
                 </div>
               </div>
             ))}
@@ -412,7 +659,8 @@ const LandingPage = () => {
         className={getClasses({
           base: 'w-full py-12 md:py-18 lg:py-24',
           business: 'bg-muted/50',
-          neon: 'bg-gradient-to-r from-accent/20 to-accent2/20 dark:from-accent3/20 dark:to-accent4/20',
+          neonLight: 'bg-gradient-to-r from-accent/20 to-accent2/20',
+          neonDark: 'from-neon2-dark-900/60 to-neon-dark-900/60 bg-gradient-to-r',
         })}
       >
         <div className='container px-4 md:px-6'>

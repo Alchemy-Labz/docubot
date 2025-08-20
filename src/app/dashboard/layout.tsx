@@ -32,7 +32,7 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
               className={getClasses({
                 base: 'flex-1 overflow-hidden',
                 business: 'bg-background',
-                neon: 'bg-gradient-to-br from-accent2/40 to-accent/40 dark:from-accent3/30 dark:to-accent4/30',
+                neon: 'bg-gradient-to-br from-accent2/40 to-accent/40',
               })}
             >
               {children}

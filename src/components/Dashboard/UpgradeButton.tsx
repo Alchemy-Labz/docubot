@@ -47,7 +47,7 @@ const UpgradeButton = () => {
             className={getClasses({
               base: 'ml-2',
               business: 'text-green-600',
-              neon: 'text-green-500',
+              neon: 'text-accent',
             })}
           />
         </Link>
@@ -63,7 +63,7 @@ const UpgradeButton = () => {
       className={getClasses({
         base: '',
         business: 'border-border bg-secondary',
-        neon: 'border-accent bg-accent2',
+        neon: 'border-accent bg-accent',
       })}
     >
       {isPending ? (

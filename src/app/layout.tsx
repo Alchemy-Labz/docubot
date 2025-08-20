@@ -38,7 +38,7 @@ export default function RootLayout({
             appearance={{
               baseTheme: undefined, // Let it adapt to system theme
               variables: {
-                colorPrimary: '#5029a6',
+                colorPrimary: '#7a55d4', // Use darker purple that works better in both themes
               },
             }}
             signInFallbackRedirectUrl='/dashboard'

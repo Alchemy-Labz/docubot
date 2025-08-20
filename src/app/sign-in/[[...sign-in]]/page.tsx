@@ -41,11 +41,11 @@ export default function SignInPage() {
     );
   }
   return (
-    <div className='flex min-h-screen items-center justify-center bg-gradient-to-b from-light-100 via-accent2/30 to-accent/40 px-4 py-16 transition-colors duration-300 dark:from-dark-900 dark:via-dark-800 dark:to-accent3/30 sm:px-6 lg:px-8'>
+    <div className='flex min-h-screen items-center justify-center bg-gradient-to-b from-light-100 via-accent2/30 to-accent/40 px-4 py-16 transition-colors duration-300 dark:from-dark-900 dark:via-dark-800 dark:to-accent/30 sm:px-6 lg:px-8'>
       <div className='relative mx-auto max-w-6xl'>
         {/* Decorative elements */}
-        <div className='absolute -left-20 top-1/3 -z-10 h-80 w-80 rounded-full bg-gradient-to-br from-accent2/40 to-accent3/30 blur-3xl dark:from-accent2/20 dark:to-accent3/10' />
-        <div className='absolute -bottom-10 -right-20 -z-10 h-96 w-96 rounded-full bg-gradient-to-tl from-accent/30 to-accent4/20 blur-3xl dark:from-accent/20 dark:to-accent4/10' />
+        <div className='absolute -left-20 top-1/3 -z-10 h-80 w-80 rounded-full bg-gradient-to-br from-accent2/40 to-accent/30 blur-3xl dark:from-accent2/20 dark:to-accent/10' />
+        <div className='absolute -bottom-10 -right-20 -z-10 h-96 w-96 rounded-full bg-gradient-to-tl from-accent/30 to-primary/20 blur-3xl dark:from-accent/20 dark:to-primary/10' />
 
         <div className='grid grid-cols-1 gap-0 overflow-hidden rounded-3xl border border-dark-300/50 bg-white/50 shadow-xl backdrop-blur-sm dark:border-light-600/30 dark:bg-dark-800/50 lg:grid-cols-2'>
           {/* Left Panel - Information */}
