@@ -34,7 +34,7 @@ const LandingPage = () => {
         base: 'flex flex-col items-center overflow-x-auto',
         business: 'bg-background',
         neonLight: 'bg-gradient-to-br from-accent2/40 to-accent/40',
-        neonDark: 'from-neon2-dark-900/30 to-neon-dark-900/30 bg-gradient-to-br',
+        neonDark: 'bg-gradient-to-br from-slate-900/50 to-slate-800/50',
       })}
     >
       {/* Hero Section */}
@@ -43,7 +43,7 @@ const LandingPage = () => {
           base: 'relative w-full py-12 md:py-18 md:pl-8 lg:py-24',
           business: '',
           neonLight: '',
-          neonDark: 'from-neon2-dark-900/40 to-neon-dark-900/40 bg-gradient-to-br',
+          neonDark: 'bg-gradient-to-br from-slate-900/60 to-slate-800/60',
         })}
       >
         <div className='container flex max-w-[1500px] flex-col items-center justify-center space-y-4 px-4 md:px-6'>
@@ -112,7 +112,7 @@ const LandingPage = () => {
                       base: 'flex flex-col items-start gap-2 rounded-lg border px-3 py-2 shadow-md transition hover:shadow-xl sm:flex-row sm:items-center sm:gap-3 sm:py-1',
                       business: 'border-border bg-card',
                       neonLight: 'border-accent2/60 bg-light-500',
-                      neonDark: 'border-accent/40 bg-dark-600',
+                      neonDark: 'border-accent/40 bg-slate-800/80',
                     })}
                   >
                     <span
@@ -169,7 +169,7 @@ const LandingPage = () => {
                     base: 'max-w-[600px] md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed',
                     business: 'text-muted-foreground',
                     neonLight: 'text-dark-700',
-                    neonDark: 'text-light-300',
+                    neonDark: 'text-slate-300',
                   })}
                 >
                   Upload your documents and let DocuBot answer all your questions using advanced AI
@@ -184,7 +184,7 @@ const LandingPage = () => {
                   className={getClasses({
                     base: '',
                     business: 'bg-primary text-primary-foreground hover:bg-primary/90',
-                    neon: 'bg-accent text-light-100 hover:bg-accent2',
+                    neon: 'bg-accent font-semibold text-slate-900 hover:bg-accent/60',
                   })}
                 >
                   <Link href='/dashboard'>
@@ -198,7 +198,7 @@ const LandingPage = () => {
                   className={getClasses({
                     base: '',
                     business: 'border-border text-foreground',
-                    neon: 'border-accent2 text-dark-700 dark:border-accent dark:text-light-300',
+                    neon: 'border-purple-500 text-slate-300 hover:border-green-500',
                   })}
                 >
                   <Link href='#how-it-works'>See How It Works</Link>
@@ -246,7 +246,7 @@ const LandingPage = () => {
                   className={getClasses({
                     base: '',
                     business: 'text-muted-foreground',
-                    neon: 'text-dark-600 dark:text-light-400',
+                    neon: 'text-slate-400',
                   })}
                 >
                   Trusted by thousands of users worldwide
@@ -273,7 +273,7 @@ const LandingPage = () => {
               base: 'h-16 w-screen',
               business: 'fill-muted/30',
               neonLight: 'fill-light-400/30',
-              neonDark: 'fill-neon2-dark-800/50',
+              neonDark: 'fill-slate-700/50',
             })}
             preserveAspectRatio='none'
             aria-hidden='true'
@@ -289,7 +289,7 @@ const LandingPage = () => {
           base: 'w-full py-12 md:py-18 lg:py-24',
           business: 'bg-muted/30',
           neonLight: 'bg-light-500/70',
-          neonDark: 'bg-neon2-dark-900/80',
+          neonDark: 'bg-slate-800/80',
         })}
       >
         <div className='mx-auto max-w-7xl space-y-4 px-4 sm:px-6 lg:px-8'>
@@ -297,7 +297,7 @@ const LandingPage = () => {
             className={getClasses({
               base: 'mx-auto flex w-64 items-center justify-center rounded-lg px-3 py-1 text-sm',
               business: 'bg-primary text-primary-foreground',
-              neon: 'bg-accent text-light-100',
+              neon: 'bg-accent font-semibold text-slate-900',
             })}
           >
             AI-Powered Document Analysis
@@ -307,7 +307,7 @@ const LandingPage = () => {
               className={getClasses({
                 base: 'text-3xl font-bold tracking-tight sm:text-4xl',
                 business: 'text-foreground',
-                neon: 'text-dark-800 dark:text-light-200',
+                neon: 'text-slate-100',
               })}
             >
               Powerful Features
@@ -316,7 +316,7 @@ const LandingPage = () => {
               className={getClasses({
                 base: 'mx-auto mt-4 max-w-2xl text-lg',
                 business: 'text-muted-foreground',
-                neon: 'text-dark-700 dark:text-light-300',
+                neon: 'text-slate-300',
               })}
             >
               Everything you need to extract knowledge from your documents
@@ -337,7 +337,7 @@ const LandingPage = () => {
           base: 'w-full py-12 md:py-18 lg:py-24',
           business: 'bg-muted/30',
           neonLight: 'bg-light-500/70',
-          neonDark: 'bg-dark-700/50',
+          neonDark: 'bg-slate-900/50',
         })}
       >
         <div className='container px-4 md:px-6'>
@@ -348,7 +348,7 @@ const LandingPage = () => {
                   base: 'inline-block rounded-lg px-3 py-1 text-sm',
                   business: 'bg-primary text-primary-foreground',
                   neonLight: 'bg-accent text-light-100',
-                  neonDark: 'bg-accent text-dark-900',
+                  neonDark: 'bg-accent font-semibold text-slate-900',
                 })}
               >
                 AI-Powered Document Analysis
@@ -358,7 +358,7 @@ const LandingPage = () => {
                   base: 'text-3xl font-bold tracking-tighter sm:text-5xl',
                   business: 'text-foreground',
                   neonLight: 'text-dark-800',
-                  neonDark: 'text-light-200',
+                  neonDark: 'text-slate-100',
                 })}
               >
                 How DocuBot Works
@@ -368,7 +368,7 @@ const LandingPage = () => {
                   base: 'max-w-[900px] md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed',
                   business: 'text-muted-foreground',
                   neonLight: 'text-dark-700',
-                  neonDark: 'text-light-300',
+                  neonDark: 'text-slate-300',
                 })}
               >
                 Our advanced AI technology transforms static documents into interactive knowledge
@@ -382,7 +382,7 @@ const LandingPage = () => {
                 base: 'flex flex-col items-center space-y-2 rounded-lg border p-6 shadow-xl',
                 business: 'border-border bg-card',
                 neonLight: 'border-accent2/60 bg-light-500/70',
-                neonDark: 'border-accent/40 bg-dark-700/85',
+                neonDark: 'border-accent/40 bg-slate-800/85',
               })}
             >
               <Rocket
@@ -398,7 +398,7 @@ const LandingPage = () => {
                   base: 'text-xl font-bold',
                   business: 'text-foreground',
                   neonLight: 'text-dark-800',
-                  neonDark: 'text-light-200',
+                  neonDark: 'text-slate-100',
                 })}
               >
                 1. Upload & Ingest
@@ -408,7 +408,7 @@ const LandingPage = () => {
                   base: 'text-center',
                   business: 'text-muted-foreground',
                   neonLight: 'text-dark-700',
-                  neonDark: 'text-light-300',
+                  neonDark: 'text-slate-300',
                 })}
               >
                 Securely upload your PDF documents to DocuBot. Each document is automatically
@@ -437,7 +437,7 @@ const LandingPage = () => {
                   base: 'text-xl font-bold',
                   business: 'text-foreground',
                   neonLight: 'text-dark-800',
-                  neonDark: 'text-light-200',
+                  neonDark: 'text-slate-100',
                 })}
               >
                 2. RAG & Reranking
@@ -447,7 +447,7 @@ const LandingPage = () => {
                   base: 'text-center',
                   business: 'text-muted-foreground',
                   neonLight: 'text-dark-700',
-                  neonDark: 'text-light-300',
+                  neonDark: 'text-slate-300',
                 })}
               >
                 DocuBot uses Retrieval-Augmented Generation (RAG) and Pinecone-powered results
@@ -467,7 +467,7 @@ const LandingPage = () => {
                   base: 'h-12 w-12',
                   business: 'text-primary',
                   neonLight: 'text-accent',
-                  neonDark: 'text-primary',
+                  neonDark: 'text-accent',
                 })}
               />
               <h3
@@ -475,7 +475,7 @@ const LandingPage = () => {
                   base: 'text-xl font-bold',
                   business: 'text-foreground',
                   neonLight: 'text-dark-800',
-                  neonDark: 'text-light-200',
+                  neonDark: 'text-slate-100',
                 })}
               >
                 3. Chat & Extract Insights
@@ -485,7 +485,7 @@ const LandingPage = () => {
                   base: 'text-center',
                   business: 'text-muted-foreground',
                   neonLight: 'text-dark-700',
-                  neonDark: 'text-light-300',
+                  neonDark: 'text-slate-300',
                 })}
               >
                 Ask questions in natural language and receive instant, context-aware answers.
@@ -498,7 +498,7 @@ const LandingPage = () => {
             <Button
               asChild
               size='lg'
-              className='text-accent2-foreground bg-accent2 hover:bg-accent'
+              className='bg-accent font-semibold text-slate-900 hover:bg-green-400'
             >
               <Link href='/dashboard'>Start Using DocuBot Now</Link>
             </Button>
@@ -512,7 +512,7 @@ const LandingPage = () => {
           base: 'w-full py-12 md:py-18 lg:py-24',
           business: 'bg-muted/30',
           neonLight: 'bg-light-200/30',
-          neonDark: 'bg-neon2-dark-900/70',
+          neonDark: 'bg-slate-800/70',
         })}
       >
         <div className='mx-auto max-w-7xl px-4 sm:px-6 lg:px-8'>
@@ -522,7 +522,7 @@ const LandingPage = () => {
                 base: 'text-3xl font-bold tracking-tight sm:text-4xl',
                 business: 'text-foreground',
                 neonLight: 'text-dark-800',
-                neonDark: 'text-light-200',
+                neonDark: 'text-slate-100',
               })}
             >
               Why Choose DocuBot?
@@ -538,7 +538,7 @@ const LandingPage = () => {
                       base: 'h-8 w-8',
                       business: 'text-primary',
                       neonLight: 'text-accent2',
-                      neonDark: 'text-accent',
+                      neonDark: 'text-accent/80',
                     })}
                   />
                 ),
@@ -580,7 +580,7 @@ const LandingPage = () => {
                       base: 'h-8 w-8',
                       business: 'text-primary',
                       neonLight: 'text-accent2',
-                      neonDark: 'text-accent',
+                      neonDark: 'text-accent2',
                     })}
                   />
                 ),
@@ -608,7 +608,7 @@ const LandingPage = () => {
                       base: 'h-8 w-8',
                       business: 'text-primary',
                       neonLight: 'text-accent2',
-                      neonDark: 'text-accent',
+                      neonDark: 'text-accent2',
                     })}
                   />
                 ),
@@ -622,7 +622,7 @@ const LandingPage = () => {
                   base: 'flex items-start space-x-4 rounded-lg border p-6 shadow transition-all hover:shadow-md',
                   business: 'border-border bg-card hover:bg-muted/50',
                   neonLight: 'border-accent2/10 bg-light-100/70 hover:bg-light-200/80',
-                  neonDark: 'border-accent/10 bg-dark-700/70 hover:bg-dark-600/80',
+                  neonDark: 'border-accent/20 bg-slate-800/70 hover:bg-slate-700/80',
                 })}
               >
                 <div className='mt-1 flex-shrink-0'>{benefit.icon}</div>
@@ -632,7 +632,7 @@ const LandingPage = () => {
                       base: 'text-lg font-bold',
                       business: 'text-foreground',
                       neonLight: 'text-dark-800',
-                      neonDark: 'text-light-200',
+                      neonDark: 'text-slate-100',
                     })}
                   >
                     {benefit.title}
@@ -642,7 +642,7 @@ const LandingPage = () => {
                       base: 'mt-2',
                       business: 'text-muted-foreground',
                       neonLight: 'text-dark-700',
-                      neonDark: 'text-light-300',
+                      neonDark: 'text-slate-300',
                     })}
                   >
                     {benefit.description}
@@ -660,7 +660,7 @@ const LandingPage = () => {
           base: 'w-full py-12 md:py-18 lg:py-24',
           business: 'bg-muted/50',
           neonLight: 'bg-gradient-to-r from-accent/20 to-accent2/20',
-          neonDark: 'from-neon2-dark-900/60 to-neon-dark-900/60 bg-gradient-to-r',
+          neonDark: 'bg-gradient-to-r from-slate-900/60 to-slate-800/60',
         })}
       >
         <div className='container px-4 md:px-6'>
@@ -670,7 +670,7 @@ const LandingPage = () => {
                 className={getClasses({
                   base: 'text-3xl font-bold tracking-tighter sm:text-5xl',
                   business: 'text-foreground',
-                  neon: 'text-dark-800 dark:text-light-200',
+                  neon: 'text-slate-100',
                 })}
               >
                 Ready to Transform Your Document Experience?
@@ -679,7 +679,7 @@ const LandingPage = () => {
                 className={getClasses({
                   base: 'max-w-[900px] md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed',
                   business: 'text-muted-foreground',
-                  neon: 'text-dark-700 dark:text-light-300',
+                  neon: 'text-slate-300',
                 })}
               >
                 Join thousands of professionals who are saving time and gaining insights with
@@ -693,7 +693,7 @@ const LandingPage = () => {
                 className={getClasses({
                   base: 'w-full sm:w-auto',
                   business: 'bg-primary text-primary-foreground hover:bg-primary/90',
-                  neon: 'bg-accent text-light-100 hover:bg-accent2',
+                  neon: 'bg-accent font-semibold text-slate-900 hover:bg-accent',
                 })}
               >
                 <Link href='/dashboard'>Try DocuBot for Free</Link>
@@ -705,7 +705,7 @@ const LandingPage = () => {
                 className={getClasses({
                   base: 'w-full sm:w-auto',
                   business: 'border-border text-foreground',
-                  neon: 'border-accent2 text-dark-700 dark:border-accent dark:text-light-300',
+                  neon: 'border-accent2 text-slate-300 hover:border-accent',
                 })}
               >
                 <Link href='/pricing'>View Pricing</Link>
@@ -715,7 +715,7 @@ const LandingPage = () => {
               className={getClasses({
                 base: 'text-sm',
                 business: 'text-muted-foreground',
-                neon: 'text-dark-600 dark:text-light-400',
+                neon: 'text-slate-400',
               })}
             >
               No credit card required. Start with our free plan today.

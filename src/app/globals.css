@@ -124,46 +124,46 @@
 
   /* Neon Dark Theme - Creative dark mode with vibrant neon accents */
   .neon-dark {
-    /* Much darker background with deep purple-green blend */
-    --background: 270 40% 4%; /* Much deeper purple-green blend background */
-    --foreground: 120 20% 92%; /* Slightly muted light green-tinted foreground */
+    /* Deep blue-gray background matching screenshots */
+    --background: 220 25% 8%; /* Deep blue-gray background #1a1f2e */
+    --foreground: 210 15% 95%; /* Clean white text */
 
-    /* Cards with darker purple-green blend */
-    --card: 270 35% 7%; /* Darker purple-green blend for cards */
-    --card-foreground: 120 20% 92%;
+    /* Cards with darker blue-gray background */
+    --card: 220 30% 12%; /* Darker blue-gray for cards #252b3d */
+    --card-foreground: 210 15% 95%;
 
-    --popover: 270 35% 7%;
-    --popover-foreground: 120 20% 92%;
+    --popover: 220 30% 12%;
+    --popover-foreground: 210 15% 95%;
 
     /* Primary uses darker neon green for better dark mode integration */
     --primary: 75 80% 27%; /* Darker but still vibrant neon green #88c022 */
     --primary-foreground: 270 40% 4%;
 
-    /* Secondary with darker purple-green blend */
-    --secondary: 270 25% 12%; /* Darker purple-green blended secondary */
-    --secondary-foreground: 120 20% 92%;
+    /* Secondary with blue-gray blend */
+    --secondary: 220 25% 15%; /* Blue-gray secondary */
+    --secondary-foreground: 210 15% 95%;
 
-    /* Muted with darker purple-green blend */
-    --muted: 270 22% 10%; /* Much darker purple-green blended muted */
-    --muted-foreground: 120 15% 70%; /* Muted green-tinted text for better readability */
+    /* Muted with blue-gray blend */
+    --muted: 220 20% 10%; /* Darker blue-gray muted */
+    --muted-foreground: 210 10% 70%; /* Muted text for better readability */
 
-    /* Accent uses darker neon purple for better dark mode integration */
-    --accent: 258 70% 42%; /* Darker neon purple #7a55d4 */
-    --accent-foreground: 270 40% 4%;
+    /* Accent uses bright purple for secondary elements */
+    --accent: 270 100% 70%; /* Bright purple #9966ff */
+    --accent-foreground: 220 25% 8%;
 
     --destructive: 0 62.8% 50%;
-    --destructive-foreground: 120 20% 92%;
+    --destructive-foreground: 210 15% 95%;
 
     /* Borders with darker purple-green blend */
     --border: 270 25% 15%; /* Darker purple-green blended borders */
     --input: 270 25% 15%;
     --ring: 75 80% 27%; /* Darker neon green focus rings */
 
-    /* Legacy color variables - updated for much darker purple-green blend */
+    /* Legacy color variables - updated for blue-gray blend */
     --color-light-bg: #566573;
     --color-light-fg: #5e6060;
-    --color-dark-bg: #0f0d1a; /* Much deeper purple-green blend */
-    --color-dark-fg: #e0f0e0; /* Light green-tinted text */
+    --color-dark-bg: #1a1f2e; /* Deep blue-gray background */
+    --color-dark-fg: #f0f2f5; /* Clean light text */
   }
 
   /* Legacy dark class removed - now using specific theme classes */

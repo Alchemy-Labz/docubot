@@ -69,7 +69,7 @@ const config: Config = {
           900: '#202124',
           950: '#171717',
         },
-        // Neon theme colors - creative vibrant palette
+        // Neon theme colors - creative vibrant palette with blue-gray base
         neon: {
           100: '#e8f0cc',
           200: '#d1e299',
@@ -95,27 +95,27 @@ const config: Config = {
           },
         },
         neon2: {
-          100: '#dcd4ed',
-          200: '#b9a9db',
-          300: '#967fca',
-          400: '#7354b8',
-          500: '#5029a6',
-          600: '#402185',
-          700: '#301964',
-          800: '#201042',
-          900: '#100821',
-          // Dark theme variants - darker but still vibrant
-          950: '#080410',
+          100: '#e6ccff',
+          200: '#cc99ff',
+          300: '#b366ff',
+          400: '#9933ff',
+          500: '#8000ff', // Bright purple
+          600: '#6600cc',
+          700: '#4d0099',
+          800: '#330066',
+          900: '#1a0033',
+          // Dark theme variants - blue-gray base with bright purple accents
+          950: '#0d0019',
           dark: {
-            100: '#b899e6', // Darker but still bright for dark mode
-            200: '#9977dd', // Muted neon purple
-            300: '#7a55d4', // Primary dark mode purple
-            400: '#5b33cb', // Darker purple
-            500: '#3c11c2', // Deep purple
-            600: '#2d0099', // Very deep purple
-            700: '#1e0066', // Almost black purple
-            800: '#0f0033', // Very dark purple
-            900: '#070019', // Near black purple
+            100: '#cc99ff', // Bright purple for dark mode
+            200: '#b366ff', // Bright purple
+            300: '#9966ff', // Primary bright purple
+            400: '#8000ff', // Bright purple
+            500: '#6600cc', // Medium purple
+            600: '#4d0099', // Deep purple
+            700: '#330066', // Dark purple
+            800: '#1a1f2e', // Blue-gray background
+            900: '#252b3d', // Blue-gray card background
           },
         },
         // Theme-specific accent colors

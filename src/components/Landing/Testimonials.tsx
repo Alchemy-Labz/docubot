@@ -57,14 +57,14 @@ const TestimonialsCarousel = () => {
   };
 
   return (
-    <section className='business-light:bg-background business-dark:bg-background neon-light:bg-gradient-to-br neon-light:from-accent/10 neon-light:to-accent2/10 neon-dark:bg-gradient-to-br neon-dark:from-accent/20 neon-dark:to-accent2/20 w-full py-16'>
+    <section className='business-light:bg-background business-dark:bg-background neon-light:bg-gradient-to-br neon-light:from-accent/10 neon-light:to-accent2/10 neon-dark:bg-gradient-to-br neon-dark:from-accent/60 neon-dark:to-accent2/60 w-full py-16'>
       <div className='mx-auto max-w-6xl px-4 sm:px-6 lg:px-8'>
         {/* Header */}
         <div className='mb-12 text-center'>
-          <h2 className='business-light:text-foreground business-dark:text-foreground neon-light:text-foreground neon-dark:text-foreground text-4xl font-bold tracking-tight sm:text-5xl'>
+          <h2 className='business-light:text-foreground business-dark:text-foreground neon-light:text-foreground neon-dark:text-slate-100 text-4xl font-bold tracking-tight sm:text-5xl'>
             What Our Users Say
           </h2>
-          <p className='business-light:text-muted-foreground business-dark:text-muted-foreground neon-light:text-muted-foreground neon-dark:text-muted-foreground mx-auto mt-4 max-w-2xl text-lg'>
+          <p className='business-light:text-muted-foreground business-dark:text-muted-foreground neon-light:text-muted-foreground neon-dark:text-slate-300 mx-auto mt-4 max-w-2xl text-lg'>
             DocuBot is helping professionals across industries save time and gain insights
           </p>
         </div>
@@ -72,7 +72,7 @@ const TestimonialsCarousel = () => {
         {/* Carousel Container */}
         <div className='relative mx-auto max-w-4xl'>
           {/* Main Testimonial Card */}
-          <div className='business-light:bg-card business-dark:bg-card neon-light:bg-card neon-dark:bg-card relative overflow-hidden rounded-2xl shadow-2xl'>
+          <div className='business-light:bg-card business-dark:bg-card neon-light:bg-card neon-dark:bg-slate-800/80 relative overflow-hidden rounded-2xl shadow-2xl'>
             <div
               className='flex transition-transform duration-500 ease-in-out'
               style={{ transform: `translateX(-${currentIndex * 100}%)` }}
@@ -82,27 +82,27 @@ const TestimonialsCarousel = () => {
                   <div className='flex flex-col items-center text-center'>
                     {/* Quote Icon */}
                     <div className='business-light:bg-primary/10 business-dark:bg-primary/10 neon-light:bg-accent/10 neon-dark:bg-accent/10 mb-6 flex h-12 w-12 items-center justify-center rounded-full'>
-                      <Quote className='business-light:text-primary business-dark:text-primary neon-light:text-accent neon-dark:text-accent h-6 w-6' />
+                      <Quote className='text-accent business-light:text-primary business-dark:text-primary neon-light:text-accent neon-dark:text-accent h-6 w-6' />
                     </div>
 
                     {/* Quote Text */}
-                    <blockquote className='max-w-3xl text-lg leading-relaxed text-slate-700 dark:text-slate-300 md:text-xl'>
+                    <blockquote className='neon-dark:text-slate-300 max-w-3xl text-lg leading-relaxed text-slate-700 md:text-xl'>
                       "{testimonial.text}"
                     </blockquote>
 
                     {/* Author Info */}
                     <div className='mt-8 flex flex-col items-center'>
-                      <div className='flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-purple-600 text-lg font-semibold text-white'>
+                      <div className='flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-accent to-accent2 text-lg font-semibold text-white'>
                         {testimonial.author
                           .split(' ')
                           .map((n) => n[0])
                           .join('')}
                       </div>
                       <div className='mt-3'>
-                        <div className='font-semibold text-slate-900 dark:text-white'>
+                        <div className='neon-dark:text-slate-100 font-semibold text-slate-900'>
                           {testimonial.author}
                         </div>
-                        <div className='text-sm text-slate-500 dark:text-slate-400'>
+                        <div className='neon-dark:text-slate-400 text-sm text-slate-500'>
                           {testimonial.role}
                         </div>
                       </div>
@@ -116,7 +116,7 @@ const TestimonialsCarousel = () => {
           {/* Navigation Buttons */}
           <button
             onClick={goToPrevious}
-            className='absolute left-4 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white shadow-lg transition-all hover:scale-110 hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-slate-700 dark:hover:bg-slate-600'
+            className='absolute left-4 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-accent shadow-lg transition-all hover:scale-110 hover:bg-accent/60 focus:outline-none focus:ring-2 focus:ring-accent2 dark:bg-slate-700 dark:hover:bg-slate-600'
             aria-label='Previous testimonial'
           >
             <ChevronLeft className='h-5 w-5 text-slate-600 dark:text-slate-300' />
@@ -124,7 +124,7 @@ const TestimonialsCarousel = () => {
 
           <button
             onClick={goToNext}
-            className='absolute right-4 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white shadow-lg transition-all hover:scale-110 hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-slate-700 dark:hover:bg-slate-600'
+            className='absolute right-4 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-accent shadow-lg transition-all hover:scale-110 hover:bg-accent/60 focus:outline-none focus:ring-2 focus:ring-accent2 dark:bg-slate-700 dark:hover:bg-slate-600'
             aria-label='Next testimonial'
           >
             <ChevronRight className='h-5 w-5 text-slate-600 dark:text-slate-300' />
@@ -140,7 +140,7 @@ const TestimonialsCarousel = () => {
                 onClick={() => goToSlide(index)}
                 className={`h-3 w-3 rounded-full transition-all focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
                   index === currentIndex
-                    ? 'scale-110 bg-blue-600 dark:bg-blue-400'
+                    ? 'scale-110 bg-accent dark:bg-accent'
                     : 'bg-slate-300 hover:bg-slate-400 dark:bg-slate-600 dark:hover:bg-slate-500'
                 }`}
                 aria-label={`Go to testimonial ${index + 1}`}
